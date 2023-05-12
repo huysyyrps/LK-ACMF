@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- 自定义TextView属性   -->
+    <style name="tvTitle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/theme_color</item>
+        <item name="android:layout_marginTop">1dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">12dp</item>
+        <item name="android:paddingLeft">4dp</item>
+    </style>
+
+    <!-- 自定义BaseButton属性   -->
+    <style name="BaseButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">25dp</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:textSize">13dp</item>
+        <item name="lineHeight">13dp</item>
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:paddingTop">0dp</item>
+    </style>
+
+    <!-- 自定义横向分割线属性   -->
+    <style name="HLine">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/theme_color</item>
+        <item name="android:layout_marginRight">5dp</item>
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_centerVertical">true</item>
+    </style>
+    <!-- 自定义纵向分割线属性   -->
+    <style name="Vine">
+        <item name="android:layout_width">1dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@color/theme_color</item>
+<!--        <item name="android:layout_marginRight">5dp</item>-->
+<!--        <item name="android:layout_marginLeft">5dp</item>-->
+    </style>
+
+    <!-- 配置dialog样式 -->
+    <style name="dialog" parent="@android:style/Theme.Dialog">
+        <item name="windowActionBar">false</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:popupBackground">@android:color/transparent </item>
+        <item name="android:background">@android:color/transparent </item>
+        <item name="android:windowBackground"> @android:color/transparent </item>
+        <!-- <item name="android:backgroundDimEnabled">true</item> -->
+    </style>
+
+    <style name="linlayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:layout_marginTop">1dp</item>
+    </style>
+    <style name="linlayin">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginRight">1dp</item>
+        <item name="android:background">@color/theme_back_color</item>
+    </style>
+    <style name="headerRelativeLayout">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">25dp</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:background">@color/theme_back_color</item>
+        <item name="android:layout_marginBottom">1dp</item>
+    </style>
+    <style name="headerText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:textSize">16dp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <!--自定义Dialog Style-->
+    <style name="DialogStyle" parent="@android:style/Theme.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+    </style>
+
+
+
+
+    <!-- 自定义Button控件的属性-->
+    <declare-styleable name="BaseButton">
+        <!-- 背景颜色-->
+        <attr name="bg_color" format="color" />
+        <!-- 圆角大小-->
+        <attr name="bg_corner" format="dimension" />
+        <!-- 是否可以点击-->
+        <attr name="bg_client" format="boolean" />
+    </declare-styleable>
+
+    <!-- 自定义LinLayout控件的属性-->
+    <declare-styleable name="BaseRelativeLayout">
+        <!-- 背景颜色-->
+        <attr name="bg_relative_color" format="color" />
+        <!-- 圆角大小-->
+        <attr name="bg_relative_corner" format="dimension" />
+        <!-- 是否可以点击-->
+        <attr name="bg_relative_client" format="boolean" />
+    </declare-styleable>
+
+    <!--自定义header属性-->
+    <declare-styleable name="DrawerLin">
+        <attr name="drawer_title" format="string" />
+        <attr name="version" format="string" />
+        <attr name="drawer_margin" format="dimension" />
+        <attr name="drawer_image_left" format="reference" />
+        <attr name="drawer_image_right" format="reference" />
+    </declare-styleable>
+
+</resources>

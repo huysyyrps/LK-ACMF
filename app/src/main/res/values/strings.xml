@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">LKACMF</string>
+    <string name="btn_sure">确定</string>
+    <string name="btn_cancel">取消</string>
+    <string name="in_project">进入程序</string>
+    <string name="scan_fail">扫描失败</string>
+    <string name="scan_finish">扫描结束</string>
+    <string name="scan_again">未扫描到设备蓝牙，是否重新扫描</string>
+    <string name="connect_again">蓝牙连接失败，是否重新连接</string>
+    <string name="connect_success">已连接</string>
+    <string name="connect_disconnected">连接断开</string>
+    <string name="connect_services_failed">服务发现失败</string>
+    <string name="connect_unknown_status">未知的连接状态</string>
+    <string name="connect_services_discovered">设备服务发现完成</string>
+    <string name="connect_timeout">连接超时</string>
+    <string name="connect_gatt_error">GATT状态码异常</string>
+    <string name="characteristic_notify_enable_failed">特征通知打开失败</string>
+    <string name="characteristic_notify_enable_succeed">通知打开成功</string>
+    <string name="characteristic_write_failed">特征数据写入失败</string>
+    <string name="connect_ble">请先连接蓝牙</string>
+    <string name="phone_title">未检测到IC卡，请更换其他设备拨打 0537-2638599</string>
+
+    <string name="start">开始</string>
+    <string name="stop">停止</string>
+    <string name="refresh">刷新</string>
+    <string name="reset">复位</string>
+    <string name="detection_mode">检测模式</string>
+    <string name="calibration">标定</string>
+    <string name="measure">测量</string>
+    <string name="forms">报表</string>
+    <string name="save">保存</string>
+    <string name="setting">设置</string>
+    <string name="request_faile">请求失败</string>
+    <string name="version_check">版本检测</string>
+    <string name="current_version">当前版本</string>
+    <string name="contact_comp">联系我们</string>
+    <string name="exit_project">退出程序</string>
+    <string name="last_version">已是最新版本</string>
+</resources>
