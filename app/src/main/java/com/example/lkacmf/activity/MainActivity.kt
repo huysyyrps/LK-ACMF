@@ -17,16 +17,15 @@ import com.example.lkacmf.network.DownloadApk
 import com.example.lkacmf.util.dialog.MainDialog
 import com.permissionx.guolindev.PermissionX
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.dialog_scan_again.*
 import kotlinx.android.synthetic.main.drawer_item.view.*
 
 
 class MainActivity : BaseActivity(), View.OnClickListener {
     //dialog
-    private lateinit var dialog : MaterialDialog
     private lateinit var serviceUuid : String
     private var isConnect : Boolean = false
     private var version : String = "1.0.0"
+    private lateinit var dialog : MaterialDialog
 
     companion object {
         fun actionStart(context: Context) {
@@ -39,8 +38,8 @@ class MainActivity : BaseActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        requestPermission()
-        MainDialog().initProgressDialog(this)
+//        dialog = MainDialog().initProgressDialog(this)
+//        requestPermission()
         btn.setOnClickListener(this)
         imageView.setOnClickListener(this)
         linSetting.setOnClickListener(this)
@@ -83,55 +82,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
-//    /**
-//     * 初始化扫描dialog
-//     */
-//    private fun initProgressDialog(){
-//        dialog = MaterialDialog(this)
-//            .cancelable(false)
-//            .show{
-//            customView(	//自定义弹窗
-//                viewRes = R.layout.progress_dialog,//自定义文件
-//                dialogWrapContent = true,	//让自定义宽度生效
-//                scrollable = true,			//让自定义宽高生效
-//                noVerticalPadding = true    //让自定义高度生效
-//            )
-//            cornerRadius(16f)
-//        }
-//    }
-
-//    /**
-//     * 初始化重新扫描扫描dialog
-//     */
-//    private fun initScanAgainDialog(stater:String){
-//        dialog = MaterialDialog(this)
-//            .cancelable(false)
-//            .show{
-//                customView(	//自定义弹窗
-//                    viewRes = R.layout.dialog_scan_again,//自定义文件
-//                    dialogWrapContent = true,	//让自定义宽度生效
-//                    scrollable = true,			//让自定义宽高生效
-//                    noVerticalPadding = true    //让自定义高度生效
-//                )
-//                cornerRadius(16f)
-//            }
-//        if (stater=="scan"){
-//            dialog.etWorkPipe.hint =  resources.getString(R.string.scan_again)
-//        }else if (stater=="connect"){
-//            dialog.etWorkPipe.hint =  resources.getString(R.string.connect_again)
-//        }
-//
-//        dialog.btnCancel.setOnClickListener{
-//            dialog.dismiss()
-//            finish()
-//        }
-//        dialog.btnSure.setOnClickListener{
-//            dialog.dismiss()
-//            initProgressDialog()
-//            bleFuncation()
-//        }
-//    }
-
     /**
         权限申请
     */
@@ -152,7 +102,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                 .request { allGranted, _, deniedList ->
                     if (allGranted) {
                         Log.e("TAG", "所有申请的权限都已通过")
-                        MainDialog().bleFuncation(this)
+                        MainDialog().bleFuncation(this,dialog)
                     } else {
                         Log.e("TAG", "您拒绝了如下权限：$deniedList")
                         finish()
@@ -160,53 +110,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                 }
         }
     }
-
-//    private fun bleFuncation(){
-//        BleContent.initBleScanner(object : BleScanCallBack{
-//            override fun scanFinish(scanFinish: String) {
-//                (R.string.scan_finish).showToast(MyApplication.context)
-//                dialog.dismiss()
-//                MainDialog().initScanAgainDialog("scan",this@MainActivity)
-//            }
-//
-//            override fun scanFail(scanFail: String) {
-//                (R.string.scan_fail).showToast(MyApplication.context)
-//                dialog.dismiss()
-//            }
-//
-//            @SuppressLint("MissingPermission")
-//            override fun scanItem(scanResult: ScanResult) {
-//                if (scanResult.device.name == "E104-BT52-V2.0") {
-//                    if (BleContent.isScaning()) {
-//                        BleContent.stopScaning()
-//                        BleContent.initBleConnector(scanResult,object : BleConnectCallBack{
-//                            override fun onConnectedStater(stater: String) {
-//                                stater.showToast(this@MainActivity)
-//                                dialog.dismiss()
-//                                if (stater!=this@MainActivity.resources.getString(R.string.connect_success)){
-//                                    MainDialog().initScanAgainDialog("connect",this@MainActivity)
-//                                    isConnect = false
-//                                }else{
-//                                    isConnect = true
-//                                    serviceUuid =
-//                                        scanResult.scanRecord?.serviceUuids?.get(0)?.toString().toString()
-//                                    serviceUuid.let {
-//                                        BleContent.readData(it,object : BleReadCallBack{
-//                                            override fun readCallBack(readData: String) {
-//                                                LogUtil.e("TAG","通知数据 = $readData")
-//                                            }
-//
-//                                        })
-//                                    }
-//                                }
-//                            }
-//                        })
-//                    }
-//                }
-//            }
-//
-//        })
-//    }
 
     override fun onDestroy() {
         super.onDestroy()

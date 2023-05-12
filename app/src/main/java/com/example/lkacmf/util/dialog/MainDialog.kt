@@ -42,15 +42,15 @@ class MainDialog {
         }
         dialog.btnSure.setOnClickListener{
             dialog.dismiss()
-            initProgressDialog(activity)
-            bleFuncation(activity)
+            dialog = initProgressDialog(activity)
+            bleFuncation(activity,dialog)
         }
     }
 
     /**
      * 初始化扫描dialog
      */
-    fun initProgressDialog(activity: MainActivity) {
+    fun initProgressDialog(activity: MainActivity):MaterialDialog {
         dialog = MaterialDialog(activity)
             .cancelable(false)
             .show{
@@ -62,9 +62,10 @@ class MainDialog {
                 )
                 cornerRadius(16f)
             }
+        return dialog
     }
 
-    fun bleFuncation(activity: MainActivity) {
+    fun bleFuncation(activity: MainActivity, dialog: MaterialDialog) {
         BleContent.initBleScanner(object : BleScanCallBack {
             override fun scanFinish(scanFinish: String) {
                 (R.string.scan_finish).showToast(MyApplication.context)
@@ -74,7 +75,7 @@ class MainDialog {
 
             override fun scanFail(scanFail: String) {
                 (R.string.scan_fail).showToast(MyApplication.context)
-                dialog.dismiss()
+                this@MainDialog.dialog.dismiss()
             }
 
             @SuppressLint("MissingPermission")
@@ -85,7 +86,7 @@ class MainDialog {
                         BleContent.initBleConnector(scanResult,object : BleConnectCallBack {
                             override fun onConnectedStater(stater: String) {
                                 stater.showToast(activity)
-                                dialog.dismiss()
+                                this@MainDialog.dialog.dismiss()
                                 if (stater!=activity.resources.getString(R.string.connect_success)){
                                     MainDialog().initScanAgainDialog("connect",activity)
                                     isConnect = false
