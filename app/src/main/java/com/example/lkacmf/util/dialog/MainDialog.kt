@@ -1,7 +1,11 @@
 package com.example.lkacmf.util.dialog
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.le.ScanResult
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
 import com.example.lk_epk.util.LogUtil
@@ -9,6 +13,7 @@ import com.example.lkacmf.MyApplication
 import com.example.lkacmf.R
 import com.example.lkacmf.activity.MainActivity
 import com.example.lkacmf.util.*
+import com.permissionx.guolindev.PermissionX
 import kotlinx.android.synthetic.main.dialog_scan_again.*
 
 class MainDialog {
@@ -18,6 +23,36 @@ class MainDialog {
     private lateinit var dialog : MaterialDialog
     private lateinit var serviceUuid : String
     private var isConnect : Boolean = false
+
+    /**
+    权限申请
+     */
+    @RequiresApi(Build.VERSION_CODES.S)
+    fun requestPermission(activity: MainActivity, dialog: MaterialDialog) {
+        val requestList = ArrayList<String>()
+        requestList.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+        requestList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        requestList.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+        requestList.add(Manifest.permission.ACCESS_FINE_LOCATION)
+        if (requestList.isNotEmpty()) {
+            PermissionX.init(activity)
+                .permissions(requestList)
+                .onExplainRequestReason { scope, deniedList ->
+                    val message = "需要您同意以下权限才能正常使用"
+                    scope.showRequestReasonDialog(deniedList, message, "同意", "取消")
+                }
+                .request { allGranted, _, deniedList ->
+                    if (allGranted) {
+                        Log.e("TAG", "所有申请的权限都已通过")
+                        bleFuncation(activity, dialog)
+                    } else {
+                        Log.e("TAG", "您拒绝了如下权限：$deniedList")
+                        activity.finish()
+                    }
+                }
+        }
+    }
+
     fun initScanAgainDialog(stater: String, activity: MainActivity){
         dialog = MaterialDialog(activity)
             .cancelable(false)

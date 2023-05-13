@@ -1,21 +1,20 @@
 package com.example.lkacmf.activity
 
-import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.view.GravityCompat
 import com.afollestad.materialdialogs.MaterialDialog
 import com.example.lkacmf.MyApplication.Companion.context
 import com.example.lkacmf.R
-import com.example.lkacmf.util.*
 import com.example.lkacmf.network.DownloadApk
+import com.example.lkacmf.util.*
 import com.example.lkacmf.util.dialog.MainDialog
-import com.permissionx.guolindev.PermissionX
+import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.drawer_item.view.*
 
@@ -26,6 +25,17 @@ class MainActivity : BaseActivity(), View.OnClickListener {
     private var isConnect : Boolean = false
     private var version : String = "1.0.0"
     private lateinit var dialog : MaterialDialog
+    private val tabItemStr = arrayListOf<String>().apply {
+        add("开始")
+        add("停止")
+        add("刷新")
+        add("复位")
+        add("检测模式")
+        add("标定")
+        add("测量")
+        add("报表")
+        add("保存")
+    }
 
     companion object {
         fun actionStart(context: Context) {
@@ -38,8 +48,17 @@ class MainActivity : BaseActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        tabItemStr.forEachIndexed { index, value ->
+            val tab = tbLayout.newTab()
+            tab.text = value
+            tbLayout.addTab(tab,index,false)
+        }
+        //tabLayout选择监听
+        tabLayoutSelect()
+
 //        dialog = MainDialog().initProgressDialog(this)
-//        requestPermission()
+//        MainDialog().requestPermission(this,dialog)
+
         btn.setOnClickListener(this)
         imageView.setOnClickListener(this)
         linSetting.setOnClickListener(this)
@@ -48,6 +67,17 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         btnFinish.setOnClickListener(this)
         version = BaseProjectVersion().getPackageInfo(context)?.versionName.toString()
         linCurrentVersion.tvVersion.text = version
+    }
+
+    private fun tabLayoutSelect() {
+        tbLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                Toast.makeText(this@MainActivity, tab.text, Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab) {}
+            override fun onTabReselected(tab: TabLayout.Tab) {}
+        })
     }
 
     override fun onClick(v: View?) {
@@ -82,34 +112,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
-    /**
-        权限申请
-    */
-    @RequiresApi(Build.VERSION_CODES.S)
-    private fun requestPermission() {
-        val requestList = ArrayList<String>()
-        requestList.add(Manifest.permission.READ_EXTERNAL_STORAGE)
-        requestList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        requestList.add(Manifest.permission.ACCESS_COARSE_LOCATION)
-        requestList.add(Manifest.permission.ACCESS_FINE_LOCATION)
-        if (requestList.isNotEmpty()) {
-            PermissionX.init(this)
-                .permissions(requestList)
-                .onExplainRequestReason { scope, deniedList ->
-                    val message = "需要您同意以下权限才能正常使用"
-                    scope.showRequestReasonDialog(deniedList, message, "同意", "取消")
-                }
-                .request { allGranted, _, deniedList ->
-                    if (allGranted) {
-                        Log.e("TAG", "所有申请的权限都已通过")
-                        MainDialog().bleFuncation(this,dialog)
-                    } else {
-                        Log.e("TAG", "您拒绝了如下权限：$deniedList")
-                        finish()
-                    }
-                }
-        }
-    }
 
     override fun onDestroy() {
         super.onDestroy()
