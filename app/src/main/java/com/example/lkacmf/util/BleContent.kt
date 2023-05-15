@@ -222,7 +222,7 @@ object BleContent {
                     for (j in characteristics.indices) {
                         val bluetoothGattCharacteristic = characteristics[j]
                         val characteristicUuidString = bluetoothGattCharacteristic.uuid.toString()
-                        LogUtil.e("TAG", characteristicUuidString)
+//                        LogUtil.e("TAG", characteristicUuidString)
                     }
                 }
             }
@@ -257,8 +257,10 @@ object BleContent {
             )
         ) {
             (R.string.characteristic_notify_enable_failed).showToast(MyApplication.context)
+            LogUtil.e("TAG",MyApplication.context.resources.getString(R.string.characteristic_notify_enable_failed))
         } else {
-            (R.string.characteristic_notify_enable_succeed).showToast(MyApplication.context)
+            LogUtil.e("TAG",MyApplication.context.resources.getString(R.string.characteristic_notify_enable_succeed))
+//            bleReadCallBack.readCallBack(MyApplication.context.re)
         }
     }
 
@@ -267,9 +269,10 @@ object BleContent {
      */
     private val onCharacteristicNotifyDataListener =
         OnCharacteristicNotifyDataListener { characteristic, value ->
+            bleReadCallBack.readCallBack(value.toString(Charsets.UTF_8))
 //            showNotifyDataDialog(characteristic, value)
-            LogUtil.e("TAG","特征数据通知回调+"+characteristic.uuid.toString())
-            LogUtil.e("TAG", "特征数据读取回调+"+value.toString(Charsets.UTF_8))
+//            LogUtil.e("TAG","特征数据通知回调+"+characteristic.uuid.toString())
+//            LogUtil.e("TAG", "特征数据读取回调+"+value.toString(Charsets.UTF_8))
         }
 
     /**
@@ -289,6 +292,9 @@ object BleContent {
         )
         if (!succeed) {
             (R.string.characteristic_write_failed).showToast(MyApplication.context)
+            bleWriteCallBack.writeCallBack(MyApplication.context.resources.getString(R.string.characteristic_write_failed))
+        }else{
+            bleWriteCallBack.writeCallBack(MyApplication.context.resources.getString(R.string.characteristic_write_success))
         }
     }
 

@@ -17,8 +17,11 @@
     <string name="characteristic_notify_enable_failed">特征通知打开失败</string>
     <string name="characteristic_notify_enable_succeed">通知打开成功</string>
     <string name="characteristic_write_failed">特征数据写入失败</string>
+    <string name="characteristic_write_success">特征数据写入成功</string>
     <string name="connect_ble">请先连接蓝牙</string>
     <string name="phone_title">未检测到IC卡，请更换其他设备拨打 0537-2638599</string>
+    <string name="ble_not_supported">本设备不支持蓝牙</string>
+    <string name="ble_open_fail">蓝牙打开失败，请手动开启后重启程序</string>
 
     <string name="start">开始</string>
     <string name="stop">停止</string>
