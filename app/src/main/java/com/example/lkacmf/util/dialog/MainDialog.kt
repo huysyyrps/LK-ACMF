@@ -8,13 +8,13 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
-import com.example.lk_epk.util.LogUtil
 import com.example.lkacmf.MyApplication
 import com.example.lkacmf.R
 import com.example.lkacmf.activity.MainActivity
-import com.example.lkacmf.data.CharacteristicUuid
-import com.example.lkacmf.data.CharacteristicUuid.ConstantCharacteristicUuid
 import com.example.lkacmf.util.*
+import com.example.lkacmf.util.ble.BleConnectCallBack
+import com.example.lkacmf.util.ble.BleContent
+import com.example.lkacmf.util.ble.BleScanCallBack
 import com.permissionx.guolindev.PermissionX
 import kotlinx.android.synthetic.main.dialog_scan_again.*
 import kotlin.collections.ArrayList
@@ -123,6 +123,7 @@ class MainDialog {
                     if (BleContent.isScaning()) {
                         BleContent.stopScaning()
                         BleContent.initBleConnector(scanResult, object : BleConnectCallBack {
+                            @RequiresApi(Build.VERSION_CODES.O)
                             override fun onConnectedStater(stater: String) {
                                 stater.showToast(activity)
                                 if (stater != activity.resources.getString(R.string.connect_success)) {
@@ -130,8 +131,8 @@ class MainDialog {
                                     dialog.dismiss()
                                 } else {
                                     //连接成功
-                                    MainActivity().writeHandData()
                                     dialog.dismiss()
+                                    MainActivity().writeHandData()
                                 }
                             }
                         })
@@ -140,22 +141,4 @@ class MainDialog {
             }
         })
     }
-
-
-//    public fun readWriteDara() {
-////        Thread.sleep(1000)
-////        dialog.dismiss()
-////        BleContent.readData(ConstantCharacteristicUuid, object : BleReadCallBack {
-////            override fun readCallBack(readData: String) {
-////                LogUtil.e("TAG", "通知数据获取 = $readData")
-////            }
-////        })
-//        BleContent.writeData("AE011417050BEA",
-//            ConstantCharacteristicUuid, object : BleWriteCallBack {
-//                override fun writeCallBack(writeBackData: String) {
-//                    LogUtil.e("TAG", "写入数据回调 = $writeBackData")
-//                }
-//
-//            })
-//    }
 }

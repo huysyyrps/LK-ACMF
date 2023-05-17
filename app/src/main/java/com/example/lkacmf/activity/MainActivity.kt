@@ -1,44 +1,41 @@
 package com.example.lkacmf.activity
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
-import com.afollestad.materialdialogs.MaterialDialog
 import com.example.lk_epk.util.LogUtil
-import com.example.lkacmf.MyApplication
 import com.example.lkacmf.MyApplication.Companion.context
 import com.example.lkacmf.R
 import com.example.lkacmf.data.CharacteristicUuid
 import com.example.lkacmf.network.DownloadApk
-import com.example.lkacmf.util.*
+import com.example.lkacmf.util.BaseActivity
+import com.example.lkacmf.util.BaseProjectVersion
+import com.example.lkacmf.util.BaseTelPhone
+import com.example.lkacmf.util.ble.*
 import com.example.lkacmf.util.dialog.MainDialog
 import com.example.lkacmf.util.linechart.LineChartSetting
+import com.example.lkacmf.util.showToast
 import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.drawer_item.view.*
+import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.properties.Delegates
 
 
-class MainActivity : BaseActivity(), View.OnClickListener {
-    //dialog
-    private lateinit var dialog: MaterialDialog
+class MainActivity : BaseActivity(), View.OnClickListener{
     private var version: String = "1.0.0"
     private var isStart: Boolean = false
     private var iswrite: Boolean = false
@@ -56,7 +53,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         add(context.resources.getString(R.string.forms))
         add(context.resources.getString(R.string.save))
     }
-    var i = 0
 
     companion object {
         fun actionStart(context: Context) {
@@ -65,6 +61,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
+    @SuppressLint("MissingPermission")
     @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,6 +80,8 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             MainDialog().requestPermission(this)
         }
 
+        BleBackDataRead.BleBackDataContext(this)
+
         imageView.setOnClickListener(this)
         linSetting.setOnClickListener(this)
         linVersionCheck.setOnClickListener(this)
@@ -96,38 +95,40 @@ class MainActivity : BaseActivity(), View.OnClickListener {
 
     //控件属性设置
     private fun initView() {
-        Timer().schedule(object : TimerTask() {
-            override fun run() {
-                if (isStart) {
-                    landList.add(Entry(i.toFloat(), ((30..50).random()).toFloat()))
-                    lineDataSet = LineDataSet(landList, "A扫")
-                    //不绘制数据
-                    lineDataSet.setDrawValues(false)
-                    //不绘制圆形指示器
-                    lineDataSet.setDrawCircles(false)
-                    //线模式为圆滑曲线（默认折线）
-//                lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-                    lineDataSet.setColor(context.resources.getColor(R.color.theme_color))
-                    //将数据集添加到数据 ChartData 中
-                    val lineData = LineData(lineDataSet)
-                    //将数据添加到图表中
-                    lineChartBX.data = lineData
-                    lineChartBX.notifyDataSetChanged()
-                    lineChartBX.invalidate()
-
-                    lineChartBZ.data = lineData
-                    lineChartBZ.notifyDataSetChanged()
-                    lineChartBZ.invalidate()
-                    i++
-                }
-            }
-        }, 0, 300)
+//        Timer().schedule(object : TimerTask() {
+//            override fun run() {
+//                if (isStart) {
+//                    landList.add(Entry(i.toFloat(), ((30..50).random()).toFloat()))
+//                    lineDataSet = LineDataSet(landList, "A扫")
+//                    //不绘制数据
+//                    lineDataSet.setDrawValues(false)
+//                    //不绘制圆形指示器
+//                    lineDataSet.setDrawCircles(false)
+//                    //线模式为圆滑曲线（默认折线）
+////                lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
+//                    lineDataSet.setColor(context.resources.getColor(R.color.theme_color))
+//                    //将数据集添加到数据 ChartData 中
+//                    val lineData = LineData(lineDataSet)
+//                    //将数据添加到图表中
+//                    lineChartBX.data = lineData
+//                    lineChartBX.notifyDataSetChanged()
+//                    lineChartBX.invalidate()
+//
+//                    lineChartBZ.data = lineData
+//                    lineChartBZ.notifyDataSetChanged()
+//                    lineChartBZ.invalidate()
+//                    i++
+//                }
+//            }
+//        }, 0, 300)
     }
 
     //写入数据
+    @RequiresApi(Build.VERSION_CODES.O)
     fun writeHandData() {
         Thread.sleep(1500)
-        BleContent.writeData("AE011417050BEA",
+        BleContent.writeData(
+            BleDataMake().makeHandData(),
             CharacteristicUuid.ConstantCharacteristicUuid, object : BleWriteCallBack {
                 override fun writeCallBack(writeBackData: String) {
                     LogUtil.e("TAG", "写入数据回调 = $writeBackData")
@@ -144,7 +145,13 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                 CharacteristicUuid.ConstantCharacteristicUuid,
                 object : BleReadCallBack {
                     override fun readCallBack(readData: String) {
-                        LogUtil.e("TAG", "通知数据获取 = $readData")
+                        LogUtil.e("TAG", "通知数据获取111 = $readData")
+                        //帧头和识别码对应才能解析  读取握手信息
+                        if (readData.length>4&&readData.substring(0,4)=="BE01"){
+                            BleBackDataRead.readHandData(readData)
+                        }else if (readData.length>4&&readData.substring(0,4)=="BE02"){
+                            BleBackDataRead.readEmpowerData(readData)
+                        }
                     }
                 })
         }

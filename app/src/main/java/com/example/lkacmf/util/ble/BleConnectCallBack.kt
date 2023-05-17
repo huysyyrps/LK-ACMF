@@ -1,4 +1,4 @@
-package com.example.lkacmf.util
+package com.example.lkacmf.util.ble
 
 import android.bluetooth.le.ScanResult
 

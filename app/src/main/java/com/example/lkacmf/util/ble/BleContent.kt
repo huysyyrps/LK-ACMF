@@ -1,4 +1,4 @@
-package com.example.lkacmf.util
+package com.example.lkacmf.util.ble
 
 import android.annotation.SuppressLint
 import android.bluetooth.le.ScanResult
@@ -8,6 +8,7 @@ import com.example.lk_epk.util.LogUtil
 import com.example.lkacmf.MyApplication
 import com.example.lkacmf.R
 import com.example.lkacmf.data.CharacteristicUuid
+import com.example.lkacmf.util.showToast
 import com.sscl.baselibrary.utils.getByteArray
 import com.sscl.bluetoothlowenergylibrary.BleManager
 import com.sscl.bluetoothlowenergylibrary.connetor.single.BleSingleConnector
@@ -15,7 +16,6 @@ import com.sscl.bluetoothlowenergylibrary.enums.BleConnectPhyMask
 import com.sscl.bluetoothlowenergylibrary.enums.BleConnectTransport
 import com.sscl.bluetoothlowenergylibrary.intefaces.*
 import com.sscl.bluetoothlowenergylibrary.scanner.BleScanner
-import kotlin.experimental.and
 
 
 object BleContent {
@@ -256,11 +256,9 @@ object BleContent {
                 true
             )
         ) {
-            (R.string.characteristic_notify_enable_failed).showToast(MyApplication.context)
-            LogUtil.e("TAG",MyApplication.context.resources.getString(R.string.characteristic_notify_enable_failed))
+            bleReadCallBack.readCallBack(MyApplication.context.resources.getString(R.string.characteristic_notify_enable_failed))
         } else {
-            LogUtil.e("TAG",MyApplication.context.resources.getString(R.string.characteristic_notify_enable_succeed))
-//            bleReadCallBack.readCallBack(MyApplication.context.re)
+            bleReadCallBack.readCallBack(MyApplication.context.resources.getString(R.string.characteristic_notify_enable_succeed))
         }
     }
 
@@ -280,7 +278,8 @@ object BleContent {
      */
     fun writeData(writeData:String, serviceUuid:String, callBack: BleWriteCallBack){
         bleWriteCallBack = callBack
-        val byteArray = writeData.getByteArray(20)
+//        val byteArray = writeData.getByteArray(20)
+        val byteArray = writeData.getByteArray(50)
         if (byteArray == null) {
             LogUtil.e("TAG","字符串数据：$writeData 格式错误")
             return
@@ -291,7 +290,6 @@ object BleContent {
             byteArray
         )
         if (!succeed) {
-            (R.string.characteristic_write_failed).showToast(MyApplication.context)
             bleWriteCallBack.writeCallBack(MyApplication.context.resources.getString(R.string.characteristic_write_failed))
         }else{
             bleWriteCallBack.writeCallBack(MyApplication.context.resources.getString(R.string.characteristic_write_success))

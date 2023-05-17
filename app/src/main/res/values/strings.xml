@@ -22,6 +22,12 @@
     <string name="phone_title">未检测到IC卡，请更换其他设备拨打 0537-2638599</string>
     <string name="ble_not_supported">本设备不支持蓝牙</string>
     <string name="ble_open_fail">蓝牙打开失败，请手动开启后重启程序</string>
+    <string name="ble_activate_code">请输入激活码</string>
+    <string name="ble_activate_except">获取设备编码异常</string>
+    <string name="ble_activate_error">设备异常，请联系管理员</string>
+    <string name="please_write_ture_activatecode">请输入正确激活码</string>
+    <string name="dont_have_finish_date">请输入正确激活码</string>
+    <string name="ble_activate_title">请复制上部设备码发送到鲁科管理员获取激活码，将激活码复制到下部输入框点击确定即可。</string>
 
     <string name="start">开始</string>
     <string name="stop">停止</string>

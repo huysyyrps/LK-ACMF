@@ -1,8 +1,8 @@
-package com.example.lkacmf.util
+package com.example.lkacmf.util.ble
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.example.lk_epk.util.LogUtil
+import com.example.lkacmf.util.BinaryChange
 import java.util.*
 
 object BaseData {

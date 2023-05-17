@@ -9,4 +9,5 @@ object CharacteristicUuid {
 
     const val CONNECTHEADER = "AE"
     const val CONNECTCODE = "01"
+    const val EMPOWERCODE = "02"
 }
