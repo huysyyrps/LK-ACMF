@@ -14,6 +14,7 @@ import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.view.GravityCompat
+import com.afollestad.materialdialogs.utils.MDUtil.getStringArray
 import com.example.lk_epk.util.LogUtil
 import com.example.lkacmf.MyApplication.Companion.context
 import com.example.lkacmf.R
@@ -31,6 +32,8 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.drawer_item.view.*
+import kotlinx.android.synthetic.main.setting.*
+import java.security.AccessController.getContext
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -151,6 +154,8 @@ class MainActivity : BaseActivity(), View.OnClickListener{
                             BleBackDataRead.readHandData(readData)
                         }else if (readData.length>4&&readData.substring(0,4)=="BE02"){
                             BleBackDataRead.readEmpowerData(readData)
+                        }else if (readData.length>4&&readData.substring(0,4)=="BE03"){
+                            BleBackDataRead.readSettingData(readData)
                         }
                     }
                 })
@@ -201,6 +206,7 @@ class MainActivity : BaseActivity(), View.OnClickListener{
                 drawer_layout.openDrawer(GravityCompat.START)
             }
             R.id.linSetting -> {
+                MainDialog().setConfigDialog(this)
             }
             R.id.linVersionCheck -> {
                 DownloadApk().downloadApk(this, version)

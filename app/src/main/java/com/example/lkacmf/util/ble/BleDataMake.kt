@@ -24,4 +24,13 @@ class BleDataMake {
         var checksum = BaseData.hexStringToBytes(data)
         return "$data$checksum"
     }
+
+    /**
+     * 读取设备参数
+     */
+    fun  makeReadSettingData():String{
+        var data = "${CharacteristicUuid.CONNECTHEADER}${CharacteristicUuid.READSETTINGCODE}000000"
+        var checksum = BaseData.hexStringToBytes(data)
+        return "$data$checksum"
+    }
 }

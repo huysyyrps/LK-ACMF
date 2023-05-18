@@ -4,12 +4,19 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/drawable-xxhdpi/ic_launcher_foreground.xml" value="0.231" />
+        <entry key="..\:/LuKe-item/ACMF/app/src/main/res/drawable/adapter_item_radion.xml" value="0.2755" />
+        <entry key="..\:/LuKe-item/ACMF/app/src/main/res/drawable/ic_launcher_background.xml" value="0.2755" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/drawable/linelayout_backthemecolor_radion.xml" value="0.254" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/drawable/linelayout_color_radion.xml" value="0.2545" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/drawable/linelayout_radion.xml" value="0.1835" />
+        <entry key="..\:/LuKe-item/ACMF/app/src/main/res/drawable/linelayout_themecolor_radion.xml" value="0.2755" />
+        <entry key="..\:/LuKe-item/ACMF/app/src/main/res/drawable/radionbutton_style.xml" value="0.2755" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/drawable/scanning.xml" value="0.23" />
+        <entry key="..\:/LuKe-item/ACMF/app/src/main/res/drawable/shape_full_tab_indicator.xml" value="0.2545" />
+        <entry key="..\:/LuKe-item/ACMF/app/src/main/res/drawable/shape_tab_bg.xml" value="0.2545" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/activity_main.xml" value="0.3380208333333333" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/activity_welcome.xml" value="0.3536458333333333" />
+        <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/adapter_array_item.xml" value="0.3234375" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/adapter_banner_item.xml" value="0.3536458333333333" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/dialog_hand.xml" value="0.3380208333333333" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/dialog_hand_error.xml" value="0.2677083333333333" />
@@ -20,6 +27,7 @@
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/dialog_version_csdn.xml" value="0.20208333333333334" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/drawer_item.xml" value="0.28229166666666666" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/progress_dialog.xml" value="0.3140625" />
+        <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/setting.xml" value="0.30885416666666665" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/view_update_dialog_custom.xml" value="0.3536458333333333" />
       </map>
     </option>

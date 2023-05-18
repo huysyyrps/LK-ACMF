@@ -6,17 +6,22 @@ import android.bluetooth.le.ScanResult
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
+import com.example.lk_epk.util.LogUtil
 import com.example.lkacmf.MyApplication
 import com.example.lkacmf.R
 import com.example.lkacmf.activity.MainActivity
+import com.example.lkacmf.adapter.ArrayAdapter
 import com.example.lkacmf.util.*
 import com.example.lkacmf.util.ble.BleConnectCallBack
 import com.example.lkacmf.util.ble.BleContent
 import com.example.lkacmf.util.ble.BleScanCallBack
 import com.permissionx.guolindev.PermissionX
 import kotlinx.android.synthetic.main.dialog_scan_again.*
+import kotlinx.android.synthetic.main.setting.*
 import kotlin.collections.ArrayList
 
 class MainDialog {
@@ -80,6 +85,34 @@ class MainDialog {
             dialog.dismiss()
             dialog = initProgressDialog(activity)
             bleFuncation(activity)
+        }
+    }
+
+    fun setConfigDialog(activity: MainActivity) {
+        dialog = MaterialDialog(activity)
+            .cancelable(false)
+            .show {
+                customView(    //自定义弹窗
+                    viewRes = R.layout.setting,//自定义文件
+                    dialogWrapContent = true,    //让自定义宽度生效
+                    scrollable = true,            //让自定义宽高生效
+                    noVerticalPadding = true    //让自定义高度生效
+                )
+                cornerRadius(16f)
+            }
+        val gridLayoutManager = GridLayoutManager(activity,4)
+        dialog.recyclerView.layoutManager = gridLayoutManager
+        var dataList = mutableListOf<String>("1","2","3","4","5","6","7","8")
+        var selectList = mutableListOf<Int>(0,3)
+        var adapter = ArrayAdapter(activity,dataList,selectList)
+        dialog.recyclerView.adapter = adapter
+
+        dialog.btnSettingCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+        dialog.btnSettingSure.setOnClickListener {
+            dialog.dismiss()
+           LogUtil.e("TAG","${selectList.size}")
         }
     }
 

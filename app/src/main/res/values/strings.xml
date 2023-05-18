@@ -28,6 +28,8 @@
     <string name="please_write_ture_activatecode">请输入正确激活码</string>
     <string name="dont_have_finish_date">请输入正确激活码</string>
     <string name="ble_activate_title">请复制上部设备码发送到鲁科管理员获取激活码，将激活码复制到下部输入框点击确定即可。</string>
+    <string name="empower_success">授权成功</string>
+    <string name="empower_faile">授权失败</string>
 
     <string name="start">开始</string>
     <string name="stop">停止</string>
@@ -38,7 +40,13 @@
     <string name="measure">测量</string>
     <string name="forms">报表</string>
     <string name="save">保存</string>
+    <string name="rate">设置</string>
+    <string name="array">阵列</string>
     <string name="setting">设置</string>
+
+
+<!--    <string name="setting">探头频率</string>-->
+
     <string name="request_faile">请求失败</string>
     <string name="version_check">版本检测</string>
     <string name="current_version">当前版本</string>
