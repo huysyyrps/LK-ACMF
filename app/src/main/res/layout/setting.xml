@@ -24,6 +24,7 @@
                     android:textSize="16dp" />
 
             <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tabLayout"
                     android:layout_width="match_parent"
                     android:layout_height="45dp"
                     android:layout_gravity="center"
@@ -40,17 +41,17 @@
                 <com.google.android.material.tabs.TabItem
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:text="@string/start" />
+                        android:text="@string/rate1" />
 
                 <com.google.android.material.tabs.TabItem
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:text="@string/stop" />
+                        android:text="@string/rate5" />
 
                 <com.google.android.material.tabs.TabItem
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:text="@string/refresh" />
+                        android:text="@string/rate10" />
             </com.google.android.material.tabs.TabLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>

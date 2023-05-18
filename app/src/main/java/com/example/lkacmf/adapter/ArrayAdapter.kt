@@ -27,17 +27,26 @@ class ArrayAdapter (context: Context, private val dataList: MutableList<String>,
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         var itemData = dataList[position]
         holder.tvArrayNum.text = itemData
-        if (selectList.contains(position)){
+        if (selectList[position]==1){
             holder.tvArrayNum.setBackgroundColor(context.resources.getColor(R.color.theme_back_color))
+        }else if (selectList[position]==0){
+            holder.tvArrayNum.setBackgroundColor(context.resources.getColor(R.color.theme_color))
         }
         holder.tvArrayNum.setOnClickListener{
-            if (selectList.contains(position)){
-                selectList.remove(position)
-                holder.tvArrayNum.setBackgroundColor(context.resources.getColor(R.color.theme_color))
-            }else{
-                selectList.add(position)
+            if (selectList[position]==0){
+                selectList[position] = 1
                 holder.tvArrayNum.setBackgroundColor(context.resources.getColor(R.color.theme_back_color))
+            }else if (selectList[position]==1){
+                selectList[position] = 0
+                holder.tvArrayNum.setBackgroundColor(context.resources.getColor(R.color.theme_color))
             }
+//            if (selectList.contains(position)){
+//                selectList.remove(position)
+//                holder.tvArrayNum.setBackgroundColor(context.resources.getColor(R.color.theme_color))
+//            }else{
+//                selectList.add(position)
+//                holder.tvArrayNum.setBackgroundColor(context.resources.getColor(R.color.theme_back_color))
+//            }
         }
     }
 

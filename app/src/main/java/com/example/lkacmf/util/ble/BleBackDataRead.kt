@@ -180,17 +180,17 @@ object BleBackDataRead {
             when {
                 backData[2]=="00" -> {
                     LogUtil.e("TAG","读取成功")
+                    //hexString转10进制
+                    var rate = String.format("%02x",backData[3].toInt(16)).toUpperCase()
+                    var array = backData[4].toInt(16).toString(2)
+                    while (array.length<8){
+                        array = "0${array}"
+                    }
+                    BaseSharedPreferences.put("rate", rate)
+                    BaseSharedPreferences.put("array", array)
                 }
                 backData[2]=="01" -> {
                     LogUtil.e("TAG","设置成功")
-                    //读取配置
-                    BleContent.writeData(
-                        BleDataMake().makeReadSettingData(),
-                        CharacteristicUuid.ConstantCharacteristicUuid, object : BleWriteCallBack {
-                            override fun writeCallBack(writeBackData: String) {
-                                LogUtil.e("TAG", "写入数据回调 = $writeBackData")
-                            }
-                        })
                 }
                 else -> {
                     initHandErrorDialog(context)

@@ -33,4 +33,13 @@ class BleDataMake {
         var checksum = BaseData.hexStringToBytes(data)
         return "$data$checksum"
     }
+
+    /**
+     * 写入设备参数
+     */
+    fun  makeWriteSettingData(rate: String, array: String):String{
+        var data = "${CharacteristicUuid.CONNECTHEADER}${CharacteristicUuid.READSETTINGCODE}01${rate}${array}"
+        var checksum = BaseData.hexStringToBytes(data)
+        return "$data$checksum"
+    }
 }

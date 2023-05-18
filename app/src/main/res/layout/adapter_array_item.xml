@@ -7,7 +7,7 @@
     <TextView
             android:id="@+id/tvArrayNum"
             android:layout_width="match_parent"
-            android:layout_height="45dp"
+            android:layout_height="47dp"
             android:gravity="center"/>
     <View
             style="@style/HLine"

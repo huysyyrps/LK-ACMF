@@ -7,7 +7,6 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
 import com.example.lk_epk.util.LogUtil
@@ -15,10 +14,9 @@ import com.example.lkacmf.MyApplication
 import com.example.lkacmf.R
 import com.example.lkacmf.activity.MainActivity
 import com.example.lkacmf.adapter.ArrayAdapter
+import com.example.lkacmf.data.CharacteristicUuid
 import com.example.lkacmf.util.*
-import com.example.lkacmf.util.ble.BleConnectCallBack
-import com.example.lkacmf.util.ble.BleContent
-import com.example.lkacmf.util.ble.BleScanCallBack
+import com.example.lkacmf.util.ble.*
 import com.permissionx.guolindev.PermissionX
 import kotlinx.android.synthetic.main.dialog_scan_again.*
 import kotlinx.android.synthetic.main.setting.*
@@ -59,6 +57,9 @@ class MainDialog {
         }
     }
 
+    /**
+     * 扫描弹窗
+     */
     fun initScanAgainDialog(stater: String, activity: MainActivity) {
         dialog = MaterialDialog(activity)
             .cancelable(false)
@@ -83,12 +84,16 @@ class MainDialog {
         }
         dialog.btnSure.setOnClickListener {
             dialog.dismiss()
-            dialog = initProgressDialog(activity)
+//            dialog = initProgressDialog(activity)
             bleFuncation(activity)
         }
     }
 
+    /**
+     * 设置弹窗
+     */
     fun setConfigDialog(activity: MainActivity) {
+        var selectList = mutableListOf<Int>()
         dialog = MaterialDialog(activity)
             .cancelable(false)
             .show {
@@ -100,10 +105,29 @@ class MainDialog {
                 )
                 cornerRadius(16f)
             }
+        var rate = BaseSharedPreferences.get("rate", "")
+        var array = BaseSharedPreferences.get("array", "")
+        when(rate){
+            "01"->{
+                dialog.tabLayout.getTabAt(0)?.select()
+            }
+            "05"->{
+                dialog.tabLayout.getTabAt(1)?.select()
+            }
+            "0A"->{
+                dialog.tabLayout.getTabAt(2)?.select()
+            }
+        }
+        for (i in array.indices){
+            if (array[i].toString()=="0"){
+                selectList.add(0)
+            }else  if (array[i].toString()=="1"){
+                selectList.add(1)
+            }
+        }
         val gridLayoutManager = GridLayoutManager(activity,4)
         dialog.recyclerView.layoutManager = gridLayoutManager
         var dataList = mutableListOf<String>("1","2","3","4","5","6","7","8")
-        var selectList = mutableListOf<Int>(0,3)
         var adapter = ArrayAdapter(activity,dataList,selectList)
         dialog.recyclerView.adapter = adapter
 
@@ -111,8 +135,35 @@ class MainDialog {
             dialog.dismiss()
         }
         dialog.btnSettingSure.setOnClickListener {
+            when(dialog.tabLayout.selectedTabPosition){
+                0->{
+                    rate = "01"
+                    BaseSharedPreferences.put("rate", "01")
+                }
+                1->{
+                    rate = "05"
+                    BaseSharedPreferences.put("rate", "05")
+                }
+                2->{
+                    rate = "0A"
+                    BaseSharedPreferences.put("rate", "0A")
+                }
+            }
+            var item = ""
+            for (i in 0 until selectList.size){
+                item += selectList[i]
+            }
+            BaseSharedPreferences.put("array", item)
+            array = item.toInt(2).toString(16)
+            BleContent.writeData(
+                BleDataMake().makeWriteSettingData(rate,array),
+                CharacteristicUuid.ConstantCharacteristicUuid, object : BleWriteCallBack {
+                    override fun writeCallBack(writeBackData: String) {
+                        LogUtil.e("TAG", "写入设置数据回调 = $writeBackData")
+                    }
+                })
             dialog.dismiss()
-           LogUtil.e("TAG","${selectList.size}")
+
         }
     }
 
@@ -134,6 +185,10 @@ class MainDialog {
         return dialog
     }
 
+
+    /**
+     * 连接
+     */
     fun bleFuncation(
         activity: MainActivity,
     ) {
