@@ -14,6 +14,49 @@ class BinaryChange {
         return Array(data.length / 2) { byteIterator.next() }
     }
 
+    /**
+     * iEEE754转float
+     */
+    fun ieee754ToFloat(ieeData: Int): Float {
+        return java.lang.Float.intBitsToFloat(ieeData)
+    }
+
+    /**
+     * IEEE 754字符串转十六进制字符串
+     *
+     * @param f
+     * @author: 若非
+     * @date: 2021/9/10 16:57
+     */
+    fun singleToHex(f: Float): String? {
+        val i = java.lang.Float.floatToIntBits(f)
+        return Integer.toHexString(i)
+    }
+
+    fun float2byte(f: Float): ByteArray? {
+        // 把float转换为byte[]
+        val fbit = java.lang.Float.floatToIntBits(f)
+        val b = ByteArray(4)
+        for (i in 0..3) {
+            b[i] = (fbit shr 24 - i * 8).toByte()
+        }
+
+        // 翻转数组
+        val len = b.size
+        // 建立一个与源数组元素类型相同的数组
+        val dest = ByteArray(len)
+        // 为了防止修改源数组，将源数组拷贝一份副本
+        System.arraycopy(b, 0, dest, 0, len)
+        var temp: Byte
+        // 将顺位第i个与倒数第i个交换
+        for (i in 0 until len / 2) {
+            temp = dest[i]
+            dest[i] = dest[len - i - 1]
+            dest[len - i - 1] = temp
+        }
+        return dest
+    }
+
 }
 
 //十进制转2进制13->1101

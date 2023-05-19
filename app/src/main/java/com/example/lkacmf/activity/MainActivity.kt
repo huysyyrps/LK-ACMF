@@ -5,8 +5,6 @@ import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.Intent
-import android.location.Location
-import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
@@ -14,7 +12,6 @@ import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.view.GravityCompat
-import com.afollestad.materialdialogs.utils.MDUtil.getStringArray
 import com.example.lk_epk.util.LogUtil
 import com.example.lkacmf.MyApplication.Companion.context
 import com.example.lkacmf.R
@@ -32,8 +29,6 @@ import com.github.mikephil.charting.data.LineDataSet
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.drawer_item.view.*
-import kotlinx.android.synthetic.main.setting.*
-import java.security.AccessController.getContext
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -42,8 +37,11 @@ class MainActivity : BaseActivity(), View.OnClickListener{
     private var version: String = "1.0.0"
     private var isStart: Boolean = false
     private var iswrite: Boolean = false
-    private lateinit var lineDataSet: LineDataSet
-    private var landList: ArrayList<Entry> = ArrayList()
+//    private lateinit var lineChartBX:BaseLineChart
+    private lateinit var lineBXSet: LineDataSet
+    private lateinit var lineBZSet: LineDataSet
+    private var landBXList: ArrayList<Entry> = ArrayList()
+    private var landBZList: ArrayList<Entry> = ArrayList()
     private var bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
     private val tabItemStr = arrayListOf<String>().apply {
         add(context.resources.getString(R.string.start))
@@ -69,6 +67,7 @@ class MainActivity : BaseActivity(), View.OnClickListener{
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+//        lineChartBX = findViewById(R.id.lineChartBX)
         tabItemStr.forEachIndexed { index, value ->
             val tab = tbLayout.newTab()
             tab.text = value
@@ -92,38 +91,9 @@ class MainActivity : BaseActivity(), View.OnClickListener{
         btnFinish.setOnClickListener(this)
         version = BaseProjectVersion().getPackageInfo(context)?.versionName.toString()
         linCurrentVersion.tvVersion.text = version
+
         LineChartSetting().SettingLineChart(lineChartBX)
         LineChartSetting().SettingLineChart(lineChartBZ)
-    }
-
-    //控件属性设置
-    private fun initView() {
-//        Timer().schedule(object : TimerTask() {
-//            override fun run() {
-//                if (isStart) {
-//                    landList.add(Entry(i.toFloat(), ((30..50).random()).toFloat()))
-//                    lineDataSet = LineDataSet(landList, "A扫")
-//                    //不绘制数据
-//                    lineDataSet.setDrawValues(false)
-//                    //不绘制圆形指示器
-//                    lineDataSet.setDrawCircles(false)
-//                    //线模式为圆滑曲线（默认折线）
-////                lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-//                    lineDataSet.setColor(context.resources.getColor(R.color.theme_color))
-//                    //将数据集添加到数据 ChartData 中
-//                    val lineData = LineData(lineDataSet)
-//                    //将数据添加到图表中
-//                    lineChartBX.data = lineData
-//                    lineChartBX.notifyDataSetChanged()
-//                    lineChartBX.invalidate()
-//
-//                    lineChartBZ.data = lineData
-//                    lineChartBZ.notifyDataSetChanged()
-//                    lineChartBZ.invalidate()
-//                    i++
-//                }
-//            }
-//        }, 0, 300)
     }
 
     //写入数据
@@ -148,7 +118,6 @@ class MainActivity : BaseActivity(), View.OnClickListener{
                 CharacteristicUuid.ConstantCharacteristicUuid,
                 object : BleReadCallBack {
                     override fun readCallBack(readData: String) {
-                        LogUtil.e("TAG", "通知数据获取111 = $readData")
                         //帧头和识别码对应才能解析  读取握手信息
                         if (readData.length>4&&readData.substring(0,4)=="BE01"){
                             BleBackDataRead.readHandData(readData)
@@ -156,6 +125,23 @@ class MainActivity : BaseActivity(), View.OnClickListener{
                             BleBackDataRead.readEmpowerData(readData)
                         }else if (readData.length>4&&readData.substring(0,4)=="BE03"){
                             BleBackDataRead.readSettingData(readData)
+                        }else if (readData.length>4&&readData.substring(0,4)=="BE14"){
+                            //判断是否测量
+                            var meterTag = BleBackDataRead.meterData(readData)
+                            when(meterTag){
+                                "00"->{
+                                    LogUtil.e("TAG",meterTag)
+                                }
+                                "01"->{
+                                    LogUtil.e("TAG","开始")
+                                }
+                                "02"->{
+                                    LogUtil.e("TAG","复位")
+                                }
+                            }
+                        }else if (readData.length>4&&readData.substring(0,4)=="BE04"){
+                            LogUtil.e("TAG",readData)
+//                            BleBackDataRead.readMeterData(readData,lineChartBX)
                         }
                     }
                 })
@@ -181,15 +167,21 @@ class MainActivity : BaseActivity(), View.OnClickListener{
                 when (tab.text) {
                     context.resources.getString(R.string.start) -> {
                         isStart = true
-                        initView()
+                        BleContent.writeData(
+                            BleDataMake().makeMeterData(),
+                            CharacteristicUuid.ConstantCharacteristicUuid, object : BleWriteCallBack {
+                                override fun writeCallBack(writeBackData: String) {
+                                    LogUtil.e("TAG", "写入开始测量回调 = $writeBackData")
+                                }
+                            })
                     }
                     context.resources.getString(R.string.stop) -> {
                         isStart = false
                     }
                     context.resources.getString(R.string.refresh) -> {
-                        landList.clear()
+                        landBXList.clear()
+                        landBZList.clear()
                         isStart = true
-                        initView()
                         tbLayout.selectTab(tbLayout.getTabAt(0))
                     }
                 }

@@ -1,14 +1,16 @@
 package com.example.lkacmf.util.ble
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.example.lkacmf.activity.MainActivity
 import com.example.lkacmf.data.CharacteristicUuid
-import com.example.lkacmf.util.BinaryChange
 
 class BleDataMake {
     /**
      * 握手
      */
+    @SuppressLint("MissingPermission")
     @RequiresApi(Build.VERSION_CODES.O)
     fun  makeHandData():String{
         var data = "${CharacteristicUuid.CONNECTHEADER}${CharacteristicUuid.CONNECTCODE}${BaseData.getYearTop()}${BaseData.getYearBotton()}${BaseData.getMonth()}${BaseData.getDay()}"
@@ -39,6 +41,16 @@ class BleDataMake {
      */
     fun  makeWriteSettingData(rate: String, array: String):String{
         var data = "${CharacteristicUuid.CONNECTHEADER}${CharacteristicUuid.READSETTINGCODE}01${rate}${array}"
+        var checksum = BaseData.hexStringToBytes(data)
+        return "$data$checksum"
+    }
+
+    /**
+     * 开始停止测量指令
+     */
+    fun  makeMeterData():String{
+        //测量状态：0x00停止测量，0x01启动测量
+        var data = "${CharacteristicUuid.CONNECTHEADER}${CharacteristicUuid.METERCODE}01"
         var checksum = BaseData.hexStringToBytes(data)
         return "$data$checksum"
     }
