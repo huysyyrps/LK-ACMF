@@ -27,19 +27,20 @@ class ArrayAdapter (context: Context, private val dataList: MutableList<String>,
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         var itemData = dataList[position]
         holder.tvArrayNum.text = itemData
-        if (selectList[position]==1){
-            holder.tvArrayNum.setBackgroundColor(context.resources.getColor(R.color.theme_back_color))
-        }else if (selectList[position]==0){
-            holder.tvArrayNum.setBackgroundColor(context.resources.getColor(R.color.theme_color))
-        }
-        holder.tvArrayNum.setOnClickListener{
-            if (selectList[position]==0){
-                selectList[position] = 1
+        if (selectList.size!=0){
+            if (selectList[position]==1){
                 holder.tvArrayNum.setBackgroundColor(context.resources.getColor(R.color.theme_back_color))
-            }else if (selectList[position]==1){
-                selectList[position] = 0
+            }else if (selectList[position]==0){
                 holder.tvArrayNum.setBackgroundColor(context.resources.getColor(R.color.theme_color))
             }
+            holder.tvArrayNum.setOnClickListener{
+                if (selectList[position]==0){
+                    selectList[position] = 1
+                    holder.tvArrayNum.setBackgroundColor(context.resources.getColor(R.color.theme_back_color))
+                }else if (selectList[position]==1){
+                    selectList[position] = 0
+                    holder.tvArrayNum.setBackgroundColor(context.resources.getColor(R.color.theme_color))
+                }
 //            if (selectList.contains(position)){
 //                selectList.remove(position)
 //                holder.tvArrayNum.setBackgroundColor(context.resources.getColor(R.color.theme_color))
@@ -47,6 +48,7 @@ class ArrayAdapter (context: Context, private val dataList: MutableList<String>,
 //                selectList.add(position)
 //                holder.tvArrayNum.setBackgroundColor(context.resources.getColor(R.color.theme_back_color))
 //            }
+            }
         }
     }
 

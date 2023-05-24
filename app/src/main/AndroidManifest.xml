@@ -19,16 +19,8 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:usesCleartextTraffic="true"
+            android:requestLegacyExternalStorage="true"
             android:theme="@style/NoAction">
-<!--        <activity-->
-<!--                android:name=".activity.GpsActivity"-->
-<!--                android:screenOrientation="landscape"-->
-<!--                android:exported="true">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-<!--        </activity>-->
         <activity
                 android:name=".activity.WelcomeActivity"
                 android:screenOrientation="landscape"

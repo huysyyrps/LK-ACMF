@@ -46,11 +46,21 @@ class BleDataMake {
     }
 
     /**
-     * 开始停止测量指令
+     * 开始测量指令
      */
-    fun  makeMeterData():String{
+    fun  makeStartMeterData():String{
         //测量状态：0x00停止测量，0x01启动测量
         var data = "${CharacteristicUuid.CONNECTHEADER}${CharacteristicUuid.METERCODE}01"
+        var checksum = BaseData.hexStringToBytes(data)
+        return "$data$checksum"
+    }
+
+    /**
+     * 停止测量指令
+     */
+    fun  makeStopMeterData():String{
+        //测量状态：0x00停止测量，0x01启动测量
+        var data = "${CharacteristicUuid.CONNECTHEADER}${CharacteristicUuid.METERCODE}00"
         var checksum = BaseData.hexStringToBytes(data)
         return "$data$checksum"
     }

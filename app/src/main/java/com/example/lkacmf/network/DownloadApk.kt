@@ -26,7 +26,6 @@ class DownloadApk {
                 }
 
                 override fun onSuccess(request: Request?, result: String?) {
-                    result?.let { LogUtil.e("XXX", it) }
                     var backData = Gson().fromJson(result, VersionBean::class.java)
                     val netVersion: String = backData.data.version
                     val netVersionArray = netVersion.split(".")

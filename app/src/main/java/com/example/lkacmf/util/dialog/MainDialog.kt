@@ -32,7 +32,8 @@ class MainDialog {
     权限申请
      */
     @RequiresApi(Build.VERSION_CODES.S)
-    fun requestPermission(activity: MainActivity) {
+    fun requestPermission(activity: MainActivity):Boolean {
+        var permissionTag = false
         val requestList = ArrayList<String>()
         requestList.add(Manifest.permission.READ_EXTERNAL_STORAGE)
         requestList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -48,46 +49,17 @@ class MainDialog {
                 .request { allGranted, _, deniedList ->
                     if (allGranted) {
                         Log.e("TAG", "所有申请的权限都已通过")
-                        bleFuncation(activity)
+                        permissionTag = true
                     } else {
                         Log.e("TAG", "您拒绝了如下权限：$deniedList")
                         activity.finish()
                     }
                 }
         }
+        return permissionTag
     }
 
-    /**
-     * 扫描弹窗
-     */
-    fun initScanAgainDialog(stater: String, activity: MainActivity) {
-        dialog = MaterialDialog(activity)
-            .cancelable(false)
-            .show {
-                customView(    //自定义弹窗
-                    viewRes = R.layout.dialog_scan_again,//自定义文件
-                    dialogWrapContent = true,    //让自定义宽度生效
-                    scrollable = true,            //让自定义宽高生效
-                    noVerticalPadding = true    //让自定义高度生效
-                )
-                cornerRadius(16f)
-            }
-        if (stater == "scan") {
-            dialog.etWorkPipe.hint = activity.resources.getString(R.string.scan_again)
-        } else if (stater == "connect") {
-            dialog.etWorkPipe.hint = activity.resources.getString(R.string.connect_again)
-        }
 
-        dialog.btnCancel.setOnClickListener {
-            dialog.dismiss()
-            activity.finish()
-        }
-        dialog.btnSure.setOnClickListener {
-            dialog.dismiss()
-//            dialog = initProgressDialog(activity)
-            bleFuncation(activity)
-        }
-    }
 
     /**
      * 设置弹窗
@@ -189,19 +161,19 @@ class MainDialog {
     /**
      * 连接
      */
-    fun bleFuncation(
-        activity: MainActivity,
-    ) {
+    fun bleFuncation(activity: MainActivity, bleMainConnectCallBack: BleMainConnectCallBack) {
         var dialog = initProgressDialog(activity)
+//        var connectTag = ""
         BleContent.initBleScanner(object : BleScanCallBack {
             override fun scanFinish(scanFinish: String) {
-                (R.string.scan_finish).showToast(MyApplication.context)
+                bleMainConnectCallBack.onConnectedfinish()
+//                connectTag = MyApplication.context.resources.getString(R.string.scan_finish)
                 dialog.dismiss()
-                MainDialog().initScanAgainDialog("scan", activity)
             }
 
             override fun scanFail(scanFail: String) {
-                (R.string.scan_fail).showToast(MyApplication.context)
+                bleMainConnectCallBack.onConnectedfail()
+//                connectTag = MyApplication.context.resources.getString(R.string.scan_fail)
                 dialog.dismiss()
             }
 
@@ -213,14 +185,15 @@ class MainDialog {
                         BleContent.initBleConnector(scanResult, object : BleConnectCallBack {
                             @RequiresApi(Build.VERSION_CODES.O)
                             override fun onConnectedStater(stater: String) {
-                                stater.showToast(activity)
                                 if (stater != activity.resources.getString(R.string.connect_success)) {
-                                    MainDialog().initScanAgainDialog("connect", activity)
+//                                    connectTag = MyApplication.context.resources.getString(R.string.connect_again)
+                                    bleMainConnectCallBack.onConnectedagain()
                                     dialog.dismiss()
                                 } else {
                                     //连接成功
+//                                    connectTag = MyApplication.context.resources.getString(R.string.connect_success)
+                                    bleMainConnectCallBack.onConnectedsuccess()
                                     dialog.dismiss()
-                                    MainActivity().writeHandData()
                                 }
                             }
                         })
@@ -228,5 +201,6 @@ class MainDialog {
                 }
             }
         })
+//        return connectTag
     }
 }
