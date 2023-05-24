@@ -14,10 +14,10 @@
             android:paddingBottom="0dp">
 
         <ImageView
-                android:layout_width="25dp"
-                android:layout_height="25dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:layout_gravity="center_vertical"
-                android:src="@drawable/ic_logo" />
+                android:src="@drawable/ic_logo_header" />
 
         <TextView
                 android:id="@+id/tvTitle"

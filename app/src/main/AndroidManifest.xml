@@ -10,6 +10,9 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!--前台服务-->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
             android:name=".MyApplication"
@@ -21,6 +24,12 @@
             android:usesCleartextTraffic="true"
             android:requestLegacyExternalStorage="true"
             android:theme="@style/NoAction">
+        <service
+                android:name=".util.mediaprojection.service.ScreenShortRecordService"
+                android:enabled="true"
+                android:exported="true"
+                android:foregroundServiceType="mediaProjection"/>
+
         <activity
                 android:name=".activity.WelcomeActivity"
                 android:screenOrientation="landscape"

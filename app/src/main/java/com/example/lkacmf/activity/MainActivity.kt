@@ -2,11 +2,15 @@ package com.example.lkacmf.activity
 
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
+import android.graphics.Bitmap
+import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
+import android.os.IBinder
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -18,21 +22,18 @@ import com.example.lkacmf.MyApplication.Companion.context
 import com.example.lkacmf.R
 import com.example.lkacmf.data.CharacteristicUuid
 import com.example.lkacmf.network.DownloadApk
-import com.example.lkacmf.util.BaseActivity
-import com.example.lkacmf.util.BaseProjectVersion
-import com.example.lkacmf.util.BaseTelPhone
+import com.example.lkacmf.util.*
 import com.example.lkacmf.util.ble.*
 import com.example.lkacmf.util.dialog.MainDialog
 import com.example.lkacmf.util.linechart.LineChartSetting
-import com.example.lkacmf.util.showToast
+import com.example.lkacmf.util.mediaprojection.listener.ScreenshotListener
+import com.example.lkacmf.util.mediaprojection.service.ScreenShortRecordService
+import com.example.lkacmf.util.pio.XwpfTUtil
 import com.github.mikephil.charting.data.Entry
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_scan_again.*
 import kotlinx.android.synthetic.main.drawer_item.view.*
-import org.apache.poi.util.Units
-import org.apache.poi.xwpf.usermodel.*
-import java.io.*
 import java.util.*
 
 
@@ -49,6 +50,10 @@ class MainActivity : BaseActivity(), View.OnClickListener {
     private var landBXList: ArrayList<Entry> = ArrayList()
     private var landBZList: ArrayList<Entry> = ArrayList()
     private var bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+    //截屏、录屏服务
+    private var mScreenShortService: ScreenShortRecordService? = null
+    private lateinit var mediaManager: MediaProjectionManager
+
     private val tabItemStr = arrayListOf<String>().apply {
         add(context.resources.getString(R.string.start))
         add(context.resources.getString(R.string.stop))
@@ -122,136 +127,42 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         LineChartSetting().SettingLineChart(lineChartBX)
         LineChartSetting().SettingLineChart(lineChartBZ)
 
-        val dataMap: MutableMap<String, Any> = HashMap()
-        dataMap["date"] = "2018年10月14日"
-        dataMap["time"] = "08:02"
-        dataMap["person"] = "移动开发组"
-        dataMap["position"] = "济宁"
-        dataMap["device"] = "ACMF"
-        dataMap["code"] = "1"
-        dataMap["describe"] = "测试秒速"
-        dataMap["file"] = "检测文件"
-        dataMap["probecode"] = "探头编号"
-        dataMap["probefile"] = "探头文件！"
-
-//        dataMap["img"] = Environment.getExternalStorageDirectory().path + "/123.png"
-        val templetDocPath = assets.open("acmf.docx")
-        writeDocx(templetDocPath, dataMap)
+//        val dataMap: MutableMap<String, Any> = HashMap()
+//        dataMap["date"] = "2018年10月14日"
+//        dataMap["time"] = "08:02"
+//        dataMap["person"] = "移动开发组"
+//        dataMap["position"] = "济宁"
+//        dataMap["device"] = "ACMF"
+//        dataMap["code"] = "1"
+//        dataMap["describe"] = "测试秒速"
+//        dataMap["file"] = "检测文件"
+//        dataMap["probecode"] = "探头编号"
+//        dataMap["probefile"] = "探头文件！"
+//
+//        val templetDocPath = assets.open("acmf.docx")
+//        XwpfTUtil.writeDocx(templetDocPath, dataMap)
     }
+    private val connection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, iBinder: IBinder?) {
+            if (iBinder is ScreenShortRecordService.ScreenShortBinder) {
+                //截屏
+                mScreenShortService = iBinder.getService()
 
-
-    /**
-     * 生成一个docx文件，主要用于直接读取asset目录下的模板文件，不用先复制到sd卡中
-     * @param templetDocInStream  模板文件的InputStream
-     * @param targetDocPath 生成的目标文件的完整路径
-     * @param dataMap 替换的数据
-     */
-    fun writeDocx(
-        templetDocInStream: InputStream,
-        dataMap: MutableMap<String, Any>
-    ) {
-        try {
-            //得到模板doc文件的HWPFDocument对象
-            val HDocx = XWPFDocument(templetDocInStream)
-
-            val run: XWPFRun = HDocx.createParagraph().createRun()
-            val picIn = FileInputStream(File(Environment.getExternalStorageDirectory().path + "/123.png"))
-            run.addPicture(
-                picIn,
-                XWPFDocument.PICTURE_TYPE_PNG,
-                "插入图片",
-                Units.toEMU(56.0),
-                Units.toEMU(56.0)
-            )
-            picIn.close()
-
-
-            //替换段落里面的变量
-            replaceInPara(HDocx, dataMap)
-            //替换表格里面的变量
-            replaceInTable(HDocx, dataMap)
-
-            val targetDocPath =
-                Environment.getExternalStorageDirectory().path + "/acmf1.docx" //这个目录，不需要申请存储权限
-            //写到另一个文件中
-            val os: OutputStream = FileOutputStream(targetDocPath)
-            //把doc输出到输出流中
-            HDocx.write(os)
-            os.close()
-            templetDocInStream.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        } catch (e: java.lang.Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    /**
-     * 替换段落里面的变量
-     * @param doc 要替换的文档
-     * @param params 参数
-     */
-    private fun replaceInPara(doc: XWPFDocument, params: Map<String, Any>) {
-        val iterator = doc.paragraphsIterator
-        var para: XWPFParagraph
-        while (iterator.hasNext()) {
-            para = iterator.next()
-            replaceInPara(para, params)
-        }
-    }
-
-
-    /**
-     * 替换段落里面的变量
-     * @param para 要替换的段落
-     * @param params 参数
-     */
-    private fun replaceInPara(para: XWPFParagraph, params: Map<String, Any>) {
-        val runs: List<XWPFRun>
-        println("para.getParagraphText()==" + para.paragraphText)
-        runs = para.runs
-        for (i in runs.indices) {
-            val run = runs[i]
-            var runText = run.toString()
-            println("runText==$runText")
-
-            // 替换文本内容，将自定义的$xxx$替换成实际文本
-            for ((key, value) in params) {
-                runText = runText.replace(key, value.toString() + "")
-                //直接调用XWPFRun的setText()方法设置文本时，在底层会重新创建一个XWPFRun，把文本附加在当前文本后面，
-                //所以我们不能直接设值，需要先删除当前run,然后再自己手动插入一个新的run。
-                para.removeRun(i)
-                para.insertNewRun(i).setText(runText)
             }
         }
-    }
 
-    /**
-     * 替换表格里面的变量
-     * @param doc 要替换的文档
-     * @param params 参数
-     */
-    private fun replaceInTable(doc: XWPFDocument, params: Map<String, Any>) {
-        val iterator = doc.tablesIterator
-        var table: XWPFTable
-        var rows: List<XWPFTableRow>
-        var cells: List<XWPFTableCell>
-        var paras: List<XWPFParagraph>
-        while (iterator.hasNext()) {
-            table = iterator.next()
-            rows = table.rows
-            for (row in rows) {
-                cells = row.tableCells
-                for (cell in cells) {
-                    paras = cell.paragraphs
-                    for (para in paras) {
-                        replaceInPara(para, params)
-                    }
-                }
-            }
+        override fun onServiceDisconnected(name: ComponentName?) {
+            //no-op
         }
     }
-
+    override fun onStart() {
+        super.onStart()
+        // 绑定服务
+        Intent(this, ScreenShortRecordService::class.java)
+            .also { intent ->
+                bindService(intent, connection, Context.BIND_AUTO_CREATE)
+            }
+    }
 
     /**
      * 扫描弹窗
@@ -406,12 +317,53 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                         isStart = true
                         tbLayout.selectTab(tbLayout.getTabAt(0))
                     }
+                    context.resources.getString(R.string.forms) -> {
+                        mScreenShortService?.let {
+                            //开始截屏
+                            mediaManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+                            mediaManager.createScreenCaptureIntent().apply {
+                                startActivityForResult(this, Constant.TAG_ONE)
+                            }
+                        }
+                    }
                 }
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab) {}
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
+    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                //截屏
+                Constant.TAG_ONE -> {
+                    data?.let {
+                        mScreenShortService?.startShort(it, object : ScreenshotListener {
+                            override suspend fun onScreenSuc(bitmap: Bitmap) {
+                                //显示截图
+                                LogUtil.e("TAG","${bitmap.height}")
+                                val dataMap: MutableMap<String, Any> = HashMap()
+                                dataMap["date"] = "2018年10月14日"
+                                dataMap["time"] = "08:02"
+                                dataMap["person"] = "移动开发组"
+                                dataMap["position"] = "济宁"
+                                dataMap["device"] = "ACMF"
+                                dataMap["code"] = "1"
+                                dataMap["describe"] = "测试秒速"
+                                dataMap["file"] = "检测文件"
+                                dataMap["probecode"] = "探头编号"
+                                dataMap["probefile"] = "探头文件！"
+
+                                val templetDocPath = assets.open("acmf.docx")
+                                XwpfTUtil.writeDocx(templetDocPath, dataMap,bitmap)
+                            }
+                        })
+                    }
+                }
+            }
+        }
     }
 
     override fun onClick(v: View?) {

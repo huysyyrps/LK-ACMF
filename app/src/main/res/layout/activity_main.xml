@@ -24,7 +24,7 @@
                     android:layout_height="35dp"
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="20dp"
-                    android:src="@drawable/ic_logo"
+                    android:src="@drawable/ic_logo2"
                     tools:ignore="ContentDescription,RtlHardcoded" />
 
             <com.google.android.material.tabs.TabLayout
@@ -35,7 +35,8 @@
                     android:background="@color/theme_back_color"
                     app:tabIndicatorColor="@color/red"
                     app:tabSelectedTextColor="@color/red"
-                    app:tabTextColor="@color/theme_color"></com.google.android.material.tabs.TabLayout>
+                    app:tabTextColor="@color/theme_color">
+            </com.google.android.material.tabs.TabLayout>
 
             <LinearLayout
                     android:id="@+id/linConnect"
@@ -46,7 +47,7 @@
                         android:layout_width="35dp"
                         android:layout_height="40dp"
                         android:padding="5dp"
-                        android:src="@drawable/ic_logo"
+                        android:src="@drawable/ic_logo2"
                         tools:ignore="ContentDescription" />
             </LinearLayout>
 

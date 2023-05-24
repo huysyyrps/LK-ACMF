@@ -289,7 +289,8 @@
     <color name="dictdialog_divider_color">#ededed</color>
 
     <color name="theme_back_color">#262626</color>
-    <color name="theme_color">#F5B12A</color>
+    <color name="theme_color">#F4b129</color>
+    <color name="theme_color1">#FF9800</color>
     <color name="dialog_color">#44444444</color>
     <color name="back_color">#FF424242</color>
     <!--    0xFF424242-->

@@ -203,4 +203,21 @@ class MainDialog {
         })
 //        return connectTag
     }
+
+    /**
+     * 生成报告
+     */
+    fun writeFormDataDialog(activity: MainActivity, bleMainConnectCallBack: BleMainConnectCallBack) {
+        dialog = MaterialDialog(activity)
+            .cancelable(false)
+            .show {
+                customView(    //自定义弹窗
+                    viewRes = R.layout.setting,//自定义文件
+                    dialogWrapContent = true,    //让自定义宽度生效
+                    scrollable = true,            //让自定义宽高生效
+                    noVerticalPadding = true    //让自定义高度生效
+                )
+                cornerRadius(16f)
+            }
+    }
 }
