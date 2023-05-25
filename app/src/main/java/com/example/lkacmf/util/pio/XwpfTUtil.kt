@@ -2,9 +2,13 @@ package com.example.lkacmf.util.pio
 
 import android.graphics.Bitmap
 import android.os.Environment
+import com.example.lkacmf.util.BitmapSave
+import com.example.lkacmf.util.Constant
 import org.apache.poi.util.Units
 import org.apache.poi.xwpf.usermodel.*
 import java.io.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 object XwpfTUtil {
@@ -43,10 +47,15 @@ object XwpfTUtil {
             picIn.close()
 
 
-            val targetDocPath =
-                Environment.getExternalStorageDirectory().path + "/acmf1.docx" //这个目录，不需要申请存储权限
+            val targetDocPath = Environment.getExternalStorageDirectory().toString()+ "/"+Constant.SAVE_FORM_PATH+"/"
+            val file = File(targetDocPath)
+            //如果不存在  就mkdirs()创建此文件夹
+            if (!file.exists()) {
+                file.mkdirs()
+            }//这个目录，不需要申请存储权限
+            val mFile = File(targetDocPath + getNowDate())
             //写到另一个文件中
-            val os: OutputStream = FileOutputStream(targetDocPath)
+            val os: OutputStream = FileOutputStream(mFile)
             //把doc输出到输出流中
             HDocx.write(os)
             os.close()
@@ -60,6 +69,13 @@ object XwpfTUtil {
             return false
         }
         return true
+    }
+    /**
+     * 获取当前时间,用来给文件夹命名
+     */
+    private fun getNowDate(): String? {
+        val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+        return format.format(Date()) + ".docx"
     }
 
     /**

@@ -42,7 +42,7 @@ class MainDialog {
     权限申请
      */
     @RequiresApi(Build.VERSION_CODES.S)
-    fun requestPermission(activity: MainActivity):Boolean {
+    fun requestPermission(activity: MainActivity): Boolean {
         var permissionTag = false
         val requestList = ArrayList<String>()
         requestList.add(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -70,7 +70,6 @@ class MainDialog {
     }
 
 
-
     /**
      * 设置弹窗
      */
@@ -89,56 +88,56 @@ class MainDialog {
             }
         var rate = BaseSharedPreferences.get("rate", "")
         var array = BaseSharedPreferences.get("array", "")
-        when(rate){
-            "01"->{
+        when (rate) {
+            "01" -> {
                 dialog.tabLayout.getTabAt(0)?.select()
             }
-            "05"->{
+            "05" -> {
                 dialog.tabLayout.getTabAt(1)?.select()
             }
-            "0A"->{
+            "0A" -> {
                 dialog.tabLayout.getTabAt(2)?.select()
             }
         }
-        for (i in array.indices){
-            if (array[i].toString()=="0"){
+        for (i in array.indices) {
+            if (array[i].toString() == "0") {
                 selectList.add(0)
-            }else  if (array[i].toString()=="1"){
+            } else if (array[i].toString() == "1") {
                 selectList.add(1)
             }
         }
-        val gridLayoutManager = GridLayoutManager(activity,4)
+        val gridLayoutManager = GridLayoutManager(activity, 4)
         dialog.recyclerView.layoutManager = gridLayoutManager
-        var dataList = mutableListOf<String>("1","2","3","4","5","6","7","8")
-        var adapter = ArrayAdapter(activity,dataList,selectList)
+        var dataList = mutableListOf<String>("1", "2", "3", "4", "5", "6", "7", "8")
+        var adapter = ArrayAdapter(activity, dataList, selectList)
         dialog.recyclerView.adapter = adapter
 
         dialog.btnSettingCancel.setOnClickListener {
             dialog.dismiss()
         }
         dialog.btnSettingSure.setOnClickListener {
-            when(dialog.tabLayout.selectedTabPosition){
-                0->{
+            when (dialog.tabLayout.selectedTabPosition) {
+                0 -> {
                     rate = "01"
                     BaseSharedPreferences.put("rate", "01")
                 }
-                1->{
+                1 -> {
                     rate = "05"
                     BaseSharedPreferences.put("rate", "05")
                 }
-                2->{
+                2 -> {
                     rate = "0A"
                     BaseSharedPreferences.put("rate", "0A")
                 }
             }
             var item = ""
-            for (i in 0 until selectList.size){
+            for (i in 0 until selectList.size) {
                 item += selectList[i]
             }
             BaseSharedPreferences.put("array", item)
             array = item.toInt(2).toString(16)
             BleContent.writeData(
-                BleDataMake().makeWriteSettingData(rate,array),
+                BleDataMake().makeWriteSettingData(rate, array),
                 CharacteristicUuid.ConstantCharacteristicUuid, object : BleWriteCallBack {
                     override fun writeCallBack(writeBackData: String) {
                         LogUtil.e("TAG", "写入设置数据回调 = $writeBackData")
@@ -220,65 +219,72 @@ class MainDialog {
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingPermission")
     fun writeFormDataDialog(activity: MainActivity, bitmap: Bitmap) {
-        CoroutineScope(Dispatchers.Main)
-            .launch {
-                dialog = MaterialDialog(activity)
-                    .cancelable(false)
-                    .show {
-                        customView(    //自定义弹窗
-                            viewRes = R.layout.dialog_save_form,//自定义文件
-                            dialogWrapContent = true,    //让自定义宽度生效
-                            scrollable = true,            //让自定义宽高生效
-                            noVerticalPadding = true    //让自定义高度生效
-                        )
-                        cornerRadius(16f)
-                    }
-                dialog.btnFormCancel.setOnClickListener{
-                    dialog.dismiss()
-                }
-                dialog.btnFormSure.setOnClickListener{
-                    var person = dialog.etPerson.text.toString()
-                    var code = dialog.etCode.text.toString()
-                    var file = dialog.etFile.text.toString()
-                    var position = dialog.etPosition.text.toString()
-                    var describe = dialog.etDescribe.text.toString()
-                    if (person.trim { it <= ' ' }==""){
-                        "操作人员不能为空".showToast(activity)
-                        return@setOnClickListener
-                    }
-                    if (code.trim { it <= ' ' }==""){
-                        "部件编号不能为空".showToast(activity)
-                        return@setOnClickListener
-                    }
-                    if (file.trim { it <= ' ' }==""){
-                        "检测文件不能为空".showToast(activity)
-                        return@setOnClickListener
-                    }
-                    if (position.trim { it <= ' ' }==""){
-                        "检测位置不能为空".showToast(activity)
-                        return@setOnClickListener
-                    }
-                    if (describe.trim { it <= ' ' }==""){
-                        "检测描述不能为空".showToast(activity)
-                        return@setOnClickListener
-                    }
-
-                    var date = UtcToLocalTime.timeFormatChange()
-                    //显示截图
-                    val dataMap: MutableMap<String, Any> = HashMap()
-                    dataMap["date"] = date
-                    dataMap["person"] = person
-                    dataMap["position"] = position
-                    dataMap["device"] = "ACMF"
-                    dataMap["code"] = code
-                    dataMap["describe"] = describe
-                    dataMap["file"] = file
-                    dataMap["probecode"] = "探头编号"
-                    dataMap["probefile"] = "探头文件！"
-
-                    val templetDocPath = activity.assets.open("acmf.docx")
-                    XwpfTUtil.writeDocx(templetDocPath, dataMap, bitmap)
-                }
+//        CoroutineScope(Dispatchers.Main)
+//            .launch {
+        dialog = MaterialDialog(activity)
+            .cancelable(false)
+            .show {
+                customView(    //自定义弹窗
+                    viewRes = R.layout.dialog_save_form,//自定义文件
+                    dialogWrapContent = true,    //让自定义宽度生效
+                    scrollable = true,            //让自定义宽高生效
+                    noVerticalPadding = true    //让自定义高度生效
+                )
+                cornerRadius(16f)
             }
+        dialog.btnFormCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+        dialog.btnFormSure.setOnClickListener {
+            var person = dialog.etPerson.text.toString()
+            var code = dialog.etCode.text.toString()
+            var file = dialog.etFile.text.toString()
+            var position = dialog.etPosition.text.toString()
+            var describe = dialog.etDescribe.text.toString()
+            if (person.trim { it <= ' ' } == "") {
+                "操作人员不能为空".showToast(activity)
+                return@setOnClickListener
+            }
+            if (code.trim { it <= ' ' } == "") {
+                "部件编号不能为空".showToast(activity)
+                return@setOnClickListener
+            }
+            if (file.trim { it <= ' ' } == "") {
+                "检测文件不能为空".showToast(activity)
+                return@setOnClickListener
+            }
+            if (position.trim { it <= ' ' } == "") {
+                "检测位置不能为空".showToast(activity)
+                return@setOnClickListener
+            }
+            if (describe.trim { it <= ' ' } == "") {
+                "检测描述不能为空".showToast(activity)
+                return@setOnClickListener
+            }
+
+            var date = UtcToLocalTime.timeFormatChange()
+            //显示截图
+            val dataMap: MutableMap<String, Any> = HashMap()
+            dataMap["date"] = date
+            dataMap["person"] = person
+            dataMap["position"] = position
+            dataMap["device"] = "ACMF"
+            dataMap["code"] = code
+            dataMap["describe"] = describe
+            dataMap["file"] = file
+            dataMap["probecode"] = "探头编号"
+            dataMap["probefile"] = "探头文件！"
+
+            val templetDocPath = activity.assets.open("acmf.docx")
+            var saveFormState = XwpfTUtil.writeDocx(templetDocPath, dataMap, bitmap)
+            if (saveFormState) {
+                MyApplication.context.resources.getString(R.string.save_success).showToast(activity)
+                dialog.dismiss()
+            } else {
+                MyApplication.context.resources.getString(R.string.save_fail).showToast(activity)
+                dialog.dismiss()
+            }
+        }
+//            }
     }
 }

@@ -24,11 +24,12 @@
             android:usesCleartextTraffic="true"
             android:requestLegacyExternalStorage="true"
             android:theme="@style/NoAction">
+
         <service
-                android:name=".util.mediaprojection.service.ScreenShortRecordService"
+                android:name=".util.mediaprojection.MediaService"
                 android:enabled="true"
-                android:exported="true"
-                android:foregroundServiceType="mediaProjection"/>
+                android:foregroundServiceType="mediaProjection"
+                android:exported="true"/>
 
         <activity
                 android:name=".activity.WelcomeActivity"

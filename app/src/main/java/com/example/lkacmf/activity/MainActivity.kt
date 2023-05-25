@@ -1,16 +1,17 @@
 package com.example.lkacmf.activity
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
-import android.graphics.Bitmap
+import android.media.ImageReader
+import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Bundle
-import android.os.IBinder
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -26,8 +27,7 @@ import com.example.lkacmf.util.*
 import com.example.lkacmf.util.ble.*
 import com.example.lkacmf.util.dialog.MainDialog
 import com.example.lkacmf.util.linechart.LineChartSetting
-import com.example.lkacmf.util.mediaprojection.listener.ScreenshotListener
-import com.example.lkacmf.util.mediaprojection.service.ScreenShortRecordService
+import com.example.lkacmf.util.mediaprojection.CaptureImage
 import com.github.mikephil.charting.data.Entry
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.activity_main.*
@@ -49,9 +49,10 @@ class MainActivity : BaseActivity(), View.OnClickListener {
     private var landBXList: ArrayList<Entry> = ArrayList()
     private var landBZList: ArrayList<Entry> = ArrayList()
     private var bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-    //截屏、录屏服务
-    private var mScreenShortService: ScreenShortRecordService? = null
     private lateinit var mediaManager: MediaProjectionManager
+    private var mMediaProjection: MediaProjection? = null
+    private var imageReader: ImageReader? = null
+    private var isGot: Boolean = false
 
     private val tabItemStr = arrayListOf<String>().apply {
         add(context.resources.getString(R.string.start))
@@ -125,27 +126,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
 
         LineChartSetting().SettingLineChart(lineChartBX)
         LineChartSetting().SettingLineChart(lineChartBZ)
-    }
-    private val connection = object : ServiceConnection {
-        override fun onServiceConnected(name: ComponentName?, iBinder: IBinder?) {
-            if (iBinder is ScreenShortRecordService.ScreenShortBinder) {
-                //截屏
-                mScreenShortService = iBinder.getService()
-
-            }
-        }
-
-        override fun onServiceDisconnected(name: ComponentName?) {
-            //no-op
-        }
-    }
-    override fun onStart() {
-        super.onStart()
-        // 绑定服务
-        Intent(this, ScreenShortRecordService::class.java)
-            .also { intent ->
-                bindService(intent, connection, Context.BIND_AUTO_CREATE)
-            }
     }
 
     /**
@@ -267,6 +247,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
 
     private fun tabLayoutSelect() {
         tbLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            @RequiresApi(Build.VERSION_CODES.O)
             override fun onTabSelected(tab: TabLayout.Tab) {
                 when (tab.text) {
                     context.resources.getString(R.string.start) -> {
@@ -302,12 +283,23 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                         tbLayout.selectTab(tbLayout.getTabAt(0))
                     }
                     context.resources.getString(R.string.forms) -> {
-                        mScreenShortService?.let {
-                            //开始截屏
-                            mediaManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-                            mediaManager.createScreenCaptureIntent().apply {
-                                startActivityForResult(this, Constant.TAG_ONE)
-                            }
+                        mediaManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+                        if (mMediaProjection==null){
+                            val captureIntent: Intent =
+                                mediaManager.createScreenCaptureIntent()
+                            startActivityForResult(captureIntent, Constant.TAG_ONE)
+                        }else{
+                            mMediaProjection?.let { CaptureImage().captureImages(this@MainActivity,"form", it) }
+                        }
+                    }
+                    context.resources.getString(R.string.save) -> {
+                        mediaManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+                        if (mMediaProjection==null){
+                            val captureIntent: Intent =
+                                mediaManager.createScreenCaptureIntent()
+                            startActivityForResult(captureIntent, Constant.TAG_TWO)
+                        }else{
+                            mMediaProjection?.let { CaptureImage().captureImages(this@MainActivity,"image", it) }
                         }
                     }
                 }
@@ -318,23 +310,25 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         })
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    @SuppressLint("WrongConstant")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
-                //截屏
                 Constant.TAG_ONE -> {
-                    data?.let {
-                        mScreenShortService?.startShort(it, object : ScreenshotListener {
-                            override suspend fun onScreenSuc(bitmap: Bitmap) {
-                                MainDialog().writeFormDataDialog(this@MainActivity,bitmap)
-                            }
-                        })
-                    }
+                    mMediaProjection = data?.let { mediaManager.getMediaProjection(resultCode, it) }
+                    mMediaProjection?.let { CaptureImage().captureImages(this,"form", it) }
+                }
+                Constant.TAG_TWO -> {
+                    mMediaProjection = data?.let { mediaManager.getMediaProjection(resultCode, it) }
+                    mMediaProjection?.let { CaptureImage().captureImages(this,"image", it) }
                 }
             }
         }
     }
+
+
 
     override fun onClick(v: View?) {
         when (v?.id) {
