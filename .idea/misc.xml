@@ -15,15 +15,18 @@
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/drawable/scanning.xml" value="0.23" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/drawable/shape_full_tab_indicator.xml" value="0.2545" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/drawable/shape_tab_bg.xml" value="0.2545" />
+        <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/activity_image_list.xml" value="0.3536458333333333" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/activity_main.xml" value="0.3380208333333333" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/activity_welcome.xml" value="0.3536458333333333" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/adapter_array_item.xml" value="0.3234375" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/adapter_banner_item.xml" value="0.3536458333333333" />
+        <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/adapter_imagelist.xml" value="0.3536458333333333" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/dialog_form_write.xml" value="0.24947916666666667" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/dialog_hand.xml" value="0.3380208333333333" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/dialog_hand_error.xml" value="0.2677083333333333" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/dialog_item_header.xml" value="0.3260416666666667" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/dialog_phone.xml" value="0.25729166666666664" />
+        <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/dialog_removecalibration.xml" value="0.3536458333333333" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/dialog_save_foem.xml" value="0.2760416666666667" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/dialog_save_form.xml" value="0.2421875" />
         <entry key="..\:/LuKe-item/ACMF/app/src/main/res/layout/dialog_scan_again.xml" value="0.5334872979214781" />

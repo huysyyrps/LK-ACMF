@@ -51,8 +51,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
     private var bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
     private lateinit var mediaManager: MediaProjectionManager
     private var mMediaProjection: MediaProjection? = null
-    private var imageReader: ImageReader? = null
-    private var isGot: Boolean = false
 
     private val tabItemStr = arrayListOf<String>().apply {
         add(context.resources.getString(R.string.start))
@@ -118,6 +116,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
 
         imageView.setOnClickListener(this)
         linSetting.setOnClickListener(this)
+        linImageList.setOnClickListener(this)
         linVersionCheck.setOnClickListener(this)
         linContactComp.setOnClickListener(this)
         btnFinish.setOnClickListener(this)
@@ -328,12 +327,13 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         }
     }
 
-
-
     override fun onClick(v: View?) {
         when (v?.id) {
             R.id.imageView -> {
                 drawer_layout.openDrawer(GravityCompat.START)
+            }
+            R.id.linImageList -> {
+                ImageListActivity.actionStart(this)
             }
             R.id.linSetting -> {
                 MainDialog().setConfigDialog(this)
@@ -350,7 +350,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             }
         }
     }
-
 
     override fun onDestroy() {
         super.onDestroy()

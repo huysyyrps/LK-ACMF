@@ -260,7 +260,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 app:drawer_title="@string/setting" />
+        <View
+                style="@style/HLine"
+                android:layout_height="0.5dp" />
 
+        <com.example.lkacmf.view.BaseLinlayout
+                android:id="@+id/linImageList"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                app:drawer_image_left="@drawable/ic_image_list"
+                app:drawer_title="@string/image_list" />
         <View
                 style="@style/HLine"
                 android:layout_height="0.5dp" />
@@ -271,7 +280,6 @@
                 android:layout_height="40dp"
                 app:drawer_image_left="@drawable/ic_vrsion_check"
                 app:drawer_title="@string/version_check" />
-
         <View
                 style="@style/HLine"
                 android:layout_height="0.5dp" />
@@ -282,7 +290,6 @@
                 android:layout_height="40dp"
                 app:drawer_image_left="@drawable/ic_contact_comp"
                 app:drawer_title="@string/contact_comp" />
-
         <View
                 style="@style/HLine"
                 android:layout_height="0.5dp" />
@@ -293,7 +300,6 @@
                 android:layout_height="40dp"
                 app:drawer_image_left="@drawable/ic_current_version"
                 app:drawer_title="@string/current_version" />
-
         <View
                 style="@style/HLine"
                 android:layout_height="0.5dp" />

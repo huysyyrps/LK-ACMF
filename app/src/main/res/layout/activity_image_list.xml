@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/theme_back_color"
+        android:orientation="horizontal"
+        tools:context=".activity.MainActivity">
+    <RelativeLayout
+            android:id="@+id/linNoData"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        <ImageView
+                android:id="@+id/ivRef"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="fitXY"
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_nodata"/>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ivRef"
+                android:layout_centerHorizontal="true"
+                android:text="@string/no_data"/>
+
+    </RelativeLayout>
+    <LinearLayout
+            android:id="@+id/linData"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+        <com.scwang.smart.refresh.layout.SmartRefreshLayout
+                android:id="@+id/smartRefreshLayout"
+                android:layout_width="150dp"
+                android:layout_height="match_parent"
+                android:background="@color/back_color">
+            <com.scwang.smart.refresh.header.ClassicsHeader
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/theme_back_color"/>
+
+            <com.scwang.smart.refresh.footer.ClassicsFooter
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+        </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+        <View style="@style/Vine"/>
+        <FrameLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent">
+            <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+            <TextView
+                    android:id="@+id/tvFileName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center|top"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="5dp"
+                    android:textColor="@color/red"/>
+            <ImageView
+                    android:id="@+id/ivLeft"
+                    android:visibility="gone"
+                    android:layout_width="60dp"
+                    android:layout_height="80dp"
+                    android:layout_marginBottom="50dp"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_left"
+                    android:layout_gravity="center|left"/>
+            <ImageView
+                    android:id="@+id/ivRight"
+                    android:visibility="gone"
+                    android:layout_width="60dp"
+                    android:layout_height="80dp"
+                    android:layout_marginBottom="50dp"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_right"
+                    android:layout_gravity="center|right"/>
+        </FrameLayout>
+    </LinearLayout>
+
+
+</LinearLayout>

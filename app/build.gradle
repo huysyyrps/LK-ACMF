@@ -70,6 +70,15 @@ dependencies {
 //    implementation 'javax.xml.stream:stax-api:1.0'
 //    implementation 'com.fasterxml:aalto-xml:1.2.2'
     implementation 'fr.opensagres.xdocreport:org.apache.poi.xwpf.converter.xhtml:1.0.5'
+    //上拉刷新下拉加载
+    implementation 'androidx.appcompat:appcompat:1.0.0'//必须 1.0.0 以上
+    implementation  'io.github.scwang90:refresh-layout-kernel:2.0.5'      //核心必须依赖
+    implementation  'io.github.scwang90:refresh-footer-classics:2.0.5'    //经典加载
+    implementation  'io.github.scwang90:refresh-header-classics:2.0.5'    //经典加载
+    //recyclerView
+    implementation 'androidx.recyclerview:recyclerview:1.2.1'
+    //鲁班图片压缩
+    implementation 'top.zibin:Luban:1.1.8'
 
 
 }

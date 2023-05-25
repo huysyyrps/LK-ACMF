@@ -48,7 +48,9 @@
     <string name="rate5">5K</string>
     <string name="rate10">10K</string>
     <string name="setting">设置</string>
-
+    <string name="image_list">图片列表</string>
+    <string name="no_data">暂无数据</string>
+    <string name="remove_sure">您确定要删除此项数据吗？</string>
 
 
     <string name="request_faile">请求失败</string>
