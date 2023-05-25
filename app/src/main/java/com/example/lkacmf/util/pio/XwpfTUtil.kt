@@ -18,7 +18,7 @@ object XwpfTUtil {
         templetDocInStream: InputStream,
         dataMap: MutableMap<String, Any>,
         bitmap: Bitmap
-    ) {
+    ):Boolean {
         try {
             //得到模板doc文件的HWPFDocument对象
             val HDocx = XWPFDocument(templetDocInStream)
@@ -51,11 +51,15 @@ object XwpfTUtil {
             HDocx.write(os)
             os.close()
             templetDocInStream.close()
+            return true
         } catch (e: IOException) {
             e.printStackTrace()
+            return false
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
+            return false
         }
+        return true
     }
 
     /**

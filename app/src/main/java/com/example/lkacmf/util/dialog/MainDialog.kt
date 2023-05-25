@@ -2,7 +2,10 @@ package com.example.lkacmf.util.dialog
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.bluetooth.le.ScanResult
+import android.graphics.Bitmap
+import android.location.LocationManager
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -17,10 +20,17 @@ import com.example.lkacmf.adapter.ArrayAdapter
 import com.example.lkacmf.data.CharacteristicUuid
 import com.example.lkacmf.util.*
 import com.example.lkacmf.util.ble.*
+import com.example.lkacmf.util.pio.XwpfTUtil
 import com.permissionx.guolindev.PermissionX
-import kotlinx.android.synthetic.main.dialog_scan_again.*
+import kotlinx.android.synthetic.main.dialog_save_form.*
 import kotlinx.android.synthetic.main.setting.*
-import kotlin.collections.ArrayList
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.*
+
 
 class MainDialog {
     /**
@@ -207,17 +217,68 @@ class MainDialog {
     /**
      * 生成报告
      */
-    fun writeFormDataDialog(activity: MainActivity, bleMainConnectCallBack: BleMainConnectCallBack) {
-        dialog = MaterialDialog(activity)
-            .cancelable(false)
-            .show {
-                customView(    //自定义弹窗
-                    viewRes = R.layout.setting,//自定义文件
-                    dialogWrapContent = true,    //让自定义宽度生效
-                    scrollable = true,            //让自定义宽高生效
-                    noVerticalPadding = true    //让自定义高度生效
-                )
-                cornerRadius(16f)
+    @RequiresApi(Build.VERSION_CODES.O)
+    @SuppressLint("MissingPermission")
+    fun writeFormDataDialog(activity: MainActivity, bitmap: Bitmap) {
+        CoroutineScope(Dispatchers.Main)
+            .launch {
+                dialog = MaterialDialog(activity)
+                    .cancelable(false)
+                    .show {
+                        customView(    //自定义弹窗
+                            viewRes = R.layout.dialog_save_form,//自定义文件
+                            dialogWrapContent = true,    //让自定义宽度生效
+                            scrollable = true,            //让自定义宽高生效
+                            noVerticalPadding = true    //让自定义高度生效
+                        )
+                        cornerRadius(16f)
+                    }
+                dialog.btnFormCancel.setOnClickListener{
+                    dialog.dismiss()
+                }
+                dialog.btnFormSure.setOnClickListener{
+                    var person = dialog.etPerson.text.toString()
+                    var code = dialog.etCode.text.toString()
+                    var file = dialog.etFile.text.toString()
+                    var position = dialog.etPosition.text.toString()
+                    var describe = dialog.etDescribe.text.toString()
+                    if (person.trim { it <= ' ' }==""){
+                        "操作人员不能为空".showToast(activity)
+                        return@setOnClickListener
+                    }
+                    if (code.trim { it <= ' ' }==""){
+                        "部件编号不能为空".showToast(activity)
+                        return@setOnClickListener
+                    }
+                    if (file.trim { it <= ' ' }==""){
+                        "检测文件不能为空".showToast(activity)
+                        return@setOnClickListener
+                    }
+                    if (position.trim { it <= ' ' }==""){
+                        "检测位置不能为空".showToast(activity)
+                        return@setOnClickListener
+                    }
+                    if (describe.trim { it <= ' ' }==""){
+                        "检测描述不能为空".showToast(activity)
+                        return@setOnClickListener
+                    }
+
+                    var date = UtcToLocalTime.timeFormatChange()
+                    //显示截图
+                    val dataMap: MutableMap<String, Any> = HashMap()
+                    dataMap["date"] = date
+                    dataMap["person"] = person
+                    dataMap["position"] = position
+                    dataMap["device"] = "ACMF"
+                    dataMap["code"] = code
+                    dataMap["describe"] = describe
+                    dataMap["file"] = file
+                    dataMap["probecode"] = "探头编号"
+                    dataMap["probefile"] = "探头文件！"
+
+                    val templetDocPath = activity.assets.open("acmf.docx")
+                    XwpfTUtil.writeDocx(templetDocPath, dataMap, bitmap)
+                }
             }
     }
 }

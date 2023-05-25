@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="20dp">
+
+    <include layout="@layout/dialog_item_header" />
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="0dp"
+            android:orientation="vertical"
+            android:paddingBottom="0dp">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+            <com.example.lkacmf.view.BaseTextView
+                    style="@style/MyTextView"
+                    app:header_title="操作人员 " />
+            <EditText
+                    android:id="@+id/etPerson"
+                    style="@style/EditText"
+                    android:layout_width="match_parent"/>
+
+
+            <com.example.lkacmf.view.BaseTextView
+                    style="@style/MyTextView"
+                    app:header_title="部件编号" />
+            <EditText
+                    android:id="@+id/etCode"
+                    style="@style/EditText"
+                    android:layout_width="match_parent"/>
+
+
+            <com.example.lkacmf.view.BaseTextView
+                    style="@style/MyTextView"
+                    app:header_title="检测文件" />
+            <EditText
+                    android:id="@+id/etFile"
+                    style="@style/EditText"
+                    android:layout_width="match_parent" />
+
+
+            <com.example.lkacmf.view.BaseTextView
+                    style="@style/MyTextView"
+                    app:header_title="检测位置" />
+
+            <EditText
+                    android:id="@+id/etPosition"
+                    style="@style/EditText"
+                    android:layout_width="match_parent" />
+
+            <com.example.lkacmf.view.BaseTextView
+                    style="@style/MyTextView"
+                    app:header_title="检测描述" />
+            <EditText
+                    android:id="@+id/etDescribe"
+                    style="@style/EditText"
+                    android:layout_height="wrap_content"
+                    android:minHeight="30dp"
+                    android:layout_width="match_parent" />
+
+        </LinearLayout>
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:layout_gravity="right"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="30dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginBottom="0dp"
+                android:orientation="horizontal">
+
+            <com.example.lkacmf.view.BaseButton
+                    android:id="@+id/btnFormCancel"
+                    style="@style/BaseButton"
+                    android:layout_width="0dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_cancel"
+                    app:bg_color="@color/theme_color"
+                    app:bg_corner="5dp" />
+
+            <com.example.lkacmf.view.BaseButton
+                    android:id="@+id/btnFormSure"
+                    style="@style/BaseButton"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:text="@string/btn_sure"
+                    app:bg_color="@color/theme_color"
+                    app:bg_corner="5dp" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

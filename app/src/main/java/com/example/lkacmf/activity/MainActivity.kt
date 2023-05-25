@@ -28,7 +28,6 @@ import com.example.lkacmf.util.dialog.MainDialog
 import com.example.lkacmf.util.linechart.LineChartSetting
 import com.example.lkacmf.util.mediaprojection.listener.ScreenshotListener
 import com.example.lkacmf.util.mediaprojection.service.ScreenShortRecordService
-import com.example.lkacmf.util.pio.XwpfTUtil
 import com.github.mikephil.charting.data.Entry
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.activity_main.*
@@ -126,21 +125,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
 
         LineChartSetting().SettingLineChart(lineChartBX)
         LineChartSetting().SettingLineChart(lineChartBZ)
-
-//        val dataMap: MutableMap<String, Any> = HashMap()
-//        dataMap["date"] = "2018年10月14日"
-//        dataMap["time"] = "08:02"
-//        dataMap["person"] = "移动开发组"
-//        dataMap["position"] = "济宁"
-//        dataMap["device"] = "ACMF"
-//        dataMap["code"] = "1"
-//        dataMap["describe"] = "测试秒速"
-//        dataMap["file"] = "检测文件"
-//        dataMap["probecode"] = "探头编号"
-//        dataMap["probefile"] = "探头文件！"
-//
-//        val templetDocPath = assets.open("acmf.docx")
-//        XwpfTUtil.writeDocx(templetDocPath, dataMap)
     }
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, iBinder: IBinder?) {
@@ -333,6 +317,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
     }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
@@ -342,22 +327,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                     data?.let {
                         mScreenShortService?.startShort(it, object : ScreenshotListener {
                             override suspend fun onScreenSuc(bitmap: Bitmap) {
-                                //显示截图
-                                LogUtil.e("TAG","${bitmap.height}")
-                                val dataMap: MutableMap<String, Any> = HashMap()
-                                dataMap["date"] = "2018年10月14日"
-                                dataMap["time"] = "08:02"
-                                dataMap["person"] = "移动开发组"
-                                dataMap["position"] = "济宁"
-                                dataMap["device"] = "ACMF"
-                                dataMap["code"] = "1"
-                                dataMap["describe"] = "测试秒速"
-                                dataMap["file"] = "检测文件"
-                                dataMap["probecode"] = "探头编号"
-                                dataMap["probefile"] = "探头文件！"
-
-                                val templetDocPath = assets.open("acmf.docx")
-                                XwpfTUtil.writeDocx(templetDocPath, dataMap,bitmap)
+                                MainDialog().writeFormDataDialog(this@MainActivity,bitmap)
                             }
                         })
                     }

@@ -8,6 +8,7 @@ import androidx.annotation.RequiresApi
 import com.example.lkacmf.MyApplication
 import com.example.lkacmf.activity.MainActivity
 import com.example.lkacmf.util.BinaryChange
+import com.example.lkacmf.util.UtcToLocalTime
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -25,12 +26,12 @@ object BaseData {
 //    LogUtil.e("TAG",s)
     @SuppressLint("MissingPermission")
     fun getDate():String{
-        val locationManager = MyApplication.context.getSystemService(Activity.LOCATION_SERVICE) as LocationManager
-        val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-        val calendar: Calendar = Calendar.getInstance()
-        location?.let { calendar.setTimeInMillis(it.getTime()) }
-        val df = SimpleDateFormat("yyyyMMdd")
-        var date = df.format(calendar.getTime())
+//        val locationManager = MyApplication.context.getSystemService(Activity.LOCATION_SERVICE) as LocationManager
+//        val location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+//        val calendar: Calendar = Calendar.getInstance()
+//        location?.let { calendar.setTimeInMillis(it.getTime()) }
+//        val df = SimpleDateFormat("yyyyMMdd")
+        var date = UtcToLocalTime.timeFormatChange().replace("-","")
         return date
     }
 

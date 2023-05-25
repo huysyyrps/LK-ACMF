@@ -40,6 +40,7 @@
     <string name="measure">测量</string>
     <string name="forms">报表</string>
     <string name="save">保存</string>
+    <string name="save_success">保存成功</string>
     <string name="array">阵列</string>
     <string name="rate">探头频率</string>
     <string name="rate1">1K</string>
