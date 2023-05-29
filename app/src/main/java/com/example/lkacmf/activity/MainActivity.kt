@@ -5,13 +5,11 @@ import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.Intent
-import android.media.ImageReader
+import android.hardware.usb.UsbManager
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -30,10 +28,14 @@ import com.example.lkacmf.util.linechart.LineChartSetting
 import com.example.lkacmf.util.mediaprojection.CaptureImage
 import com.github.mikephil.charting.data.Entry
 import com.google.android.material.tabs.TabLayout
+import com.hoho.android.usbserial.driver.UsbSerialPort
+import com.hoho.android.usbserial.driver.UsbSerialProber
+import com.hoho.android.usbserial.util.SerialInputOutputManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_scan_again.*
 import kotlinx.android.synthetic.main.drawer_item.view.*
-import java.util.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 
 class MainActivity : BaseActivity(), View.OnClickListener {
@@ -83,36 +85,36 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         //tabLayout选择监听
         tabLayoutSelect()
         BleBackDataRead.BleBackDataContext(this)
-        if (!bluetoothAdapter.isEnabled) {
-            activityResult.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
-        } else {
-            //是否通过全部权限
-            var permissionTag = MainDialog().requestPermission(this)
-            if (permissionTag) {
-                //是否连接成功
-                MainDialog().bleFuncation(this@MainActivity, object : BleMainConnectCallBack {
-                    override fun onConnectedfinish() {
-                        (R.string.scan_finish).showToast(context)
-                        initScanAgainDialog("scan", this@MainActivity)
-                    }
-
-                    override fun onConnectedfail() {
-                        (R.string.scan_fail).showToast(context)
-                    }
-
-                    override fun onConnectedsuccess() {
-                        resources.getString(R.string.connect_success).showToast(this@MainActivity)
-                        writeHandData()
-                    }
-
-                    override fun onConnectedagain() {
-                        initScanAgainDialog("connect", this@MainActivity)
-
-                    }
-
-                })
-            }
-        }
+//        if (!bluetoothAdapter.isEnabled) {
+//            activityResult.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+//        } else {
+//            //是否通过全部权限
+//            var permissionTag = MainDialog().requestPermission(this)
+//            if (permissionTag) {
+//                //是否连接成功
+//                MainDialog().bleFuncation(this@MainActivity, object : BleMainConnectCallBack {
+//                    override fun onConnectedfinish() {
+//                        (R.string.scan_finish).showToast(context)
+//                        initScanAgainDialog("scan", this@MainActivity)
+//                    }
+//
+//                    override fun onConnectedfail() {
+//                        (R.string.scan_fail).showToast(context)
+//                    }
+//
+//                    override fun onConnectedsuccess() {
+//                        resources.getString(R.string.connect_success).showToast(this@MainActivity)
+//                        writeHandData()
+//                    }
+//
+//                    override fun onConnectedagain() {
+//                        initScanAgainDialog("connect", this@MainActivity)
+//
+//                    }
+//
+//                })
+//            }
+//        }
 
         imageView.setOnClickListener(this)
         linSetting.setOnClickListener(this)
@@ -125,124 +127,163 @@ class MainActivity : BaseActivity(), View.OnClickListener {
 
         LineChartSetting().SettingLineChart(lineChartBX)
         LineChartSetting().SettingLineChart(lineChartBZ)
-    }
 
-    /**
-     * 扫描弹窗
-     */
-    fun initScanAgainDialog(stater: String, activity: MainActivity) {
-        dialog = MaterialDialog(activity)
-            .cancelable(false)
-            .show {
-                customView(    //自定义弹窗
-                    viewRes = R.layout.dialog_scan_again,//自定义文件
-                    dialogWrapContent = true,    //让自定义宽度生效
-                    scrollable = true,            //让自定义宽高生效
-                    noVerticalPadding = true    //让自定义高度生效
-                )
-                cornerRadius(16f)
-            }
-        if (stater == "scan") {
-            dialog.etWorkPipe.hint = activity.resources.getString(R.string.scan_again)
-        } else if (stater == "connect") {
-            dialog.etWorkPipe.hint = activity.resources.getString(R.string.connect_again)
+
+        val manager = getSystemService(USB_SERVICE) as UsbManager
+        val availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager)
+        if (availableDrivers.isEmpty()) {
+            "0".showToast(this@MainActivity)
+            return
         }
+        // Open a connection to the first available driver.
+        val driver = availableDrivers[0]
+        val connection = manager.openDevice(driver.device)
+            ?: // add UsbManager.requestPermission(driver.getDevice(), ..) handling here
+            return
+        val port = driver.ports[0] // Most devices have just one port (port 0)
+        port.open(connection)
+        //设置串口的波特率、数据位，停止位，校验位115200
+        port.setParameters(115200, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
+        val buffer = ByteArray(16)
+        val numBytesRead = port.read(buffer, 1000)
+        LogUtil.e("TAG", "Read $numBytesRead bytes.")
 
-        dialog.btnCancel.setOnClickListener {
-            dialog.dismiss()
-            activity.finish()
-        }
-        dialog.btnSure.setOnClickListener {
-            dialog.dismiss()
-            MainDialog().bleFuncation(this@MainActivity, object : BleMainConnectCallBack {
-                override fun onConnectedfinish() {
-                    (R.string.scan_finish).showToast(context)
-                    initScanAgainDialog("scan", this@MainActivity)
+        val mExecutor: ExecutorService = Executors.newSingleThreadExecutor()
+        val mSerialIoManager: SerialInputOutputManager
+        val mListener: SerialInputOutputManager.Listener =
+            object : SerialInputOutputManager.Listener {
+                override fun onRunError(e: Exception) {
+                    LogUtil.e("TAG", "Runner stopped.")
+                    "Runner stopped.".showToast(this@MainActivity)
                 }
 
-                override fun onConnectedfail() {
-                    (R.string.scan_fail).showToast(context)
-                }
-
-                @RequiresApi(Build.VERSION_CODES.O)
-                override fun onConnectedsuccess() {
-                    resources.getString(R.string.connect_success).showToast(this@MainActivity)
-                    writeHandData()
-                }
-
-                override fun onConnectedagain() {
-                    initScanAgainDialog("connect", this@MainActivity)
-
-                }
-
-            })
-        }
-    }
-
-    //写入数据
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun writeHandData() {
-        Thread.sleep(1500)
-        BleContent.writeData(
-            BleDataMake().makeHandData(),
-            CharacteristicUuid.ConstantCharacteristicUuid, object : BleWriteCallBack {
-                override fun writeCallBack(writeBackData: String) {
-                    LogUtil.e("TAG", "写入数据回调 = $writeBackData")
-                    iswrite = true
-                    ReadData()
-                }
-            })
-    }
-
-    //读取数据
-    fun ReadData() {
-        if (iswrite) {
-            BleContent.readData(
-                CharacteristicUuid.ConstantCharacteristicUuid,
-                object : BleReadCallBack {
-                    override fun readCallBack(readData: String) {
-                        //帧头和识别码对应才能解析  读取握手信息
-                        if (readData.length > 4 && readData.substring(0, 4) == "BE01") {
-                            BleBackDataRead.readHandData(readData)
-                        } else if (readData.length > 4 && readData.substring(0, 4) == "BE02") {
-                            BleBackDataRead.readEmpowerData(readData)
-                        } else if (readData.length > 4 && readData.substring(0, 4) == "BE03") {
-                            BleBackDataRead.readSettingData(readData)
-                        } else if (readData.length > 4 && readData.substring(0, 4) == "BE14") {
-                            //判断是否测量
-                            var meterTag = BleBackDataRead.meterData(readData)
-                            when (meterTag) {
-                                "00" -> {
-                                    LogUtil.e("TAG", meterTag)
-                                }
-                                "01" -> {
-                                    LogUtil.e("TAG", "开始")
-                                }
-                                "02" -> {
-                                    LogUtil.e("TAG", "复位")
-                                }
-                            }
-                        } else if (readData.length > 4 && readData.substring(0, 4) == "BE04") {
-                            LogUtil.e("TAG", readData)
-                            BleBackDataRead.readMeterData(readData, lineChartBX)
-                        }
-                    }
-                })
-        }
-    }
-
-    //开启蓝牙
-    @RequiresApi(Build.VERSION_CODES.S)
-    private val activityResult =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            if (it.resultCode == Activity.RESULT_OK) {
-                if (bluetoothAdapter.isEnabled) {
-                    MainDialog().requestPermission(this)
-                } else {
-                    R.string.ble_open_fail.showToast(context)
+                override fun onNewData(data: ByteArray) {
+                    //TODO 新的数据
+                    LogUtil.e("TAG", "1111.")
+                    "1111.".showToast(this@MainActivity)
                 }
             }
-        }
+        mSerialIoManager = SerialInputOutputManager(port, mListener) //添加监听
+        //在新的线程中监听串口的数据变化
+        mExecutor.submit(mSerialIoManager)
+    }
+
+//    /**
+//     * 扫描弹窗
+//     */
+//    fun initScanAgainDialog(stater: String, activity: MainActivity) {
+//        dialog = MaterialDialog(activity)
+//            .cancelable(false)
+//            .show {
+//                customView(    //自定义弹窗
+//                    viewRes = R.layout.dialog_scan_again,//自定义文件
+//                    dialogWrapContent = true,    //让自定义宽度生效
+//                    scrollable = true,            //让自定义宽高生效
+//                    noVerticalPadding = true    //让自定义高度生效
+//                )
+//                cornerRadius(16f)
+//            }
+//        if (stater == "scan") {
+//            dialog.etWorkPipe.hint = activity.resources.getString(R.string.scan_again)
+//        } else if (stater == "connect") {
+//            dialog.etWorkPipe.hint = activity.resources.getString(R.string.connect_again)
+//        }
+//
+//        dialog.btnCancel.setOnClickListener {
+//            dialog.dismiss()
+//            activity.finish()
+//        }
+//        dialog.btnSure.setOnClickListener {
+//            dialog.dismiss()
+//            MainDialog().bleFuncation(this@MainActivity, object : BleMainConnectCallBack {
+//                override fun onConnectedfinish() {
+//                    (R.string.scan_finish).showToast(context)
+//                    initScanAgainDialog("scan", this@MainActivity)
+//                }
+//
+//                override fun onConnectedfail() {
+//                    (R.string.scan_fail).showToast(context)
+//                }
+//
+//                @RequiresApi(Build.VERSION_CODES.O)
+//                override fun onConnectedsuccess() {
+//                    resources.getString(R.string.connect_success).showToast(this@MainActivity)
+//                    writeHandData()
+//                }
+//
+//                override fun onConnectedagain() {
+//                    initScanAgainDialog("connect", this@MainActivity)
+//
+//                }
+//
+//            })
+//        }
+//    }
+//
+//    //写入数据
+//    @RequiresApi(Build.VERSION_CODES.O)
+//    fun writeHandData() {
+//        Thread.sleep(1500)
+//        BleContent.writeData(
+//            BleDataMake().makeHandData(),
+//            CharacteristicUuid.ConstantCharacteristicUuid, object : BleWriteCallBack {
+//                override fun writeCallBack(writeBackData: String) {
+//                    LogUtil.e("TAG", "写入数据回调 = $writeBackData")
+//                    iswrite = true
+//                    ReadData()
+//                }
+//            })
+//    }
+//
+//    //读取数据
+//    fun ReadData() {
+//        if (iswrite) {
+//            BleContent.readData(
+//                CharacteristicUuid.ConstantCharacteristicUuid,
+//                object : BleReadCallBack {
+//                    override fun readCallBack(readData: String) {
+//                        //帧头和识别码对应才能解析  读取握手信息
+//                        if (readData.length > 4 && readData.substring(0, 4) == "BE01") {
+//                            BleBackDataRead.readHandData(readData)
+//                        } else if (readData.length > 4 && readData.substring(0, 4) == "BE02") {
+//                            BleBackDataRead.readEmpowerData(readData)
+//                        } else if (readData.length > 4 && readData.substring(0, 4) == "BE03") {
+//                            BleBackDataRead.readSettingData(readData)
+//                        } else if (readData.length > 4 && readData.substring(0, 4) == "BE14") {
+//                            //判断是否测量
+//                            var meterTag = BleBackDataRead.meterData(readData)
+//                            when (meterTag) {
+//                                "00" -> {
+//                                    LogUtil.e("TAG", meterTag)
+//                                }
+//                                "01" -> {
+//                                    LogUtil.e("TAG", "开始")
+//                                }
+//                                "02" -> {
+//                                    LogUtil.e("TAG", "复位")
+//                                }
+//                            }
+//                        } else if (readData.length > 4 && readData.substring(0, 4) == "BE04") {
+//                            LogUtil.e("TAG", readData)
+//                            BleBackDataRead.readMeterData(readData, lineChartBX)
+//                        }
+//                    }
+//                })
+//        }
+//    }
+//
+//    //开启蓝牙
+//    @RequiresApi(Build.VERSION_CODES.S)
+//    private val activityResult =
+//        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+//            if (it.resultCode == Activity.RESULT_OK) {
+//                if (bluetoothAdapter.isEnabled) {
+//                    MainDialog().requestPermission(this)
+//                } else {
+//                    R.string.ble_open_fail.showToast(context)
+//                }
+//            }
+//        }
 
     private fun tabLayoutSelect() {
         tbLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {

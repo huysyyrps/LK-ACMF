@@ -21,9 +21,11 @@ import com.example.lkacmf.R
 import com.example.lkacmf.adapter.ImageListAdapter
 import com.example.lkacmf.util.AdapterPositionCallBack
 import com.example.lkacmf.util.Constant
+import com.example.lkacmf.util.StatusBarUtils
 import com.scwang.smart.refresh.footer.ClassicsFooter
 import com.scwang.smart.refresh.header.ClassicsHeader
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
+import kotlinx.android.synthetic.main.activity_image_list.*
 import kotlinx.android.synthetic.main.dialog_removecalibration.*
 import top.zibin.luban.Luban
 import top.zibin.luban.OnCompressListener
@@ -51,6 +53,7 @@ class ImageListActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        StatusBarUtils.setWindowStatusBarColor(this, R.color.theme_color)
         setContentView(R.layout.activity_image_list)
         //闸门
         recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
@@ -121,6 +124,10 @@ class ImageListActivity : AppCompatActivity() {
                 dialog.dismiss()
             }
             true
+        }
+
+        ivImagelistBack.setOnClickListener {
+            finish()
         }
 
         getFileList()
