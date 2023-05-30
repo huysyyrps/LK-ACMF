@@ -59,4 +59,5 @@
     <string name="contact_comp">联系我们</string>
     <string name="exit_project">退出程序</string>
     <string name="last_version">已是最新版本</string>
+    <string name="no_devices">未获取到设备</string>
 </resources>

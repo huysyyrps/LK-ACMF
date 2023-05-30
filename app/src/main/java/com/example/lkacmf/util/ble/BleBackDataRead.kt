@@ -16,6 +16,7 @@ import com.example.lkacmf.util.BaseSharedPreferences
 import com.example.lkacmf.util.BinaryChange
 import com.example.lkacmf.util.showToast
 import com.example.lkacmf.view.BaseLineChart
+import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
@@ -300,7 +301,7 @@ object BleBackDataRead {
     /**
      * Refresh刷新
      */
-    fun readRefreshData(lineChartBX: BaseLineChart) {
+    fun readRefreshData(lineChartBX: LineChart) {
         //将数据添加到图表中
         landBXList.clear()
         lineChartBX.notifyDataSetChanged()

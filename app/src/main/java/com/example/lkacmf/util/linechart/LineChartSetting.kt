@@ -1,13 +1,19 @@
 package com.example.lkacmf.util.linechart
 
+import android.view.MotionEvent
+import com.example.lk_epk.util.LogUtil
 import com.example.lkacmf.MyApplication
 import com.example.lkacmf.R
 import com.example.lkacmf.view.BaseLineChart
+import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.listener.ChartTouchListener.ChartGesture
+import com.github.mikephil.charting.listener.OnChartGestureListener
+
 
 class LineChartSetting {
-    fun SettingLineChart(linechar: BaseLineChart){
+    fun SettingLineChart(linechar: LineChart){
         linechar.setDrawGridBackground(false)//是否显示表格颜色
         linechar.setDrawBorders(true)// 是否在折线图上添加边框
         linechar.setScaleEnabled(true)// 是否可以缩放
@@ -30,6 +36,50 @@ class LineChartSetting {
         // 当前统计图表中最多在x轴坐标线上显示的总量
 //        linechar.setVisibleXRangeMaximum(300f);
 //        linechar.moveViewToX(300f);
+        linechar.onChartGestureListener = object : OnChartGestureListener {
+            // 手势监听器
+            override fun onChartGestureStart(me: MotionEvent, lastPerformedGesture: ChartGesture) {
+                // 按下
+                LogUtil.e("TAG","按下")
+            }
+
+            override fun onChartGestureEnd(me: MotionEvent, lastPerformedGesture: ChartGesture) {
+                // 抬起,取消
+            }
+
+            override fun onChartLongPressed(me: MotionEvent) {
+                // 长按
+                LogUtil.e("TAG","长按")
+            }
+
+            override fun onChartDoubleTapped(me: MotionEvent) {
+                // 双击
+                LogUtil.e("TAG","双击")
+            }
+
+            override fun onChartSingleTapped(me: MotionEvent) {
+                // 单击
+            }
+
+            override fun onChartFling(
+                me1: MotionEvent,
+                me2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ) {
+                // 甩动
+            }
+
+            override fun onChartScale(me: MotionEvent, scaleX: Float, scaleY: Float) {
+                // 缩放
+            }
+
+            override fun onChartTranslate(me: MotionEvent, dX: Float, dY: Float) {
+                // 移动
+            }
+        }
+
+
 
         //X轴
         val xAxis = linechar.xAxis
