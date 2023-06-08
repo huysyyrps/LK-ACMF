@@ -91,7 +91,7 @@ class CaptureImage {
                 else
                     MyApplication.context.resources.getString(R.string.save_fail).showToast(activity)
             }else if (tag=="form"){
-                MainDialog().writeFormDataDialog(activity,bitmap)
+                MainDialog().writeFormDataDialog(activity,bitmap,bitmap,bitmap)
             }
             mMediaProjection?.stop()
             imageReader?.close()

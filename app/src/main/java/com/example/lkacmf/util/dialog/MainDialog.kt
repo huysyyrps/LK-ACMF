@@ -218,7 +218,7 @@ class MainDialog {
      */
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingPermission")
-    fun writeFormDataDialog(activity: MainActivity, bitmap: Bitmap) {
+    fun writeFormDataDialog(activity: MainActivity, bitmapBX: Bitmap,bitmapBZ: Bitmap,bitmapDX: Bitmap) {
 //        CoroutineScope(Dispatchers.Main)
 //            .launch {
         dialog = MaterialDialog(activity)
@@ -240,7 +240,6 @@ class MainDialog {
             var code = dialog.etCode.text.toString()
             var file = dialog.etFile.text.toString()
             var position = dialog.etPosition.text.toString()
-            var describe = dialog.etDescribe.text.toString()
             if (person.trim { it <= ' ' } == "") {
                 "操作人员不能为空".showToast(activity)
                 return@setOnClickListener
@@ -257,10 +256,6 @@ class MainDialog {
                 "检测位置不能为空".showToast(activity)
                 return@setOnClickListener
             }
-            if (describe.trim { it <= ' ' } == "") {
-                "检测描述不能为空".showToast(activity)
-                return@setOnClickListener
-            }
 
             var date = UtcToLocalTime.timeFormatChange()
             //显示截图
@@ -270,13 +265,13 @@ class MainDialog {
             dataMap["position"] = position
             dataMap["device"] = "ACMF"
             dataMap["code"] = code
-            dataMap["describe"] = describe
+            dataMap["describe"] = "describe"
             dataMap["file"] = file
             dataMap["probecode"] = "探头编号"
             dataMap["probefile"] = "探头文件！"
 
             val templetDocPath = activity.assets.open("acmf.docx")
-            var saveFormState = XwpfTUtil.writeDocx(templetDocPath, dataMap, bitmap)
+            var saveFormState = XwpfTUtil.writeDocx(templetDocPath, dataMap, bitmapBX,bitmapBZ,bitmapDX)
             if (saveFormState) {
                 MyApplication.context.resources.getString(R.string.save_success).showToast(activity)
                 dialog.dismiss()

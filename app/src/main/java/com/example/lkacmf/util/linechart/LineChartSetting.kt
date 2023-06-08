@@ -1,6 +1,8 @@
 package com.example.lkacmf.util.linechart
 
 import android.view.MotionEvent
+import android.view.View
+import androidx.cardview.widget.CardView
 import com.example.lk_epk.util.LogUtil
 import com.example.lkacmf.MyApplication
 import com.example.lkacmf.R
@@ -13,13 +15,13 @@ import com.github.mikephil.charting.listener.OnChartGestureListener
 
 
 class LineChartSetting {
-    fun SettingLineChart(linechar: LineChart){
+    fun SettingLineChart(linechar: LineChart, yAxixSetting: CardView){
         linechar.setDrawGridBackground(false)//是否显示表格颜色
         linechar.setDrawBorders(true)// 是否在折线图上添加边框
         linechar.setScaleEnabled(true)// 是否可以缩放
         linechar.setPinchZoom(false) // X,Y轴同时缩放，false则X,Y轴单独缩放,默认false
-        linechar.isScaleXEnabled = true;  // X轴上的缩放,默认true
-        linechar.isScaleYEnabled = true;  // Y轴上的缩放,默认true
+        linechar.isScaleXEnabled = true  // X轴上的缩放,默认true
+        linechar.isScaleYEnabled = true  // Y轴上的缩放,默认true
         linechar.isDragEnabled = true// 是否可以拖拽
         linechar.setTouchEnabled(true) // 设置是否可以触摸
         linechar.description = null// 数据描述
@@ -41,6 +43,7 @@ class LineChartSetting {
             override fun onChartGestureStart(me: MotionEvent, lastPerformedGesture: ChartGesture) {
                 // 按下
                 LogUtil.e("TAG","按下")
+                yAxixSetting.visibility = View.GONE
             }
 
             override fun onChartGestureEnd(me: MotionEvent, lastPerformedGesture: ChartGesture) {
@@ -50,6 +53,7 @@ class LineChartSetting {
             override fun onChartLongPressed(me: MotionEvent) {
                 // 长按
                 LogUtil.e("TAG","长按")
+                yAxixSetting.visibility = View.VISIBLE
             }
 
             override fun onChartDoubleTapped(me: MotionEvent) {
@@ -72,6 +76,8 @@ class LineChartSetting {
 
             override fun onChartScale(me: MotionEvent, scaleX: Float, scaleY: Float) {
                 // 缩放
+                LogUtil.e("TAG","缩放")
+                LogUtil.e("TAG","$scaleX  $scaleY")
             }
 
             override fun onChartTranslate(me: MotionEvent, dX: Float, dY: Float) {
@@ -101,10 +107,10 @@ class LineChartSetting {
         leftYAxis.axisLineWidth = 4f//轴线宽度
         //leftYAxis.spaceBottom = 10f // 最小值距离底部比例。默认10，y轴独有
 //        leftYAxis.spaceTop = 10f // 设置最大值到图标顶部的距离占所有数据范围的比例。默认10，y轴独有
-        leftYAxis.axisMinimum = 0.0f;
-        leftYAxis.axisMaximum = 100f//为此轴设置自定义最大值。
+//        leftYAxis.axisMinimum = -10.0f;
+//        leftYAxis.axisMaximum = 50f//为此轴设置自定义最大值。
         leftYAxis.isEnabled = true;//是否显示
-        leftYAxis.granularity = 1.0f;//设置Y轴坐标之间的最小间隔（因为此图有缩放功能，X轴,Y轴可设置可缩放）
+//        leftYAxis.granularity = 1.0f;//设置Y轴坐标之间的最小间隔（因为此图有缩放功能，X轴,Y轴可设置可缩放）
         leftYAxis.setDrawGridLines(false)
 ////        yLeftAxis.axisMinimum = -30f
         leftYAxis.setPosition(YAxis.YAxisLabelPosition.INSIDE_CHART); //Y轴标签显示位置

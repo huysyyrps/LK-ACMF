@@ -21,6 +21,10 @@ class BinaryChange {
         return java.lang.Float.intBitsToFloat(ieeData)
     }
 
+    fun ieee754ToFloat(ieeData: Long): Float {
+        return java.lang.Float.intBitsToFloat(ieeData.toInt())
+    }
+
     /**
      * IEEE 754字符串转十六进制字符串
      *

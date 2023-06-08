@@ -21,7 +21,9 @@ object XwpfTUtil {
     fun writeDocx(
         templetDocInStream: InputStream,
         dataMap: MutableMap<String, Any>,
-        bitmap: Bitmap
+        bitmapBX: Bitmap,
+        bitmapBZ: Bitmap,
+        bitmapDX: Bitmap
     ):Boolean {
         try {
             //得到模板doc文件的HWPFDocument对象
@@ -33,18 +35,44 @@ object XwpfTUtil {
 
 
             val run: XWPFRun = HDocx.createParagraph().createRun()
+//            val run1: XWPFRun = HDocx.createParagraph().createRun()
 //            val picIn = FileInputStream(File(Environment.getExternalStorageDirectory().path + "/123.png"))
-            val baos = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos)
-            val picIn = ByteArrayInputStream(baos.toByteArray())
+            val baosBX = ByteArrayOutputStream()
+            bitmapBX.compress(Bitmap.CompressFormat.PNG, 100, baosBX)
+            val picInBX = ByteArrayInputStream(baosBX.toByteArray())
+
+            val baosBZ = ByteArrayOutputStream()
+            bitmapBZ.compress(Bitmap.CompressFormat.PNG, 100, baosBZ)
+            val picInBZ = ByteArrayInputStream(baosBZ.toByteArray())
+
+            val baosDX = ByteArrayOutputStream()
+            bitmapDX.compress(Bitmap.CompressFormat.PNG, 100, baosDX)
+            val picInDX = ByteArrayInputStream(baosDX.toByteArray())
+
             run.addPicture(
-                picIn,
+                picInBX,
                 XWPFDocument.PICTURE_TYPE_PNG,
                 "插入图片",
-                Units.toEMU(420.0),
-                Units.toEMU(300.0)
+                Units.toEMU(205.0),
+                Units.toEMU(130.0)
             )
-            picIn.close()
+            run.addPicture(
+                picInBZ,
+                XWPFDocument.PICTURE_TYPE_PNG,
+                "插入图片1",
+                Units.toEMU(205.0),
+                Units.toEMU(130.0)
+            )
+            run.addPicture(
+                picInDX,
+                XWPFDocument.PICTURE_TYPE_PNG,
+                "插入图片1",
+                Units.toEMU(205.0),
+                Units.toEMU(160.0)
+            )
+            picInBX.close()
+            picInBZ.close()
+            picInDX.close()
 
 
             val targetDocPath = Environment.getExternalStorageDirectory().toString()+ "/"+Constant.SAVE_FORM_PATH+"/"
@@ -52,7 +80,7 @@ object XwpfTUtil {
             //如果不存在  就mkdirs()创建此文件夹
             if (!file.exists()) {
                 file.mkdirs()
-            }//这个目录，不需要申请存储权限
+            }
             val mFile = File(targetDocPath + getNowDate())
             //写到另一个文件中
             val os: OutputStream = FileOutputStream(mFile)

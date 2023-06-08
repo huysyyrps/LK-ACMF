@@ -57,16 +57,6 @@
                     style="@style/EditText"
                     android:layout_width="match_parent" />
 
-            <com.example.lkacmf.view.BaseTextView
-                    style="@style/MyTextView"
-                    app:header_title="检测描述" />
-            <EditText
-                    android:id="@+id/etDescribe"
-                    style="@style/EditText"
-                    android:layout_height="wrap_content"
-                    android:minHeight="30dp"
-                    android:layout_width="match_parent" />
-
         </LinearLayout>
         <LinearLayout
                 android:layout_width="match_parent"

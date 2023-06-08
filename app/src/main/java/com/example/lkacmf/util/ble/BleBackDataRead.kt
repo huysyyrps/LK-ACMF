@@ -33,6 +33,7 @@ object BleBackDataRead {
     private lateinit var context: MainActivity
     private lateinit var dialog: MaterialDialog
     var landBXList: ArrayList<Entry> = ArrayList()
+    var landBZList: ArrayList<Entry> = ArrayList()
 
 
     fun BleBackDataContext(activity: MainActivity) {
@@ -259,43 +260,51 @@ object BleBackDataRead {
     /**
      * 测量信息
      */
-    fun readMeterData(data: String, lineChartBX: BaseLineChart) {
-        lateinit var lineBXSet: LineDataSet
-        lateinit var lineBZSet: LineDataSet
-        var backData = BinaryChange().hexStringToByte(data)
+    fun readMeterData(readData: String, lineChartBX: LineChart, lineChartBZ: LineChart) {
+        var backData = BinaryChange().hexStringToByte(readData)
         //校验
-//                            if (BaseData.hexStringToBytes(readData.substring(0,readData.length-2))==readData.substring(readData.length-2,readData.length)){
-//
-//                            }
-        if (backData[2] == "00") {
+//        if (BaseData.hexStringToBytes(readData.substring(0, readData.length - 2)) == readData.substring(readData.length - 2, readData.length)){
+        var xHex = "${backData[3]}${backData[4]}${backData[5]}${backData[6]}".toLong(16)
+        var xData = xHex.toFloat() / 1000
 
-        } else {
-            var xHex = "${backData[3]}${backData[4]}${backData[5]}${backData[6]}".toInt(16)
-            var xData = (xHex.toLong() / 1000).toFloat()
+        var yBXHex = "${backData[8]}${backData[9]}${backData[10]}${backData[11]}".toLong(16)
+        var yBXData = BinaryChange().ieee754ToFloat(yBXHex)
 
-            var yBXHex = "${backData[8]}${backData[9]}${backData[10]}${backData[11]}".toInt(16)
-            var yBXData = BinaryChange().ieee754ToFloat(yBXHex)
+        var yBZHex = "${backData[12]}${backData[13]}${backData[14]}${backData[15]}".toLong(16)
+        var yBZData = BinaryChange().ieee754ToFloat(yBZHex)
 
-            var yBZHex = "${backData[12]}${backData[13]}${backData[14]}${backData[15]}".toInt(16)
-            var yBZData = BinaryChange().ieee754ToFloat(yBZHex)
+        landBXList.add(Entry(xData, yBXData))
+        var lineBXSet: LineDataSet = LineDataSet(landBXList, "BX")
+        //不绘制数据
+        lineBXSet.setDrawValues(false)
+        //不绘制圆形指示器
+        lineBXSet.setDrawCircles(false)
+        //线模式为圆滑曲线（默认折线）
+        //lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
+        lineBXSet.color = MyApplication.context.resources.getColor(R.color.theme_color)
+        //将数据集添加到数据 ChartData 中
+        val lineDataBX = LineData(lineBXSet)
+        //将数据添加到图表中
+        lineChartBX.data = lineDataBX
+        lineChartBX.notifyDataSetChanged()
+        lineChartBX.invalidate()
 
-            landBXList.add(Entry(xData, yBXData))
-
-            lineBXSet = LineDataSet(landBXList, "BX")
-            //不绘制数据
-            lineBXSet.setDrawValues(false)
-            //不绘制圆形指示器
-            lineBXSet.setDrawCircles(false)
-            //线模式为圆滑曲线（默认折线）
-            //lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-            lineBXSet.color = MyApplication.context.resources.getColor(R.color.theme_color)
-            //将数据集添加到数据 ChartData 中
-            val lineData = LineData(lineBXSet)
-            //将数据添加到图表中
-            lineChartBX.data = lineData
-            lineChartBX.notifyDataSetChanged()
-            lineChartBX.invalidate()
-        }
+        landBZList.add(Entry(xData, yBZData))
+        var lineBZSet: LineDataSet = LineDataSet(landBZList, "BZ")
+        //不绘制数据
+        lineBZSet.setDrawValues(false)
+        //不绘制圆形指示器
+        lineBZSet.setDrawCircles(false)
+        //线模式为圆滑曲线（默认折线）
+        //lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
+        lineBZSet.color = MyApplication.context.resources.getColor(R.color.theme_color)
+        //将数据集添加到数据 ChartData 中
+        val lineDataBZ = LineData(lineBZSet)
+        //将数据添加到图表中
+        lineChartBZ.data = lineDataBZ
+        lineChartBZ.notifyDataSetChanged()
+        lineChartBZ.invalidate()
+//        }
     }
 
     /**

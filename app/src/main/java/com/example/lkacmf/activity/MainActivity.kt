@@ -5,6 +5,8 @@ import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
@@ -26,9 +28,11 @@ import com.example.lkacmf.util.ble.BleDataMake
 import com.example.lkacmf.util.ble.BleWriteCallBack
 import com.example.lkacmf.util.dialog.MainDialog
 import com.example.lkacmf.util.linechart.LineChartSetting
+import com.example.lkacmf.util.linechart.ScaleListenCallBack
 import com.example.lkacmf.util.mediaprojection.CaptureImage
 import com.example.lkacmf.util.usb.UsbBackDataLisition
 import com.example.lkacmf.util.usb.UsbContent
+import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
@@ -60,7 +64,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         add(context.resources.getString(R.string.stop))
         add(context.resources.getString(R.string.refresh))
         add(context.resources.getString(R.string.reset))
-//        add(context.resources.getString(R.string.detection_mode))
         add(context.resources.getString(R.string.calibration))
         add(context.resources.getString(R.string.measure))
         add(context.resources.getString(R.string.forms))
@@ -69,6 +72,8 @@ class MainActivity : BaseActivity(), View.OnClickListener {
     private var landList: ArrayList<Entry> = ArrayList()
     private var lineDataSet: LineDataSet? = null
     var timer = Timer()
+    var axisMaximum:Float = 5.0F
+    private lateinit var leftYAxis: YAxis
 
     companion object {
         fun actionStart(context: Context) {
@@ -128,21 +133,53 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         linVersionCheck.setOnClickListener(this)
         linContactComp.setOnClickListener(this)
         btnFinish.setOnClickListener(this)
+        ivAdd.setOnClickListener(this)
+        ivDown.setOnClickListener(this)
         version = BaseProjectVersion().getPackageInfo(context)?.versionName.toString()
         linCurrentVersion.tvVersion.text = version
 
-        LineChartSetting().SettingLineChart(lineChartBX)
-        LineChartSetting().SettingLineChart(lineChartBZ)
+        LineChartSetting().SettingLineChart(lineChartBX,yAxixSetting)
+        LineChartSetting().SettingLineChart(lineChartBZ, yAxixSetting)
+        LineChartSetting().SettingLineChart(lineChartTest, yAxixSetting)
 
         UsbContent.usbDeviceConstant(this,object : UsbBackDataLisition{
             override fun usbBackData(data: String) {
-                LogUtil.e("TAG", data)
+                if (data.length > 4 && data.substring(0, 4) == "BE04") {
+                    BleBackDataRead.readMeterData(data,lineChartBX,lineChartBZ)
+                }
             }
 
         })
         btn.setOnClickListener {
            UsbContent.writeData()
         }
+
+        //获取电量
+        val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+        var receiver = BatteryReceiver()
+        registerReceiver(receiver, filter)
+
+        leftYAxis = lineChartBX.axisLeft
+        leftYAxis.axisMaximum = axisMaximum
+        /**
+         * for (i in 0..600){
+        landList.add(Entry(i.toFloat(), ((30..50).random()).toFloat()))
+        lineDataSet = LineDataSet(landList, "A扫")
+        //不绘制数据
+        lineDataSet?.setDrawValues(false)
+        //不绘制圆形指示器
+        lineDataSet?.setDrawCircles(false)
+        //线模式为圆滑曲线（默认折线）
+        //                                lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
+        lineDataSet?.color = context.resources.getColor(R.color.theme_color)
+        //将数据集添加到数据 ChartData 中
+        val lineData = LineData(lineDataSet)
+        //将数据添加到图表中
+        lineChartBX.data = lineData
+        lineChartBX.notifyDataSetChanged()
+        lineChartBX.invalidate()
+        }
+         */
     }
 
     /**
@@ -270,16 +307,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             @RequiresApi(Build.VERSION_CODES.O)
             override fun onTabSelected(tab: TabLayout.Tab) {
                 when (tab.text) {
-                    context.resources.getString(R.string.start) -> {
-//                        isStart = true
-//                        BleContent.writeData(
-//                            BleDataMake().makeStartMeterData(),
-//                            CharacteristicUuid.ConstantCharacteristicUuid,
-//                            object : BleWriteCallBack {
-//                                override fun writeCallBack(writeBackData: String) {
-//                                    LogUtil.e("TAG", "写入开始测量回调 = $writeBackData")
-//                                }
-//                            })
+                  /**  context.resources.getString(R.string.start) -> {
                         if (reset=="Reset"){
                             i = 0
                             timer.cancel()
@@ -291,7 +319,8 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                         }
                         timer.schedule(object : TimerTask() {
                             override fun run() {
-                                landList.add(Entry(i.toFloat(), ((30..50).random()).toFloat()))
+                                var yDaya = ((30..50).random()).toFloat()
+                                landList.add(Entry(i.toFloat(), yDaya))
                                 lineDataSet = LineDataSet(landList, "A扫")
                                 //不绘制数据
                                 lineDataSet?.setDrawValues(false)
@@ -309,7 +338,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                                 i++
                             }
                         }, 0,500)
-                    }
+                    }*/
                     context.resources.getString(R.string.stop) -> {
                         isStart = false
                         BleContent.writeData(
@@ -342,14 +371,95 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                         tbLayout.selectTab(tbLayout.getTabAt(0))
                     }
                     context.resources.getString(R.string.forms) -> {
-                        mediaManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-                        if (mMediaProjection==null){
-                            val captureIntent: Intent =
-                                mediaManager.createScreenCaptureIntent()
-                            startActivityForResult(captureIntent, Constant.TAG_ONE)
-                        }else{
-                            mMediaProjection?.let { CaptureImage().captureImages(this@MainActivity,"form", it) }
+                         var viewBX = linBX
+                        viewBX.setDrawingCacheEnabled(true)
+                        viewBX.buildDrawingCache()
+                        var bitmapBX = Bitmap.createBitmap(viewBX.getDrawingCache())
+
+                        var viewBZ = linBZ
+                        viewBZ.setDrawingCacheEnabled(true)
+                        viewBZ.buildDrawingCache()
+                        var bitmapBZ = Bitmap.createBitmap(viewBZ.getDrawingCache())
+
+                        var viewDX = linDX
+                        viewDX.setDrawingCacheEnabled(true)
+                        viewDX.buildDrawingCache()
+                        var bitmapDX = Bitmap.createBitmap(viewDX.getDrawingCache())
+                        MainDialog().writeFormDataDialog(this@MainActivity,bitmapBX,bitmapBZ,bitmapDX)
+
+                        /**
+                        var landList1: ArrayList<Entry> = ArrayList()
+                        var landList2: ArrayList<Entry> = ArrayList()
+                        var landList3: ArrayList<Entry> = ArrayList()
+                        for (i in 0..200){
+                            landList1.add(landList[i])
                         }
+                        for (i in 200..400){
+                            landList2.add(landList[i])
+                        }
+                        for (i in 400..600){
+                            landList3.add(landList[i])
+                        }
+                        lineDataSet = LineDataSet(landList1, "A扫")
+                        //不绘制数据
+                        lineDataSet?.setDrawValues(false)
+                        //不绘制圆形指示器
+                        lineDataSet?.setDrawCircles(false)
+                        //线模式为圆滑曲线（默认折线）
+//                                lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
+                        lineDataSet?.color = context.resources.getColor(R.color.theme_color)
+                        //将数据集添加到数据 ChartData 中
+                        val lineData1 = LineData(lineDataSet)
+                        //将数据添加到图表中
+                        lineChartTest.data = lineData1
+                        lineChartTest.notifyDataSetChanged()
+                        lineChartTest.invalidate()
+                        var viewBZ = cardView
+                        viewBZ.setDrawingCacheEnabled(true)
+                        viewBZ.buildDrawingCache()
+                        var bitmap1 = Bitmap.createBitmap(viewBZ.getDrawingCache())
+                        lineChartTest.clear()
+
+                        lineDataSet = LineDataSet(landList2, "A扫")
+                        //不绘制数据
+                        lineDataSet?.setDrawValues(false)
+                        //不绘制圆形指示器
+                        lineDataSet?.setDrawCircles(false)
+                        //线模式为圆滑曲线（默认折线）
+//                                lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
+                        lineDataSet?.color = context.resources.getColor(R.color.theme_color)
+                        //将数据集添加到数据 ChartData 中
+                        val lineData2 = LineData(lineDataSet)
+                        //将数据添加到图表中
+                        lineChartTest.data = lineData2
+                        lineChartTest.notifyDataSetChanged()
+                        lineChartTest.invalidate()
+                        viewBZ.setDrawingCacheEnabled(true)
+                        viewBZ.buildDrawingCache()
+                        var bitmap2 = Bitmap.createBitmap(viewBZ.getDrawingCache())
+                        lineChartTest.clear()
+
+                        lineDataSet = LineDataSet(landList3, "A扫")
+                        //不绘制数据
+                        lineDataSet?.setDrawValues(false)
+                        //不绘制圆形指示器
+                        lineDataSet?.setDrawCircles(false)
+                        //线模式为圆滑曲线（默认折线）
+//                                lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
+                        lineDataSet?.color = context.resources.getColor(R.color.theme_color)
+                        //将数据集添加到数据 ChartData 中
+                        val lineData3 = LineData(lineDataSet)
+                        //将数据添加到图表中
+                        lineChartTest.data = lineData3
+                        lineChartTest.notifyDataSetChanged()
+                        lineChartTest.invalidate()
+                        viewBZ.setDrawingCacheEnabled(true)
+                        viewBZ.buildDrawingCache()
+                        var bitmap3 = Bitmap.createBitmap(viewBZ.getDrawingCache())
+
+                        MainDialog().writeFormDataDialog(this@MainActivity,bitmap1,bitmap2,bitmap3)
+                         *
+                         */
                     }
                     context.resources.getString(R.string.save) -> {
                         mediaManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
@@ -403,6 +513,16 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             R.id.linContactComp -> {
                 BaseTelPhone.telPhone(this)
 
+            }
+            R.id.ivAdd -> {
+                axisMaximum+=20
+                leftYAxis.axisMaximum = axisMaximum
+            }
+            R.id.ivDown -> {
+                if (axisMaximum>20){
+                    axisMaximum-=20
+                    leftYAxis.axisMaximum = axisMaximum
+                }
             }
             R.id.btnFinish -> {
                 finish()
