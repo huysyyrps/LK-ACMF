@@ -18,13 +18,16 @@ class LineChartSetting {
     fun SettingLineChart(linechar: LineChart, yAxixSetting: CardView){
         linechar.setDrawGridBackground(false)//是否显示表格颜色
         linechar.setDrawBorders(true)// 是否在折线图上添加边框
-        linechar.setScaleEnabled(true)// 是否可以缩放
+//        linechar.setScaleEnabled(true)// 是否可以缩放
         linechar.setPinchZoom(false) // X,Y轴同时缩放，false则X,Y轴单独缩放,默认false
         linechar.isScaleXEnabled = true  // X轴上的缩放,默认true
         linechar.isScaleYEnabled = true  // Y轴上的缩放,默认true
         linechar.isDragEnabled = true// 是否可以拖拽
-        linechar.setTouchEnabled(true) // 设置是否可以触摸
+//        linechar.setTouchEnabled(true) // 设置是否可以触摸
         linechar.description = null// 数据描述
+        //设置是否可以通过双击屏幕放大图表。默认是true
+        linechar.isDoubleTapToZoomEnabled = false;
+
 //        linechar.isDoubleTapToZoomEnabled = false
         linechar.viewPortHandler.setMaximumScaleX(30.0f)//限制X轴放大限制
         linechar.viewPortHandler.setMaximumScaleY(3.0f)
@@ -72,6 +75,7 @@ class LineChartSetting {
                 velocityY: Float
             ) {
                 // 甩动
+                LogUtil.e("TAG","甩动")
             }
 
             override fun onChartScale(me: MotionEvent, scaleX: Float, scaleY: Float) {
@@ -82,6 +86,8 @@ class LineChartSetting {
 
             override fun onChartTranslate(me: MotionEvent, dX: Float, dY: Float) {
                 // 移动
+                LogUtil.e("TAG","移动")
+                LogUtil.e("TAG","$dX  $dY")
             }
         }
 

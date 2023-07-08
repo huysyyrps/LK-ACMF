@@ -40,6 +40,7 @@
     <string name="measure">测量</string>
     <string name="forms">报表</string>
     <string name="save">保存</string>
+    <string name="play_back">回放</string>
     <string name="save_success">保存成功</string>
     <string name="save_fail">保存失败</string>
     <string name="array">阵列</string>

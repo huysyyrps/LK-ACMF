@@ -34,6 +34,7 @@ object BleBackDataRead {
     private lateinit var dialog: MaterialDialog
     var landBXList: ArrayList<Entry> = ArrayList()
     var landBZList: ArrayList<Entry> = ArrayList()
+    var landList: ArrayList<Entry> = ArrayList()
 
 
     fun BleBackDataContext(activity: MainActivity) {
@@ -274,7 +275,7 @@ object BleBackDataRead {
         var yBZData = BinaryChange().ieee754ToFloat(yBZHex)
 
         landBXList.add(Entry(xData, yBXData))
-        var lineBXSet: LineDataSet = LineDataSet(landBXList, "BX")
+        var lineBXSet = LineDataSet(landBXList, "BX")
         //不绘制数据
         lineBXSet.setDrawValues(false)
         //不绘制圆形指示器
@@ -289,8 +290,8 @@ object BleBackDataRead {
         lineChartBX.notifyDataSetChanged()
         lineChartBX.invalidate()
 
-        landBZList.add(Entry(xData, yBZData))
-        var lineBZSet: LineDataSet = LineDataSet(landBZList, "BZ")
+        landBZList.add(Entry(yBXData, yBZData))
+        var lineBZSet = LineDataSet(landBZList, "BZ")
         //不绘制数据
         lineBZSet.setDrawValues(false)
         //不绘制圆形指示器
@@ -304,7 +305,57 @@ object BleBackDataRead {
         lineChartBZ.data = lineDataBZ
         lineChartBZ.notifyDataSetChanged()
         lineChartBZ.invalidate()
+
+//        landList.add(Entry(yBXData, yBZData))
+//        var lineSet = LineDataSet(landList, "")
+//        //不绘制数据
+//        lineSet.setDrawValues(false)
+//        //不绘制圆形指示器
+//        lineSet.setDrawCircles(false)
+//        //线模式为圆滑曲线（默认折线）
+//        //lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
+//        lineSet.color = MyApplication.context.resources.getColor(R.color.theme_color)
+//        //将数据集添加到数据 ChartData 中
+//        val lineData = LineData(lineSet)
+//        //将数据添加到图表中
+//        lineChart.data = lineData
+//        lineChart.notifyDataSetChanged()
+//        lineChart.invalidate()
+
+
 //        }
+    }
+
+    /**
+     * 回放
+     */
+    fun playBack(lineChartBX: LineChart, lineChartBZ: LineChart){
+        if (landBXList.isNotEmpty()){
+            //将数据添加到图表中
+            lineChartBX.clear()
+            var lineBXSet = LineDataSet(landBXList, "BX")
+            lineBXSet.setDrawValues(false)
+            lineBXSet.setDrawCircles(false)
+            lineBXSet.color = MyApplication.context.resources.getColor(R.color.theme_color)
+            //将数据集添加到数据 ChartData 中
+            val lineDataBX = LineData(lineBXSet)
+            lineChartBX.data = lineDataBX
+            lineChartBX.notifyDataSetChanged()
+            lineChartBX.invalidate()
+            lineChartBX.animateX(2000)
+
+            lineChartBZ.clear()
+            var lineBZSet = LineDataSet(landBZList, "BX")
+            lineBZSet.setDrawValues(false)
+            lineBZSet.setDrawCircles(false)
+            lineBZSet.color = MyApplication.context.resources.getColor(R.color.theme_color)
+            //将数据集添加到数据 ChartData 中
+            val lineDataBZ = LineData(lineBZSet)
+            lineChartBZ.data = lineDataBZ
+            lineChartBZ.notifyDataSetChanged()
+            lineChartBZ.invalidate()
+            lineChartBZ.animateX(2000)
+        }
     }
 
     /**

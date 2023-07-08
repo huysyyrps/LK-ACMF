@@ -28,7 +28,6 @@ import com.example.lkacmf.util.ble.BleDataMake
 import com.example.lkacmf.util.ble.BleWriteCallBack
 import com.example.lkacmf.util.dialog.MainDialog
 import com.example.lkacmf.util.linechart.LineChartSetting
-import com.example.lkacmf.util.linechart.ScaleListenCallBack
 import com.example.lkacmf.util.mediaprojection.CaptureImage
 import com.example.lkacmf.util.usb.UsbBackDataLisition
 import com.example.lkacmf.util.usb.UsbContent
@@ -36,6 +35,7 @@ import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.utils.ViewPortHandler
 import com.google.android.material.tabs.TabLayout
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.drawer_item.view.*
@@ -68,6 +68,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         add(context.resources.getString(R.string.measure))
         add(context.resources.getString(R.string.forms))
         add(context.resources.getString(R.string.save))
+        add(context.resources.getString(R.string.play_back))
     }
     private var landList: ArrayList<Entry> = ArrayList()
     private var lineDataSet: LineDataSet? = null
@@ -150,9 +151,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             }
 
         })
-        btn.setOnClickListener {
-           UsbContent.writeData()
-        }
 
         //获取电量
         val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
@@ -307,7 +305,8 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             @RequiresApi(Build.VERSION_CODES.O)
             override fun onTabSelected(tab: TabLayout.Tab) {
                 when (tab.text) {
-                  /**  context.resources.getString(R.string.start) -> {
+//                  /**
+                    context.resources.getString(R.string.start) -> {
                         if (reset=="Reset"){
                             i = 0
                             timer.cancel()
@@ -336,9 +335,15 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                                 lineChartBX.notifyDataSetChanged()
                                 lineChartBX.invalidate()
                                 i++
+
+                                val handler: ViewPortHandler = lineChartBX.viewPortHandler
+                                var s = lineChartBX.lowestVisibleX
+                                var s1 = lineChartBX.highestVisibleX
+                                LogUtil.e("TAG","$s  $s1")
                             }
                         }, 0,500)
-                    }*/
+                    }
+//                        */
                     context.resources.getString(R.string.stop) -> {
                         isStart = false
                         BleContent.writeData(
@@ -470,6 +475,9 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                         }else{
                             mMediaProjection?.let { CaptureImage().captureImages(this@MainActivity,"image", it) }
                         }
+                    }
+                    context.resources.getString(R.string.play_back) -> {
+                        BleBackDataRead.playBack(lineChartBX,lineChartBZ)
                     }
                 }
             }
