@@ -3,10 +3,9 @@ package com.example.lkacmf.util.ble
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.example.lkacmf.activity.MainActivity
 import com.example.lkacmf.data.CharacteristicUuid
 
-class BleDataMake {
+object BleDataMake {
     /**
      * 握手
      */

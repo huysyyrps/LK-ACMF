@@ -1,24 +1,32 @@
 package com.example.lkacmf.util.linechart
 
+import android.graphics.Matrix
 import android.view.MotionEvent
 import android.view.View
 import androidx.cardview.widget.CardView
 import com.example.lk_epk.util.LogUtil
 import com.example.lkacmf.MyApplication
 import com.example.lkacmf.R
-import com.example.lkacmf.view.BaseLineChart
+import com.example.lkacmf.activity.MainActivity
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.listener.ChartTouchListener.ChartGesture
 import com.github.mikephil.charting.listener.OnChartGestureListener
-
+import kotlinx.android.synthetic.main.activity_main.*
 
 class LineChartSetting {
-    fun SettingLineChart(linechar: LineChart, yAxixSetting: CardView){
+    var oldScaleX = 0F
+    var oldScaleY = 0F
+    fun SettingLineChart(
+        activity: MainActivity,
+        linechar: LineChart,
+        yAxixSetting: CardView,
+        showX: Boolean,
+    ){
         linechar.setDrawGridBackground(false)//是否显示表格颜色
         linechar.setDrawBorders(true)// 是否在折线图上添加边框
-//        linechar.setScaleEnabled(true)// 是否可以缩放
+        linechar.setScaleEnabled(true)// 是否可以缩放
         linechar.setPinchZoom(false) // X,Y轴同时缩放，false则X,Y轴单独缩放,默认false
         linechar.isScaleXEnabled = true  // X轴上的缩放,默认true
         linechar.isScaleYEnabled = true  // Y轴上的缩放,默认true
@@ -68,20 +76,33 @@ class LineChartSetting {
                 // 单击
             }
 
-            override fun onChartFling(
-                me1: MotionEvent,
-                me2: MotionEvent,
-                velocityX: Float,
-                velocityY: Float
-            ) {
+            override fun onChartFling(me1: MotionEvent, me2: MotionEvent, velocityX: Float, velocityY: Float) {
                 // 甩动
                 LogUtil.e("TAG","甩动")
             }
 
             override fun onChartScale(me: MotionEvent, scaleX: Float, scaleY: Float) {
                 // 缩放
-                LogUtil.e("TAG","缩放")
-                LogUtil.e("TAG","$scaleX  $scaleY")
+                when(linechar.id){
+                    R.id.lineChartBX->{
+                        if (oldScaleX!=scaleX||oldScaleY!=scaleY){
+                            activity.lineChartBZ.fitScreen()
+                            oldScaleX = scaleX
+                            oldScaleY = scaleY
+                            activity.lineChartBZ.viewPortHandler.matrixTouch.preScale(scaleX, scaleY)
+                            activity.lineChartBZ.invalidate()
+                        }
+                    }
+                    R.id.lineChartBZ->{
+                        if (oldScaleX!=scaleX||oldScaleY!=scaleY){
+                            activity.lineChartBX.fitScreen()
+                            oldScaleX = scaleX
+                            oldScaleY = scaleY
+                            activity.lineChartBX.viewPortHandler.matrixTouch.preScale(scaleX, scaleY)
+                            activity.lineChartBX.invalidate()
+                        }
+                    }
+                }
             }
 
             override fun onChartTranslate(me: MotionEvent, dX: Float, dY: Float) {
@@ -100,9 +121,7 @@ class LineChartSetting {
         xAxis.axisLineColor = MyApplication.context.resources.getColor(R.color.black)
         xAxis.position = XAxis.XAxisPosition.BOTTOM
         xAxis.axisLineWidth = 2f//轴线宽度
-        xAxis.axisMinimum(0.0f);
-        xAxis.axisMaximum(80.0f);
-//        xAxis.isEnabled = false//是否显示X轴
+        xAxis.isEnabled = showX//是否显示X轴
         xAxis.setAvoidFirstLastClipping(true) //图表将避免第一个和最后一个标签条目被减掉在图表或屏幕的边缘
 
         //左侧Y轴
@@ -128,8 +147,4 @@ class LineChartSetting {
         yRightAxis.setDrawLabels(false)//右侧轴线不显示标签
         yRightAxis.axisLineWidth = 4f//轴线宽度
     }
-}
-
-private operator fun Float.invoke(fl: Float) {
-
 }

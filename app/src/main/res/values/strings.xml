@@ -51,6 +51,7 @@
     <string name="setting">设置</string>
     <string name="image_list">图片列表</string>
     <string name="no_data">暂无数据</string>
+    <string name="no_permission">权限未获取</string>
     <string name="remove_sure">您确定要删除此项数据吗？</string>
 
 

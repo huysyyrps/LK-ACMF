@@ -3,8 +3,6 @@ package com.example.lkacmf.util.ble
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
 import com.example.lk_epk.util.LogUtil
@@ -15,7 +13,6 @@ import com.example.lkacmf.data.CharacteristicUuid
 import com.example.lkacmf.util.BaseSharedPreferences
 import com.example.lkacmf.util.BinaryChange
 import com.example.lkacmf.util.showToast
-import com.example.lkacmf.view.BaseLineChart
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
@@ -23,7 +20,7 @@ import com.github.mikephil.charting.data.LineDataSet
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_hand.*
 import kotlinx.android.synthetic.main.dialog_hand_error.*
-import java.util.ArrayList
+
 
 @SuppressLint("StaticFieldLeak")
 object BleBackDataRead {
@@ -108,7 +105,7 @@ object BleBackDataRead {
                     context.resources.getString(R.string.empower_success).showToast(context)
                     //读取配置
                     BleContent.writeData(
-                        BleDataMake().makeReadSettingData(),
+                        BleDataMake.makeReadSettingData(),
                         CharacteristicUuid.ConstantCharacteristicUuid, object : BleWriteCallBack {
                             override fun writeCallBack(writeBackData: String) {
                                 LogUtil.e("TAG", "写入数据回调 = $writeBackData")
@@ -155,7 +152,7 @@ object BleBackDataRead {
                         R.string.dont_have_finish_date.showToast(context)
                     } else {
                         BleContent.writeData(
-                            BleDataMake().makeEmpowerData(deviceDate, activatCode),
+                            BleDataMake.makeEmpowerData(deviceDate, activatCode),
                             CharacteristicUuid.ConstantCharacteristicUuid,
                             object : BleWriteCallBack {
                                 override fun writeCallBack(writeBackData: String) {
@@ -258,79 +255,85 @@ object BleBackDataRead {
         return "00"
     }
 
+
     /**
      * 测量信息
      */
-    fun readMeterData(readData: String, lineChartBX: LineChart, lineChartBZ: LineChart) {
+    fun readMeterData(
+        readData: String,
+        lineChartBX: LineChart,
+        lineChartBZ: LineChart,
+        lineChart: LineChart
+    ) {
         var backData = BinaryChange().hexStringToByte(readData)
         //校验
-//        if (BaseData.hexStringToBytes(readData.substring(0, readData.length - 2)) == readData.substring(readData.length - 2, readData.length)){
         var xHex = "${backData[3]}${backData[4]}${backData[5]}${backData[6]}".toLong(16)
         var xData = xHex.toFloat() / 1000
 
-        var yBXHex = "${backData[8]}${backData[9]}${backData[10]}${backData[11]}".toLong(16)
-        var yBXData = BinaryChange().ieee754ToFloat(yBXHex)
+        if (landBXList.isEmpty()||xData != landBXList[landBXList.size-1].x){
+            var yBXHex = "${backData[8]}${backData[9]}${backData[10]}${backData[11]}".toLong(16)
+            var yBXData = BinaryChange().ieee754ToFloat(yBXHex)
 
-        var yBZHex = "${backData[12]}${backData[13]}${backData[14]}${backData[15]}".toLong(16)
-        var yBZData = BinaryChange().ieee754ToFloat(yBZHex)
+            var yBZHex = "${backData[12]}${backData[13]}${backData[14]}${backData[15]}".toLong(16)
+            var yBZData = BinaryChange().ieee754ToFloat(yBZHex)
 
-        landBXList.add(Entry(xData, yBXData))
-        var lineBXSet = LineDataSet(landBXList, "BX")
-        //不绘制数据
-        lineBXSet.setDrawValues(false)
-        //不绘制圆形指示器
-        lineBXSet.setDrawCircles(false)
-        //线模式为圆滑曲线（默认折线）
-        //lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-        lineBXSet.color = MyApplication.context.resources.getColor(R.color.theme_color)
-        //将数据集添加到数据 ChartData 中
-        val lineDataBX = LineData(lineBXSet)
-        //将数据添加到图表中
-        lineChartBX.data = lineDataBX
-        lineChartBX.notifyDataSetChanged()
-        lineChartBX.invalidate()
-
-        landBZList.add(Entry(yBXData, yBZData))
-        var lineBZSet = LineDataSet(landBZList, "BZ")
-        //不绘制数据
-        lineBZSet.setDrawValues(false)
-        //不绘制圆形指示器
-        lineBZSet.setDrawCircles(false)
-        //线模式为圆滑曲线（默认折线）
-        //lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-        lineBZSet.color = MyApplication.context.resources.getColor(R.color.theme_color)
-        //将数据集添加到数据 ChartData 中
-        val lineDataBZ = LineData(lineBZSet)
-        //将数据添加到图表中
-        lineChartBZ.data = lineDataBZ
-        lineChartBZ.notifyDataSetChanged()
-        lineChartBZ.invalidate()
-
-//        landList.add(Entry(yBXData, yBZData))
-//        var lineSet = LineDataSet(landList, "")
-//        //不绘制数据
-//        lineSet.setDrawValues(false)
-//        //不绘制圆形指示器
-//        lineSet.setDrawCircles(false)
-//        //线模式为圆滑曲线（默认折线）
-//        //lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-//        lineSet.color = MyApplication.context.resources.getColor(R.color.theme_color)
-//        //将数据集添加到数据 ChartData 中
-//        val lineData = LineData(lineSet)
-//        //将数据添加到图表中
-//        lineChart.data = lineData
-//        lineChart.notifyDataSetChanged()
-//        lineChart.invalidate()
+            landBXList.add(Entry(xData, yBXData))
+            if (lineChartBX.data != null && lineChartBX.data.dataSetCount > 0) {
+                var lineBXSet = lineChartBX.data.getDataSetByIndex(0) as LineDataSet
+                lineBXSet.values = landBXList
+                lineBXSet.notifyDataSetChanged()
+                lineChartBX.lineData.notifyDataChanged()
+                lineChartBX.notifyDataSetChanged()
+                lineChartBX.invalidate()
+            }else{
+                var lineBXSet = LineDataSet(landBXList, "BX")
+                //不绘制数据
+                lineBXSet.setDrawValues(false)
+                //不绘制圆形指示器
+                lineBXSet.setDrawCircles(false)
+                //线模式为圆滑曲线（默认折线）
+                //lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
+                lineBXSet.color = MyApplication.context.resources.getColor(R.color.theme_color)
+                //将数据集添加到数据 ChartData 中
+                val lineDataBX = LineData(lineBXSet)
+                lineChartBX.data = lineDataBX
+                lineChartBX.notifyDataSetChanged()
+                lineChartBX.invalidate()
+            }
 
 
-//        }
+
+            landBZList.add(Entry(xData, yBZData))
+            if (lineChartBZ.data != null && lineChartBZ.data.dataSetCount > 0) {
+                var lineBZSet = lineChartBZ.data.getDataSetByIndex(0) as LineDataSet
+                lineBZSet.values = landBZList
+                lineBZSet.notifyDataSetChanged()
+                lineChartBZ.lineData.notifyDataChanged()
+                lineChartBZ.notifyDataSetChanged()
+                lineChartBZ.invalidate()
+            }else{
+                var lineBZSet = LineDataSet(landBZList, "BX")
+                //不绘制数据
+                lineBZSet.setDrawValues(false)
+                //不绘制圆形指示器
+                lineBZSet.setDrawCircles(false)
+                //线模式为圆滑曲线（默认折线）
+                //lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
+                lineBZSet.color = MyApplication.context.resources.getColor(R.color.theme_color)
+                //将数据集添加到数据 ChartData 中
+                val lineDataBZ = LineData(lineBZSet)
+                lineChartBZ.data = lineDataBZ
+                lineChartBZ.notifyDataSetChanged()
+                lineChartBZ.invalidate()
+            }
+        }
     }
 
     /**
      * 回放
      */
-    fun playBack(lineChartBX: LineChart, lineChartBZ: LineChart){
-        if (landBXList.isNotEmpty()){
+    fun playBack(lineChartBX: LineChart, lineChartBZ: LineChart) {
+        if (landBXList.isNotEmpty()) {
             //将数据添加到图表中
             lineChartBX.clear()
             var lineBXSet = LineDataSet(landBXList, "BX")

@@ -137,7 +137,7 @@ class MainDialog {
             BaseSharedPreferences.put("array", item)
             array = item.toInt(2).toString(16)
             BleContent.writeData(
-                BleDataMake().makeWriteSettingData(rate, array),
+                BleDataMake.makeWriteSettingData(rate, array),
                 CharacteristicUuid.ConstantCharacteristicUuid, object : BleWriteCallBack {
                     override fun writeCallBack(writeBackData: String) {
                         LogUtil.e("TAG", "写入设置数据回调 = $writeBackData")

@@ -2,7 +2,6 @@ package com.example.lkacmf.activity
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -17,16 +16,15 @@ import androidx.annotation.RequiresApi
 import androidx.core.view.GravityCompat
 import com.afollestad.materialdialogs.MaterialDialog
 import com.example.lk_epk.util.LogUtil
+import com.example.lkacmf.MyApplication
 import com.example.lkacmf.MyApplication.Companion.context
 import com.example.lkacmf.R
 import com.example.lkacmf.data.CharacteristicUuid
 import com.example.lkacmf.network.DownloadApk
 import com.example.lkacmf.util.*
-import com.example.lkacmf.util.ble.BleBackDataRead
-import com.example.lkacmf.util.ble.BleContent
-import com.example.lkacmf.util.ble.BleDataMake
-import com.example.lkacmf.util.ble.BleWriteCallBack
+import com.example.lkacmf.util.ble.*
 import com.example.lkacmf.util.dialog.MainDialog
+import com.example.lkacmf.util.linechart.ChartScalyCallBack
 import com.example.lkacmf.util.linechart.LineChartSetting
 import com.example.lkacmf.util.mediaprojection.CaptureImage
 import com.example.lkacmf.util.usb.UsbBackDataLisition
@@ -45,16 +43,6 @@ import java.util.*
 class MainActivity : BaseActivity(), View.OnClickListener {
     private var version: String = "1.0.0"
     private var isStart: Boolean = false
-    private var iswrite: Boolean = false
-
-    /**
-     * 初始化重新扫描扫描dialog
-     */
-    private lateinit var dialog: MaterialDialog
-
-    private var landBXList: ArrayList<Entry> = ArrayList()
-    private var landBZList: ArrayList<Entry> = ArrayList()
-    private var bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
     private lateinit var mediaManager: MediaProjectionManager
     private var mMediaProjection: MediaProjection? = null
     private var reset:String = "noReset"
@@ -70,9 +58,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         add(context.resources.getString(R.string.save))
         add(context.resources.getString(R.string.play_back))
     }
-    private var landList: ArrayList<Entry> = ArrayList()
-    private var lineDataSet: LineDataSet? = null
-    var timer = Timer()
     var axisMaximum:Float = 5.0F
     private lateinit var leftYAxis: YAxis
 
@@ -94,39 +79,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         }
         //tabLayout选择监听
         tabLayoutSelect()
-        BleBackDataRead.BleBackDataContext(this)
-        /**
-         * //        if (!bluetoothAdapter.isEnabled) {
-        //            activityResult.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
-        //        } else {
-        //            //是否通过全部权限
-        //            var permissionTag = MainDialog().requestPermission(this)
-        //            if (permissionTag) {
-        //                //是否连接成功
-        //                MainDialog().bleFuncation(this@MainActivity, object : BleMainConnectCallBack {
-        //                    override fun onConnectedfinish() {
-        //                        (R.string.scan_finish).showToast(context)
-        //                        initScanAgainDialog("scan", this@MainActivity)
-        //                    }
-        //
-        //                    override fun onConnectedfail() {
-        //                        (R.string.scan_fail).showToast(context)
-        //                    }
-        //
-        //                    override fun onConnectedsuccess() {
-        //                        resources.getString(R.string.connect_success).showToast(this@MainActivity)
-        //                        writeHandData()
-        //                    }
-        //
-        //                    override fun onConnectedagain() {
-        //                        initScanAgainDialog("connect", this@MainActivity)
-        //
-        //                    }
-        //
-        //                })
-        //            }
-        //        }
-         */
 
         imageView.setOnClickListener(this)
         linSetting.setOnClickListener(this)
@@ -139,215 +91,50 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         version = BaseProjectVersion().getPackageInfo(context)?.versionName.toString()
         linCurrentVersion.tvVersion.text = version
 
-        LineChartSetting().SettingLineChart(lineChartBX,yAxixSetting)
-        LineChartSetting().SettingLineChart(lineChartBZ, yAxixSetting)
-        LineChartSetting().SettingLineChart(lineChartTest, yAxixSetting)
+        LineChartSetting().SettingLineChart(this, lineChartBX,yAxixSetting,true)
+        LineChartSetting().SettingLineChart(this, lineChartBZ, yAxixSetting, true)
+        LineChartSetting().SettingLineChart(this, lineChartTest, yAxixSetting, true)
+        val xAxis = lineChartBZ.xAxis
+        xAxis.textColor = context.resources.getColor(R.color.theme_back_color)
 
-        UsbContent.usbDeviceConstant(this,object : UsbBackDataLisition{
-            override fun usbBackData(data: String) {
-                if (data.length > 4 && data.substring(0, 4) == "BE04") {
-                    BleBackDataRead.readMeterData(data,lineChartBX,lineChartBZ)
+
+        var permissionTag = MainDialog().requestPermission(this)
+        if (permissionTag){
+            UsbContent.usbDeviceConstant(this,object : UsbBackDataLisition{
+                override fun usbBackData(data: String) {
+//                    LogUtil.e("TAG",data)
+                    if (data.length > 4 && data.substring(0, 4) == "BE06") {
+                        if (BaseData.hexStringToBytes(data.substring(0, data.length - 6)) == data.substring(data.length - 6, data.length-4)&&data.length==38) {
+                            BleBackDataRead.readMeterData(data,lineChartBX,lineChartBZ,lineChart)
+                        }
+                    }
                 }
-            }
 
-        })
+            })
+        }else{
+            R.string.no_permission.showToast(this)
+        }
 
         //获取电量
         val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
         var receiver = BatteryReceiver()
         registerReceiver(receiver, filter)
 
-        leftYAxis = lineChartBX.axisLeft
-        leftYAxis.axisMaximum = axisMaximum
-        /**
-         * for (i in 0..600){
-        landList.add(Entry(i.toFloat(), ((30..50).random()).toFloat()))
-        lineDataSet = LineDataSet(landList, "A扫")
-        //不绘制数据
-        lineDataSet?.setDrawValues(false)
-        //不绘制圆形指示器
-        lineDataSet?.setDrawCircles(false)
-        //线模式为圆滑曲线（默认折线）
-        //                                lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-        lineDataSet?.color = context.resources.getColor(R.color.theme_color)
-        //将数据集添加到数据 ChartData 中
-        val lineData = LineData(lineDataSet)
-        //将数据添加到图表中
-        lineChartBX.data = lineData
-        lineChartBX.notifyDataSetChanged()
-        lineChartBX.invalidate()
-        }
-         */
+//        leftYAxis = lineChartBX.axisLeft
+//        leftYAxis.axisMaximum = axisMaximum
     }
-
-    /**
-     * //    /**
-    //     * 扫描弹窗
-    //     */
-    //    fun initScanAgainDialog(stater: String, activity: MainActivity) {
-    //        dialog = MaterialDialog(activity)
-    //            .cancelable(false)
-    //            .show {
-    //                customView(    //自定义弹窗
-    //                    viewRes = R.layout.dialog_scan_again,//自定义文件
-    //                    dialogWrapContent = true,    //让自定义宽度生效
-    //                    scrollable = true,            //让自定义宽高生效
-    //                    noVerticalPadding = true    //让自定义高度生效
-    //                )
-    //                cornerRadius(16f)
-    //            }
-    //        if (stater == "scan") {
-    //            dialog.etWorkPipe.hint = activity.resources.getString(R.string.scan_again)
-    //        } else if (stater == "connect") {
-    //            dialog.etWorkPipe.hint = activity.resources.getString(R.string.connect_again)
-    //        }
-    //
-    //        dialog.btnCancel.setOnClickListener {
-    //            dialog.dismiss()
-    //            activity.finish()
-    //        }
-    //        dialog.btnSure.setOnClickListener {
-    //            dialog.dismiss()
-    //            MainDialog().bleFuncation(this@MainActivity, object : BleMainConnectCallBack {
-    //                override fun onConnectedfinish() {
-    //                    (R.string.scan_finish).showToast(context)
-    //                    initScanAgainDialog("scan", this@MainActivity)
-    //                }
-    //
-    //                override fun onConnectedfail() {
-    //                    (R.string.scan_fail).showToast(context)
-    //                }
-    //
-    //                @RequiresApi(Build.VERSION_CODES.O)
-    //                override fun onConnectedsuccess() {
-    //                    resources.getString(R.string.connect_success).showToast(this@MainActivity)
-    //                    writeHandData()
-    //                }
-    //
-    //                override fun onConnectedagain() {
-    //                    initScanAgainDialog("connect", this@MainActivity)
-    //
-    //                }
-    //
-    //            })
-    //        }
-    //    }
-    //
-    //    //写入数据
-    //    @RequiresApi(Build.VERSION_CODES.O)
-    //    fun writeHandData() {
-    //        Thread.sleep(1500)
-    //        BleContent.writeData(
-    //            BleDataMake().makeHandData(),
-    //            CharacteristicUuid.ConstantCharacteristicUuid, object : BleWriteCallBack {
-    //                override fun writeCallBack(writeBackData: String) {
-    //                    LogUtil.e("TAG", "写入数据回调 = $writeBackData")
-    //                    iswrite = true
-    //                    ReadData()
-    //                }
-    //            })
-    //    }
-    //
-    //    //读取数据
-    //    fun ReadData() {
-    //        if (iswrite) {
-    //            BleContent.readData(
-    //                CharacteristicUuid.ConstantCharacteristicUuid,
-    //                object : BleReadCallBack {
-    //                    override fun readCallBack(readData: String) {
-    //                        //帧头和识别码对应才能解析  读取握手信息
-    //                        if (readData.length > 4 && readData.substring(0, 4) == "BE01") {
-    //                            BleBackDataRead.readHandData(readData)
-    //                        } else if (readData.length > 4 && readData.substring(0, 4) == "BE02") {
-    //                            BleBackDataRead.readEmpowerData(readData)
-    //                        } else if (readData.length > 4 && readData.substring(0, 4) == "BE03") {
-    //                            BleBackDataRead.readSettingData(readData)
-    //                        } else if (readData.length > 4 && readData.substring(0, 4) == "BE14") {
-    //                            //判断是否测量
-    //                            var meterTag = BleBackDataRead.meterData(readData)
-    //                            when (meterTag) {
-    //                                "00" -> {
-    //                                    LogUtil.e("TAG", meterTag)
-    //                                }
-    //                                "01" -> {
-    //                                    LogUtil.e("TAG", "开始")
-    //                                }
-    //                                "02" -> {
-    //                                    LogUtil.e("TAG", "复位")
-    //                                }
-    //                            }
-    //                        } else if (readData.length > 4 && readData.substring(0, 4) == "BE04") {
-    //                            LogUtil.e("TAG", readData)
-    //                            BleBackDataRead.readMeterData(readData, lineChartBX)
-    //                        }
-    //                    }
-    //                })
-    //        }
-    //    }
-    //
-    //    //开启蓝牙
-    //    @RequiresApi(Build.VERSION_CODES.S)
-    //    private val activityResult =
-    //        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-    //            if (it.resultCode == Activity.RESULT_OK) {
-    //                if (bluetoothAdapter.isEnabled) {
-    //                    MainDialog().requestPermission(this)
-    //                } else {
-    //                    R.string.ble_open_fail.showToast(context)
-    //                }
-    //            }
-    //        }
-
-     */
 
     private fun tabLayoutSelect() {
         tbLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             @RequiresApi(Build.VERSION_CODES.O)
             override fun onTabSelected(tab: TabLayout.Tab) {
                 when (tab.text) {
-//                  /**
                     context.resources.getString(R.string.start) -> {
-                        if (reset=="Reset"){
-                            i = 0
-                            timer.cancel()
-                            timer = Timer()
-                            landList.clear()
-                            lineDataSet?.clear()
-                            lineChartBX.notifyDataSetChanged()
-                            lineChartBX.invalidate()
-                        }
-                        timer.schedule(object : TimerTask() {
-                            override fun run() {
-                                var yDaya = ((30..50).random()).toFloat()
-                                landList.add(Entry(i.toFloat(), yDaya))
-                                lineDataSet = LineDataSet(landList, "A扫")
-                                //不绘制数据
-                                lineDataSet?.setDrawValues(false)
-                                //不绘制圆形指示器
-                                lineDataSet?.setDrawCircles(false)
-                                //线模式为圆滑曲线（默认折线）
-//                                lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-                                lineDataSet?.color = context.resources.getColor(R.color.theme_color)
-                                //将数据集添加到数据 ChartData 中
-                                val lineData = LineData(lineDataSet)
-                                //将数据添加到图表中
-                                lineChartBX.data = lineData
-                                lineChartBX.notifyDataSetChanged()
-                                lineChartBX.invalidate()
-                                i++
-
-                                val handler: ViewPortHandler = lineChartBX.viewPortHandler
-                                var s = lineChartBX.lowestVisibleX
-                                var s1 = lineChartBX.highestVisibleX
-                                LogUtil.e("TAG","$s  $s1")
-                            }
-                        }, 0,500)
                     }
-//                        */
                     context.resources.getString(R.string.stop) -> {
                         isStart = false
                         BleContent.writeData(
-                            BleDataMake().makeStopMeterData(),
+                            BleDataMake.makeStopMeterData(),
                             CharacteristicUuid.ConstantCharacteristicUuid,
                             object : BleWriteCallBack {
                                 override fun writeCallBack(writeBackData: String) {
@@ -391,80 +178,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                         viewDX.buildDrawingCache()
                         var bitmapDX = Bitmap.createBitmap(viewDX.getDrawingCache())
                         MainDialog().writeFormDataDialog(this@MainActivity,bitmapBX,bitmapBZ,bitmapDX)
-
-                        /**
-                        var landList1: ArrayList<Entry> = ArrayList()
-                        var landList2: ArrayList<Entry> = ArrayList()
-                        var landList3: ArrayList<Entry> = ArrayList()
-                        for (i in 0..200){
-                            landList1.add(landList[i])
-                        }
-                        for (i in 200..400){
-                            landList2.add(landList[i])
-                        }
-                        for (i in 400..600){
-                            landList3.add(landList[i])
-                        }
-                        lineDataSet = LineDataSet(landList1, "A扫")
-                        //不绘制数据
-                        lineDataSet?.setDrawValues(false)
-                        //不绘制圆形指示器
-                        lineDataSet?.setDrawCircles(false)
-                        //线模式为圆滑曲线（默认折线）
-//                                lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-                        lineDataSet?.color = context.resources.getColor(R.color.theme_color)
-                        //将数据集添加到数据 ChartData 中
-                        val lineData1 = LineData(lineDataSet)
-                        //将数据添加到图表中
-                        lineChartTest.data = lineData1
-                        lineChartTest.notifyDataSetChanged()
-                        lineChartTest.invalidate()
-                        var viewBZ = cardView
-                        viewBZ.setDrawingCacheEnabled(true)
-                        viewBZ.buildDrawingCache()
-                        var bitmap1 = Bitmap.createBitmap(viewBZ.getDrawingCache())
-                        lineChartTest.clear()
-
-                        lineDataSet = LineDataSet(landList2, "A扫")
-                        //不绘制数据
-                        lineDataSet?.setDrawValues(false)
-                        //不绘制圆形指示器
-                        lineDataSet?.setDrawCircles(false)
-                        //线模式为圆滑曲线（默认折线）
-//                                lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-                        lineDataSet?.color = context.resources.getColor(R.color.theme_color)
-                        //将数据集添加到数据 ChartData 中
-                        val lineData2 = LineData(lineDataSet)
-                        //将数据添加到图表中
-                        lineChartTest.data = lineData2
-                        lineChartTest.notifyDataSetChanged()
-                        lineChartTest.invalidate()
-                        viewBZ.setDrawingCacheEnabled(true)
-                        viewBZ.buildDrawingCache()
-                        var bitmap2 = Bitmap.createBitmap(viewBZ.getDrawingCache())
-                        lineChartTest.clear()
-
-                        lineDataSet = LineDataSet(landList3, "A扫")
-                        //不绘制数据
-                        lineDataSet?.setDrawValues(false)
-                        //不绘制圆形指示器
-                        lineDataSet?.setDrawCircles(false)
-                        //线模式为圆滑曲线（默认折线）
-//                                lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-                        lineDataSet?.color = context.resources.getColor(R.color.theme_color)
-                        //将数据集添加到数据 ChartData 中
-                        val lineData3 = LineData(lineDataSet)
-                        //将数据添加到图表中
-                        lineChartTest.data = lineData3
-                        lineChartTest.notifyDataSetChanged()
-                        lineChartTest.invalidate()
-                        viewBZ.setDrawingCacheEnabled(true)
-                        viewBZ.buildDrawingCache()
-                        var bitmap3 = Bitmap.createBitmap(viewBZ.getDrawingCache())
-
-                        MainDialog().writeFormDataDialog(this@MainActivity,bitmap1,bitmap2,bitmap3)
-                         *
-                         */
                     }
                     context.resources.getString(R.string.save) -> {
                         mediaManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
