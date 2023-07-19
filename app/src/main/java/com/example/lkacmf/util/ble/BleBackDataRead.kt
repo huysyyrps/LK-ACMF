@@ -17,7 +17,6 @@ import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_hand.*
 import kotlinx.android.synthetic.main.dialog_hand_error.*
 
@@ -31,7 +30,7 @@ object BleBackDataRead {
     private lateinit var dialog: MaterialDialog
     var landBXList: ArrayList<Entry> = ArrayList()
     var landBZList: ArrayList<Entry> = ArrayList()
-    var landList: ArrayList<Entry> = ArrayList()
+//    var landList: ArrayList<Entry> = ArrayList()
 
 
     fun BleBackDataContext(activity: MainActivity) {
@@ -270,7 +269,34 @@ object BleBackDataRead {
         var xHex = "${backData[3]}${backData[4]}${backData[5]}${backData[6]}".toLong(16)
         var xData = xHex.toFloat() / 1000
 
-        if (landBXList.isEmpty()||xData != landBXList[landBXList.size-1].x){
+//        var lineDataSet = lineChartBX.lineData.dataSets
+//        var entry = lineDataSet[lineDataSet.lastIndex] as Entry
+        if (landBXList.isNotEmpty()&&xData < landBXList.last().x){
+//            landBXList.removeLast()
+//            landBZList.removeLast()
+//            val lineData = lineChartBX.data
+//            if (lineData != null) {
+//                if (lineData.dataSetCount>1){
+////                    lineChartBX.xAxis.valueFormatter = IAxisValueFormatter { value, axis -> listString.get(value.toInt() % listString.size()) } as ValueFormatter?
+//                    lineData.removeDataSet(lineData.getDataSetByIndex(lineData.dataSetCount - 1))
+//                    lineData.notifyDataChanged()
+//                    lineChartBX.notifyDataSetChanged()
+//                    lineChartBX.invalidate()
+//                }
+//            }
+
+            val data = lineChartBX.data
+            if (data != null) {
+                val set = data.getDataSetByIndex(0)
+                if (set != null) {
+                    val e = set.getEntryForXValue((set.entryCount - 1).toFloat(), Float.NaN)
+                    data.removeEntry(e, 0)
+                    data.notifyDataChanged()
+                    lineChartBX.notifyDataSetChanged()
+                    lineChartBX.invalidate()
+                }
+            }
+        } else if (landBXList.isEmpty()||xData > landBXList.last().x){
             var yBXHex = "${backData[8]}${backData[9]}${backData[10]}${backData[11]}".toLong(16)
             var yBXData = BinaryChange().ieee754ToFloat(yBXHex)
 
@@ -278,55 +304,96 @@ object BleBackDataRead {
             var yBZData = BinaryChange().ieee754ToFloat(yBZHex)
 
             landBXList.add(Entry(xData, yBXData))
-            if (lineChartBX.data != null && lineChartBX.data.dataSetCount > 0) {
-                var lineBXSet = lineChartBX.data.getDataSetByIndex(0) as LineDataSet
-                lineBXSet.values = landBXList
-                lineBXSet.notifyDataSetChanged()
-                lineChartBX.lineData.notifyDataChanged()
-                lineChartBX.notifyDataSetChanged()
-                lineChartBX.invalidate()
-            }else{
-                var lineBXSet = LineDataSet(landBXList, "BX")
-                //不绘制数据
-                lineBXSet.setDrawValues(false)
-                //不绘制圆形指示器
-                lineBXSet.setDrawCircles(false)
-                //线模式为圆滑曲线（默认折线）
-                //lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-                lineBXSet.color = MyApplication.context.resources.getColor(R.color.theme_color)
-                //将数据集添加到数据 ChartData 中
-                val lineDataBX = LineData(lineBXSet)
-                lineChartBX.data = lineDataBX
-                lineChartBX.notifyDataSetChanged()
-                lineChartBX.invalidate()
-            }
-
-
-
             landBZList.add(Entry(xData, yBZData))
-            if (lineChartBZ.data != null && lineChartBZ.data.dataSetCount > 0) {
-                var lineBZSet = lineChartBZ.data.getDataSetByIndex(0) as LineDataSet
-                lineBZSet.values = landBZList
-                lineBZSet.notifyDataSetChanged()
-                lineChartBZ.lineData.notifyDataChanged()
-                lineChartBZ.notifyDataSetChanged()
-                lineChartBZ.invalidate()
-            }else{
-                var lineBZSet = LineDataSet(landBZList, "BX")
-                //不绘制数据
-                lineBZSet.setDrawValues(false)
-                //不绘制圆形指示器
-                lineBZSet.setDrawCircles(false)
-                //线模式为圆滑曲线（默认折线）
-                //lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
-                lineBZSet.color = MyApplication.context.resources.getColor(R.color.theme_color)
-                //将数据集添加到数据 ChartData 中
-                val lineDataBZ = LineData(lineBZSet)
-                lineChartBZ.data = lineDataBZ
-                lineChartBZ.notifyDataSetChanged()
-                lineChartBZ.invalidate()
+
+//            if (lineChartBX.data != null && lineChartBX.data.dataSetCount > 0) {
+//                notifyChartData(lineChartBX,landBXList)
+//            }else{
+//                setChartData(lineChartBX,landBXList)
+//            }
+//
+//            if (lineChartBZ.data != null && lineChartBZ.data.dataSetCount > 0) {
+//                notifyChartData(lineChartBZ,landBZList)
+//            }else{
+//                setChartData(lineChartBZ,landBXList)
+//            }
+            var lineChartBXData = lineChartBX.data
+            if (lineChartBXData == null) {
+                lineChartBXData = LineData()
+                lineChartBX.data = lineChartBXData
             }
+            var lineChartBXSet = lineChartBXData.getDataSetByIndex(0)
+            if (lineChartBXSet == null) {
+                lineChartBXSet = createSet()
+                lineChartBXData.addDataSet(lineChartBXSet)
+            }
+            lineChartBXData.addEntry(Entry(xData, yBXData),
+                (Math.random() * lineChartBXData.dataSetCount).toInt()
+            )
+            lineChartBXData.notifyDataChanged()
+            lineChartBX.notifyDataSetChanged()
+            lineChartBX.invalidate()
+
+
+            var lineChartBZData = lineChartBZ.data
+            if (lineChartBZData == null) {
+                lineChartBZData = LineData()
+                lineChartBZ.data = lineChartBZData
+            }
+            var lineChartBZSet = lineChartBZData.getDataSetByIndex(0)
+            if (lineChartBZSet == null) {
+                lineChartBZSet = createSet()
+                lineChartBZData.addDataSet(lineChartBZSet)
+            }
+            lineChartBZData.addEntry(Entry(xData, yBZData),
+                (Math.random() * lineChartBZData.dataSetCount).toInt()
+            )
+            lineChartBZData.notifyDataChanged()
+            lineChartBZ.notifyDataSetChanged()
+            lineChartBZ.invalidate()
         }
+    }
+    private fun createSet(): LineDataSet? {
+        val lineSet = LineDataSet(null, "DataSet 1")
+        //不绘制数据
+        lineSet.setDrawValues(false)
+        //不绘制圆形指示器
+        lineSet.setDrawCircles(false)
+        //线模式为圆滑曲线（默认折线）
+        //lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
+        lineSet.color = MyApplication.context.resources.getColor(R.color.theme_color)
+        return lineSet
+    }
+
+    /**
+     * 首次添加数据
+     */
+    private fun setChartData(lineChart: LineChart, landList: ArrayList<Entry>) {
+        var lineSet = LineDataSet(landList, "")
+        //不绘制数据
+        lineSet.setDrawValues(false)
+        //不绘制圆形指示器
+        lineSet.setDrawCircles(false)
+        //线模式为圆滑曲线（默认折线）
+        //lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
+        lineSet.color = MyApplication.context.resources.getColor(R.color.theme_color)
+        //将数据集添加到数据 ChartData 中
+        val lineDataBX = LineData(lineSet)
+        lineChart.data = lineDataBX
+        lineChart.notifyDataSetChanged()
+        lineChart.invalidate()
+    }
+
+    /**
+     * 更新数据
+     */
+    private fun notifyChartData(lineChart: LineChart, landList: ArrayList<Entry>) {
+        var lineSet = lineChart.data.getDataSetByIndex(0) as LineDataSet
+        lineSet.values = landList
+        lineSet.notifyDataSetChanged()
+        lineChart.lineData.notifyDataChanged()
+        lineChart.notifyDataSetChanged()
+        lineChart.invalidate()
     }
 
     /**

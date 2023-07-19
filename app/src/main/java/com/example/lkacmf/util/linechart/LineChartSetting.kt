@@ -1,6 +1,5 @@
 package com.example.lkacmf.util.linechart
 
-import android.graphics.Matrix
 import android.view.MotionEvent
 import android.view.View
 import androidx.cardview.widget.CardView
@@ -11,9 +10,12 @@ import com.example.lkacmf.activity.MainActivity
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.formatter.IAxisValueFormatter
+import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.listener.ChartTouchListener.ChartGesture
 import com.github.mikephil.charting.listener.OnChartGestureListener
 import kotlinx.android.synthetic.main.activity_main.*
+
 
 class LineChartSetting {
     var oldScaleX = 0F
@@ -122,7 +124,9 @@ class LineChartSetting {
         xAxis.position = XAxis.XAxisPosition.BOTTOM
         xAxis.axisLineWidth = 2f//轴线宽度
         xAxis.isEnabled = showX//是否显示X轴
+        xAxis.granularity = 1F//设置 后 value是从0开始的，每次加1
         xAxis.setAvoidFirstLastClipping(true) //图表将避免第一个和最后一个标签条目被减掉在图表或屏幕的边缘
+
 
         //左侧Y轴
         val leftYAxis = linechar.axisLeft
