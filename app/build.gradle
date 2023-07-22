@@ -38,6 +38,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.3.0'
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation project(path: ':MPChartLib')
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     //banner
@@ -59,8 +60,8 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
     // AndroidX版本更新弹窗
     implementation 'com.teprinciple:updateapputilsx:2.3.0'
-    //折线图
-    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+//    //折线图
+//    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
     //协程
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.1"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.1.1"

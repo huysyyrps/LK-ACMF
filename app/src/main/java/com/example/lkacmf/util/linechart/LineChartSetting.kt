@@ -1,5 +1,6 @@
 package com.example.lkacmf.util.linechart
 
+import android.graphics.Matrix
 import android.view.MotionEvent
 import android.view.View
 import androidx.cardview.widget.CardView
@@ -10,9 +11,7 @@ import com.example.lkacmf.activity.MainActivity
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
-import com.github.mikephil.charting.listener.BarLineChartTouchListener
 import com.github.mikephil.charting.listener.ChartTouchListener
-import com.github.mikephil.charting.listener.ChartTouchListener.ChartGesture
 import com.github.mikephil.charting.listener.OnChartGestureListener
 import com.github.mikephil.charting.utils.MPPointF
 import com.github.mikephil.charting.utils.ViewPortHandler
@@ -22,6 +21,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 class LineChartSetting {
     var oldScaleX = 0F
     var oldScaleY = 0F
+    private var mMatrix = Matrix()
+    private val mSavedMatrix = Matrix()
     fun SettingLineChart(
         activity: MainActivity,
         linechar: LineChart,
@@ -55,13 +56,14 @@ class LineChartSetting {
 //        linechar.moveViewToX(300f);
         linechar.onChartGestureListener = object : OnChartGestureListener {
             // 手势监听器
-            override fun onChartGestureStart(me: MotionEvent, lastPerformedGesture: ChartGesture) {
+            override fun onChartGestureStart(me: MotionEvent, lastPerformedGesture: ChartTouchListener.ChartGesture) {
                 // 按下
                 LogUtil.e("TAG", "按下")
+                mSavedMatrix.set(mMatrix)
                 yAxixSetting.visibility = View.GONE
             }
 
-            override fun onChartGestureEnd(me: MotionEvent, lastPerformedGesture: ChartGesture) {
+            override fun onChartGestureEnd(me: MotionEvent, lastPerformedGesture: ChartTouchListener.ChartGesture) {
                 // 抬起,取消
             }
 
@@ -95,18 +97,34 @@ class LineChartSetting {
                 when (linechar.id) {
                     R.id.lineChartBX -> {
                         if (oldScaleX != scaleX || oldScaleY != scaleY) {
-//                            performZoom(event)
-//                            LogUtil.e("TAG", "${scaleX==1F}---- ${scaleY==1F}")
-//                            if (scaleX!=1F||scaleY!=1F){
+//                            LogUtil.e("TAG", "${scaleX == 1F}---- ${scaleY == 1F}")
+                            if (scaleX != 1F || scaleY != 1F) {
 //                                activity.lineChartBZ.fitScreen()
 ////                            oldScaleX = scaleX
 ////                            oldScaleY = scaleY
 ////                            activity.lineChartBZ.viewPortHandler.matrixTouch.preScale(scaleX, scaleY)
 ////                            activity.lineChartBZ.invalidate()
-//                                activity.lineChartBZ.viewPortHandler.matrixTouch.preScale(scaleX, scaleY)
+//                                activity.lineChartBZ.viewPortHandler.matrixTouch.preScale(
+//                                    scaleX,
+//                                    scaleY
+//                                )
 //                                activity.lineChartBZ.invalidate()
-//                                LogUtil.e("TAG", "${activity.lineChartBZ.scaleX}-- ${activity.lineChartBZ.scaleY}")
-//                            }
+//                                LogUtil.e(
+//                                    "TAG",
+//                                    "${activity.lineChartBZ.scaleX}-- ${activity.lineChartBZ.scaleY}"
+//                                )
+                                //缩放第一种方式
+
+
+                                // get the translation
+                                mMatrix.set(mSavedMatrix)
+                                mMatrix.postScale(scaleX, scaleY)
+                                activity.lineChartBZ.getViewPortHandler().refresh(mMatrix, activity.lineChartBZ, true)
+                            }
+
+//                            activity.lineChartBZ.invalidate()
+                            //重设所有缩放和拖动，使图表完全适合它的边界（完全缩小）。
+//                            activity.lineChartBZ.fitScreen();
                         }
                     }
                     R.id.lineChartBZ -> {

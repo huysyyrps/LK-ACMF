@@ -11,6 +11,7 @@ import android.view.animation.AnimationUtils;
 
 import com.github.mikephil.charting.charts.BarLineChartBase;
 import com.github.mikephil.charting.charts.HorizontalBarChart;
+import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.BarLineScatterCandleBubbleData;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.highlight.Highlight;
@@ -342,7 +343,7 @@ public class BarLineChartTouchListener extends ChartTouchListener<BarLineChartBa
      *
      * @param event
      */
-    private void performZoom(MotionEvent event) {
+    public void performZoom(MotionEvent event) {
 
         if (event.getPointerCount() >= 2) { // two finger zoom
 
@@ -427,6 +428,56 @@ public class BarLineChartTouchListener extends ChartTouchListener<BarLineChartBa
                         if (l != null)
                             l.onChartScale(event, 1f, scaleY);
                     }
+                }
+
+                MPPointF.recycleInstance(t);
+            }
+        }
+    }
+
+
+    public void performZoom1(MotionEvent event, LineChart lineChart) {
+
+        if (event.getPointerCount() >= 2) { // two finger zoom
+
+            OnChartGestureListener l = lineChart.getOnChartGestureListener();
+
+            // get the distance between the pointers of the touch event
+            float totalDist = spacing(event);
+
+            if (totalDist > mMinScalePointerDistance) {
+
+                // get the translation
+                MPPointF t = getTrans(mTouchPointCenter.x, mTouchPointCenter.y);
+                ViewPortHandler h = lineChart.getViewPortHandler();
+
+                if (lineChart.isScaleXEnabled()) {
+                    float xDist = getXDist(event);
+                    float scaleX = xDist / mSavedXDist; // x-axis scale
+
+                    boolean isZoomingOut = (scaleX < 1);
+                    boolean canZoomMoreX = isZoomingOut ?
+                            h.canZoomOutMoreX() :
+                            h.canZoomInMoreX();
+
+                    if (canZoomMoreX) {
+                        mMatrix.set(mSavedMatrix);
+                        mMatrix.postScale(scaleX, 1f, t.x, t.y);
+                    }
+                    lineChart.getViewPortHandler().refresh(mMatrix, lineChart, true);
+                } else if (lineChart.isScaleYEnabled()) {
+                    float yDist = getYDist(event);
+                    float scaleY = yDist / mSavedYDist; // y-axis scale
+
+                    boolean isZoomingOut = (scaleY < 1);
+                    boolean canZoomMoreY = isZoomingOut ?
+                            h.canZoomOutMoreY() :
+                            h.canZoomInMoreY();
+                    if (canZoomMoreY) {
+                        mMatrix.set(mSavedMatrix);
+                        mMatrix.postScale(1f, scaleY, t.x, t.y);
+                    }
+                    lineChart.getViewPortHandler().refresh(mMatrix, lineChart, true);
                 }
 
                 MPPointF.recycleInstance(t);

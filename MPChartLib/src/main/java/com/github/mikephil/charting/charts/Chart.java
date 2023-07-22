@@ -162,7 +162,7 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
     /**
      * object that manages the bounds and drawing constraints of the chart
      */
-    protected ViewPortHandler mViewPortHandler = new ViewPortHandler();
+    public ViewPortHandler mViewPortHandler = new ViewPortHandler();
 
     /**
      * object responsible for animations
