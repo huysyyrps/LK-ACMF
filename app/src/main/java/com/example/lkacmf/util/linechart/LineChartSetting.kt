@@ -10,10 +10,12 @@ import com.example.lkacmf.activity.MainActivity
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
-import com.github.mikephil.charting.formatter.IAxisValueFormatter
-import com.github.mikephil.charting.formatter.ValueFormatter
+import com.github.mikephil.charting.listener.BarLineChartTouchListener
+import com.github.mikephil.charting.listener.ChartTouchListener
 import com.github.mikephil.charting.listener.ChartTouchListener.ChartGesture
 import com.github.mikephil.charting.listener.OnChartGestureListener
+import com.github.mikephil.charting.utils.MPPointF
+import com.github.mikephil.charting.utils.ViewPortHandler
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -25,7 +27,7 @@ class LineChartSetting {
         linechar: LineChart,
         yAxixSetting: CardView,
         showX: Boolean,
-    ){
+    ) {
         linechar.setDrawGridBackground(false)//是否显示表格颜色
         linechar.setDrawBorders(true)// 是否在折线图上添加边框
         linechar.setScaleEnabled(true)// 是否可以缩放
@@ -55,7 +57,7 @@ class LineChartSetting {
             // 手势监听器
             override fun onChartGestureStart(me: MotionEvent, lastPerformedGesture: ChartGesture) {
                 // 按下
-                LogUtil.e("TAG","按下")
+                LogUtil.e("TAG", "按下")
                 yAxixSetting.visibility = View.GONE
             }
 
@@ -65,42 +67,57 @@ class LineChartSetting {
 
             override fun onChartLongPressed(me: MotionEvent) {
                 // 长按
-                LogUtil.e("TAG","长按")
+                LogUtil.e("TAG", "长按")
                 yAxixSetting.visibility = View.VISIBLE
             }
 
             override fun onChartDoubleTapped(me: MotionEvent) {
                 // 双击
-                LogUtil.e("TAG","双击")
+                LogUtil.e("TAG", "双击")
             }
 
             override fun onChartSingleTapped(me: MotionEvent) {
                 // 单击
             }
 
-            override fun onChartFling(me1: MotionEvent, me2: MotionEvent, velocityX: Float, velocityY: Float) {
+            override fun onChartFling(
+                me1: MotionEvent,
+                me2: MotionEvent,
+                velocityX: Float,
+                velocityY: Float
+            ) {
                 // 甩动
-                LogUtil.e("TAG","甩动")
+                LogUtil.e("TAG", "甩动")
             }
 
-            override fun onChartScale(me: MotionEvent, scaleX: Float, scaleY: Float) {
+            override fun onChartScale(event: MotionEvent, scaleX: Float, scaleY: Float) {
                 // 缩放
-                when(linechar.id){
-                    R.id.lineChartBX->{
-                        if (oldScaleX!=scaleX||oldScaleY!=scaleY){
-                            activity.lineChartBZ.fitScreen()
-                            oldScaleX = scaleX
-                            oldScaleY = scaleY
-                            activity.lineChartBZ.viewPortHandler.matrixTouch.preScale(scaleX, scaleY)
-                            activity.lineChartBZ.invalidate()
+                when (linechar.id) {
+                    R.id.lineChartBX -> {
+                        if (oldScaleX != scaleX || oldScaleY != scaleY) {
+//                            performZoom(event)
+//                            LogUtil.e("TAG", "${scaleX==1F}---- ${scaleY==1F}")
+//                            if (scaleX!=1F||scaleY!=1F){
+//                                activity.lineChartBZ.fitScreen()
+////                            oldScaleX = scaleX
+////                            oldScaleY = scaleY
+////                            activity.lineChartBZ.viewPortHandler.matrixTouch.preScale(scaleX, scaleY)
+////                            activity.lineChartBZ.invalidate()
+//                                activity.lineChartBZ.viewPortHandler.matrixTouch.preScale(scaleX, scaleY)
+//                                activity.lineChartBZ.invalidate()
+//                                LogUtil.e("TAG", "${activity.lineChartBZ.scaleX}-- ${activity.lineChartBZ.scaleY}")
+//                            }
                         }
                     }
-                    R.id.lineChartBZ->{
-                        if (oldScaleX!=scaleX||oldScaleY!=scaleY){
+                    R.id.lineChartBZ -> {
+                        if (oldScaleX != scaleX || oldScaleY != scaleY) {
                             activity.lineChartBX.fitScreen()
                             oldScaleX = scaleX
                             oldScaleY = scaleY
-                            activity.lineChartBX.viewPortHandler.matrixTouch.preScale(scaleX, scaleY)
+                            activity.lineChartBX.viewPortHandler.matrixTouch.preScale(
+                                scaleX,
+                                scaleY
+                            )
                             activity.lineChartBX.invalidate()
                         }
                     }
@@ -109,11 +126,10 @@ class LineChartSetting {
 
             override fun onChartTranslate(me: MotionEvent, dX: Float, dY: Float) {
                 // 移动
-                LogUtil.e("TAG","移动")
-                LogUtil.e("TAG","$dX  $dY")
+                LogUtil.e("TAG", "移动")
+                LogUtil.e("TAG", "$dX  $dY")
             }
         }
-
 
 
         //X轴

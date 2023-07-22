@@ -253,6 +253,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
 
     override fun onDestroy() {
         super.onDestroy()
-        BleContent.releaseBleScanner()
+//        BleContent.releaseBleScanner()
     }
 }
