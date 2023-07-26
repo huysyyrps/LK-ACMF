@@ -10,6 +10,6 @@ object CharacteristicUuid {
     const val CONNECTHEADER = "AE"
     const val CONNECTCODE = "01"
     const val EMPOWERCODE = "02"
-    const val READSETTINGCODE = "03"
+    const val READSETTINGCODE = "05"
     const val METERCODE = "06"
 }

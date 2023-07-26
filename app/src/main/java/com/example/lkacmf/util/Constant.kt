@@ -4,6 +4,8 @@ object Constant {
     const val TAG_ONE = 1
     const val TAG_TWO = 2
     const val PID = 22335
+    const val TIMEOUT = 3000L
+
 
     const val SAVE_IMAGE_PATH = "LKACMFIMAGE"
     const val SAVE_FORM_PATH = "LKACMFFORM"

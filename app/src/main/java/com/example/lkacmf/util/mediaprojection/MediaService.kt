@@ -20,7 +20,7 @@ class MediaService : Service() {
         startNotification()
     }
 
-    fun startNotification() {
+    private fun startNotification() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             //Call Start foreground with notification
             val notificationIntent = Intent(this, MediaService::class.java)

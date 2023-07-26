@@ -24,13 +24,15 @@ import java.util.concurrent.Executors
 object UsbContent {
     var portOne: UsbSerialPort? = null
     var portMore: UsbSerialPort? = null
+    var connectState:Boolean  = false
     @RequiresApi(Build.VERSION_CODES.O)
-    fun usbDeviceConstant(content: MainActivity, usbBackDataLisition: UsbBackDataLisition){
+    fun usbDeviceConstant(content: MainActivity, usbBackDataLisition: UsbBackDataLisition):Boolean{
         val manager = content.getSystemService(AppCompatActivity.USB_SERVICE) as UsbManager
         val availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager)
         if (availableDrivers.isEmpty()) {
             content.resources.getString(R.string.no_devices).showToast(content)
-            return
+            connectState = false
+            return connectState
         }
        for (device in availableDrivers){
            if (device.device.productId==Constant.PID){
@@ -39,7 +41,11 @@ object UsbContent {
                    Intent("com.android.example.USB_PERMISSION"), flags
                )
                manager.requestPermission(device.device, permissionIntent)
-               val connectionOne = manager.openDevice(device.device) ?:return
+               val connectionOne = manager.openDevice(device.device)
+               if (connectionOne==null){
+                   connectState = false
+                   return connectState
+               }
                portOne = device.ports[0]
                portOne?.open(connectionOne)
                //设置串口的波特率、数据位，停止位，校验位115200
@@ -61,9 +67,17 @@ object UsbContent {
                mSerialIoManagerOne.readBufferSize = 100
                //在新的线程中监听串口的数据变化
                mExecutorOne.submit(mSerialIoManagerOne)
-               writeData(BleDataMake.makeStartMeterData())
+               connectState = true
+               return connectState
+//               writeData(BleDataMake.makeStartMeterData())
            }
        }
+        connectState = false
+        return connectState
+    }
+
+    fun getConnectionState():Boolean {
+        return connectState
     }
     fun writeData(data:String){
         var s1 = HexUtil().hexStringToBytes(data)

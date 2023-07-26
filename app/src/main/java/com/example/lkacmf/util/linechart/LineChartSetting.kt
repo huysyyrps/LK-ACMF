@@ -23,6 +23,7 @@ class LineChartSetting {
     var oldScaleY = 0F
     private var mMatrix = Matrix()
     private val mSavedMatrix = Matrix()
+    private val mTouchPointCenter = MPPointF.getInstance(0f, 0f)
     fun SettingLineChart(
         activity: MainActivity,
         linechar: LineChart,
@@ -56,15 +57,22 @@ class LineChartSetting {
 //        linechar.moveViewToX(300f);
         linechar.onChartGestureListener = object : OnChartGestureListener {
             // 手势监听器
-            override fun onChartGestureStart(me: MotionEvent, lastPerformedGesture: ChartTouchListener.ChartGesture) {
+            override fun onChartGestureStart(event: MotionEvent, lastPerformedGesture: ChartTouchListener.ChartGesture) {
                 // 按下
                 LogUtil.e("TAG", "按下")
                 mSavedMatrix.set(mMatrix)
                 yAxixSetting.visibility = View.GONE
             }
 
+            override fun onChartGestureDoubleStart(event: MotionEvent) {
+                if (event.pointerCount >= 2) {
+                    midPoint(mTouchPointCenter, event)
+                }
+            }
+
             override fun onChartGestureEnd(me: MotionEvent, lastPerformedGesture: ChartTouchListener.ChartGesture) {
                 // 抬起,取消
+                LogUtil.e("TAG", "抬起")
             }
 
             override fun onChartLongPressed(me: MotionEvent) {
@@ -80,6 +88,7 @@ class LineChartSetting {
 
             override fun onChartSingleTapped(me: MotionEvent) {
                 // 单击
+                LogUtil.e("TAG", "单击")
             }
 
             override fun onChartFling(
@@ -97,46 +106,22 @@ class LineChartSetting {
                 when (linechar.id) {
                     R.id.lineChartBX -> {
                         if (oldScaleX != scaleX || oldScaleY != scaleY) {
-//                            LogUtil.e("TAG", "${scaleX == 1F}---- ${scaleY == 1F}")
                             if (scaleX != 1F || scaleY != 1F) {
-//                                activity.lineChartBZ.fitScreen()
-////                            oldScaleX = scaleX
-////                            oldScaleY = scaleY
-////                            activity.lineChartBZ.viewPortHandler.matrixTouch.preScale(scaleX, scaleY)
-////                            activity.lineChartBZ.invalidate()
-//                                activity.lineChartBZ.viewPortHandler.matrixTouch.preScale(
-//                                    scaleX,
-//                                    scaleY
-//                                )
-//                                activity.lineChartBZ.invalidate()
-//                                LogUtil.e(
-//                                    "TAG",
-//                                    "${activity.lineChartBZ.scaleX}-- ${activity.lineChartBZ.scaleY}"
-//                                )
-                                //缩放第一种方式
-
-
-                                // get the translation
                                 mMatrix.set(mSavedMatrix)
-                                mMatrix.postScale(scaleX, scaleY)
+                                val t = getTrans(mTouchPointCenter.x, mTouchPointCenter.y,activity.lineChartBZ)
+                                mMatrix.postScale(scaleX, 1F, t.x, t.y)
                                 activity.lineChartBZ.getViewPortHandler().refresh(mMatrix, activity.lineChartBZ, true)
                             }
-
-//                            activity.lineChartBZ.invalidate()
-                            //重设所有缩放和拖动，使图表完全适合它的边界（完全缩小）。
-//                            activity.lineChartBZ.fitScreen();
                         }
                     }
                     R.id.lineChartBZ -> {
                         if (oldScaleX != scaleX || oldScaleY != scaleY) {
-                            activity.lineChartBX.fitScreen()
-                            oldScaleX = scaleX
-                            oldScaleY = scaleY
-                            activity.lineChartBX.viewPortHandler.matrixTouch.preScale(
-                                scaleX,
-                                scaleY
-                            )
-                            activity.lineChartBX.invalidate()
+                            if (scaleX != 1F || scaleY != 1F) {
+                                mMatrix.set(mSavedMatrix)
+                                val t = getTrans(mTouchPointCenter.x, mTouchPointCenter.y,activity.lineChartBX)
+                                mMatrix.postScale(scaleX, 1F, t.x, t.y)
+                                activity.lineChartBX.getViewPortHandler().refresh(mMatrix, activity.lineChartBX, true)
+                            }
                         }
                     }
                 }
@@ -146,6 +131,18 @@ class LineChartSetting {
                 // 移动
                 LogUtil.e("TAG", "移动")
                 LogUtil.e("TAG", "$dX  $dY")
+                when (linechar.id) {
+                    R.id.lineChartBX -> {
+                        mMatrix.set(mSavedMatrix)
+                        mMatrix.postTranslate(dX, dY)
+                        activity.lineChartBZ.getViewPortHandler().refresh(mMatrix, activity.lineChartBZ, true)
+                    }
+                    R.id.lineChartBZ -> {
+                        mMatrix.set(mSavedMatrix)
+                        mMatrix.postTranslate(dX, dY)
+                        activity.lineChartBX.getViewPortHandler().refresh(mMatrix, activity.lineChartBX, true)
+                    }
+                }
             }
         }
 
@@ -184,5 +181,22 @@ class LineChartSetting {
         yRightAxis.axisLineColor = MyApplication.context.resources.getColor(R.color.black)//轴线颜色
         yRightAxis.setDrawLabels(false)//右侧轴线不显示标签
         yRightAxis.axisLineWidth = 4f//轴线宽度
+    }
+
+    private fun midPoint(point:MPPointF, event:MotionEvent) {
+        var x = event.getX(0) + event.getX(1);
+        var y = event.getY(0) + event.getY(1);
+        point.x = (x / 2f);
+        point.y = (y / 2f);
+    }
+
+    fun getTrans(x: Float, y: Float, lineChart: LineChart): MPPointF {
+        val vph: ViewPortHandler = lineChart.getViewPortHandler()
+        val xTrans = x - vph.offsetLeft()
+        var yTrans = 0f
+
+        // check if axis is inverted
+        yTrans = -(lineChart.getMeasuredHeight() - y - vph.offsetBottom())
+        return MPPointF.getInstance(xTrans, yTrans)
     }
 }

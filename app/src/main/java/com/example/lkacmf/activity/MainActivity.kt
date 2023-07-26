@@ -6,47 +6,46 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
-import android.graphics.Matrix
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.view.GravityCompat
-import com.afollestad.materialdialogs.MaterialDialog
 import com.example.lk_epk.util.LogUtil
-import com.example.lkacmf.MyApplication
 import com.example.lkacmf.MyApplication.Companion.context
 import com.example.lkacmf.R
-import com.example.lkacmf.data.CharacteristicUuid
-import com.example.lkacmf.network.DownloadApk
+import com.example.lkacmf.entity.VersionInfo
+import com.example.lkacmf.module.VersionInfoContract
+import com.example.lkacmf.presenter.VersionInfoPresenter
 import com.example.lkacmf.util.*
 import com.example.lkacmf.util.ble.*
 import com.example.lkacmf.util.dialog.MainDialog
-import com.example.lkacmf.util.linechart.ChartScalyCallBack
 import com.example.lkacmf.util.linechart.LineChartSetting
 import com.example.lkacmf.util.mediaprojection.CaptureImage
 import com.example.lkacmf.util.usb.UsbBackDataLisition
 import com.example.lkacmf.util.usb.UsbContent
+import com.example.lkacmf.util.usb.UsbContent.writeData
 import com.github.mikephil.charting.components.YAxis
-import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
-import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.utils.ViewPortHandler
 import com.google.android.material.tabs.TabLayout
+import com.google.gson.Gson
+import constant.UiType
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.drawer_item.view.*
-import java.util.*
+import listener.OnInitUiListener
+import model.UiConfig
+import model.UpdateConfig
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody
+import update.UpdateAppUtils
 
 
-class MainActivity : BaseActivity(), View.OnClickListener {
+class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.View {
     private var version: String = "1.0.0"
-    private var isStart: Boolean = false
     private lateinit var mediaManager: MediaProjectionManager
     private var mMediaProjection: MediaProjection? = null
-    private var reset:String = "noReset"
-    private var i:Int = 0
     private val tabItemStr = arrayListOf<String>().apply {
         add(context.resources.getString(R.string.start))
         add(context.resources.getString(R.string.stop))
@@ -58,8 +57,9 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         add(context.resources.getString(R.string.save))
         add(context.resources.getString(R.string.play_back))
     }
-    var axisMaximum:Float = 5.0F
+    var axisMaximum: Float = 5.0F
     private lateinit var leftYAxis: YAxis
+    private lateinit var versionInfoPresenter: VersionInfoPresenter
 
     companion object {
         fun actionStart(context: Context) {
@@ -72,6 +72,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        versionInfoPresenter = VersionInfoPresenter(this, view = this)
         tabItemStr.forEachIndexed { index, value ->
             val tab = tbLayout.newTab()
             tab.text = value
@@ -88,10 +89,10 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         btnFinish.setOnClickListener(this)
         ivAdd.setOnClickListener(this)
         ivDown.setOnClickListener(this)
-        version = BaseProjectVersion().getPackageInfo(context)?.versionName.toString()
-        linCurrentVersion.tvVersion.text = version
+        version = ClientVersion.getVersion(applicationContext)
+        tvCurrentVersion.text = version
 
-        LineChartSetting().SettingLineChart(this, lineChartBX,yAxixSetting,true)
+        LineChartSetting().SettingLineChart(this, lineChartBX, yAxixSetting, true)
         LineChartSetting().SettingLineChart(this, lineChartBZ, yAxixSetting, true)
         LineChartSetting().SettingLineChart(this, lineChartTest, yAxixSetting, true)
         val xAxis = lineChartBZ.xAxis
@@ -99,19 +100,41 @@ class MainActivity : BaseActivity(), View.OnClickListener {
 
 
         var permissionTag = MainDialog().requestPermission(this)
-        if (permissionTag){
-            UsbContent.usbDeviceConstant(this,object : UsbBackDataLisition{
+        if (permissionTag) {
+            UsbContent.usbDeviceConstant(this, object : UsbBackDataLisition {
                 override fun usbBackData(data: String) {
-//                    LogUtil.e("TAG",data)
                     if (data.length > 4 && data.substring(0, 4) == "BE06") {
-                        if (BaseData.hexStringToBytes(data.substring(0, data.length - 6)) == data.substring(data.length - 6, data.length-4)&&data.length==38) {
-                            BleBackDataRead.readMeterData(data,lineChartBX,lineChartBZ,lineChart)
+                        if (BaseData.hexStringToBytes(
+                                data.substring(
+                                    0,
+                                    data.length - 6
+                                )
+                            ) == data.substring(
+                                data.length - 6,
+                                data.length - 4
+                            ) && data.length == 38
+                        ) {
+                            BleBackDataRead.readMeterData(data, lineChartBX, lineChartBZ, lineChart)
                         }
+                    }
+                    if (data.length > 4 && data.substring(0, 4) == "BE05") {
+                        if (BaseData.hexStringToBytes(
+                                data.substring(
+                                    0,
+                                    data.length - 2
+                                )
+                            ) == data.substring(data.length - 2, data.length) && data.length == 14
+                        ) {
+                            BleBackDataRead.readSettingData(data)
+                        }
+                    }
+                    if (data.length > 4 && data.substring(0, 4) == "BE16") {
+                        LogUtil.e("TAG", data)
                     }
                 }
 
             })
-        }else{
+        } else {
             R.string.no_permission.showToast(this)
         }
 
@@ -119,9 +142,9 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
         var receiver = BatteryReceiver()
         registerReceiver(receiver, filter)
-
-//        leftYAxis = lineChartBX.axisLeft
-//        leftYAxis.axisMaximum = axisMaximum
+        if (UsbContent.connectState) {
+            writeData(BleDataMake.makeReadSettingData())
+        }
     }
 
     private fun tabLayoutSelect() {
@@ -130,40 +153,29 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 when (tab.text) {
                     context.resources.getString(R.string.start) -> {
+                        if (UsbContent.connectState) {
+                            writeData(BleDataMake.makeStartMeterData())
+                        }
                     }
                     context.resources.getString(R.string.stop) -> {
-                        isStart = false
-                        BleContent.writeData(
-                            BleDataMake.makeStopMeterData(),
-                            CharacteristicUuid.ConstantCharacteristicUuid,
-                            object : BleWriteCallBack {
-                                override fun writeCallBack(writeBackData: String) {
-                                    LogUtil.e("TAG", "写入开始测量回调 = $writeBackData")
-                                }
-                            })
+                        if (UsbContent.connectState) {
+                            writeData(BleDataMake.makeStopMeterData())
+                        }
                     }
                     context.resources.getString(R.string.refresh) -> {
-                        reset = "Reset"
-                        BleBackDataRead.readRefreshData(lineChartBX)
-                        isStart = true
-//                        timer.cancel()
-                        tbLayout.selectTab(tbLayout.getTabAt(0))
+                        if (UsbContent.connectState) {
+                            writeData(BleDataMake.makeStopMeterData())
+                        }
+                        BleBackDataRead.readRefreshData(lineChartBX, lineChartBZ, lineChart)
                     }
                     context.resources.getString(R.string.reset) -> {
-                        isStart = true
-                        reset = "noReset"
-                        //缩放第一种方式
-                        var matrix = Matrix();
-                        //1f代表不缩放
-                        matrix.postScale(1f, 1f);
-                        lineChartBX.viewPortHandler.refresh(matrix, lineChartBX, false);
-                        //重设所有缩放和拖动，使图表完全适合它的边界（完全缩小）。
-                        lineChartBX.fitScreen();
+                        lineChartBX.fitScreen()
                         lineChartBX.invalidate()
-                        tbLayout.selectTab(tbLayout.getTabAt(0))
+                        lineChartBZ.fitScreen()
+                        lineChartBX.invalidate()
                     }
                     context.resources.getString(R.string.forms) -> {
-                         var viewBX = linBX
+                        var viewBX = linBX
                         viewBX.setDrawingCacheEnabled(true)
                         viewBX.buildDrawingCache()
                         var bitmapBX = Bitmap.createBitmap(viewBX.getDrawingCache())
@@ -177,44 +189,39 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                         viewDX.setDrawingCacheEnabled(true)
                         viewDX.buildDrawingCache()
                         var bitmapDX = Bitmap.createBitmap(viewDX.getDrawingCache())
-                        MainDialog().writeFormDataDialog(this@MainActivity,bitmapBX,bitmapBZ,bitmapDX)
+                        MainDialog().writeFormDataDialog(
+                            this@MainActivity,
+                            bitmapBX,
+                            bitmapBZ,
+                            bitmapDX
+                        )
                     }
                     context.resources.getString(R.string.save) -> {
-                        mediaManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-                        if (mMediaProjection==null){
+                        mediaManager =
+                            getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+                        if (mMediaProjection == null) {
                             val captureIntent: Intent =
                                 mediaManager.createScreenCaptureIntent()
                             startActivityForResult(captureIntent, Constant.TAG_TWO)
-                        }else{
-                            mMediaProjection?.let { CaptureImage().captureImages(this@MainActivity,"image", it) }
+                        } else {
+                            mMediaProjection?.let {
+                                CaptureImage().captureImages(
+                                    this@MainActivity,
+                                    "image",
+                                    it
+                                )
+                            }
                         }
                     }
                     context.resources.getString(R.string.play_back) -> {
-                        BleBackDataRead.playBack(lineChartBX,lineChartBZ)
+                        BleBackDataRead.playBack(lineChartBX, lineChartBZ)
                     }
                 }
             }
+
             override fun onTabUnselected(tab: TabLayout.Tab) {}
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    @SuppressLint("WrongConstant")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                Constant.TAG_ONE -> {
-                    mMediaProjection = data?.let { mediaManager.getMediaProjection(resultCode, it) }
-                    mMediaProjection?.let { CaptureImage().captureImages(this,"form", it) }
-                }
-                Constant.TAG_TWO -> {
-                    mMediaProjection = data?.let { mediaManager.getMediaProjection(resultCode, it) }
-                    mMediaProjection?.let { CaptureImage().captureImages(this,"image", it) }
-                }
-            }
-        }
     }
 
     override fun onClick(v: View?) {
@@ -229,24 +236,131 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                 MainDialog().setConfigDialog(this)
             }
             R.id.linVersionCheck -> {
-                DownloadApk().downloadApk(this, version)
+                versionInfo()
             }
             R.id.linContactComp -> {
                 BaseTelPhone.telPhone(this)
 
             }
             R.id.ivAdd -> {
-                axisMaximum+=20
+                axisMaximum += 20
                 leftYAxis.axisMaximum = axisMaximum
             }
             R.id.ivDown -> {
-                if (axisMaximum>20){
-                    axisMaximum-=20
+                if (axisMaximum > 20) {
+                    axisMaximum -= 20
                     leftYAxis.axisMaximum = axisMaximum
                 }
             }
             R.id.btnFinish -> {
                 finish()
+            }
+        }
+    }
+
+    /**
+     * 请求版本信息
+     */
+    private fun versionInfo() {
+        val params = HashMap<String, String>()
+        params["projectName"] = "济宁鲁科"
+        params["actionName"] = "ACMF"
+        params["appVersion"] = version
+        params["channel"] = "default"
+        params["appType"] = "android"
+        params["clientType"] = "X2"
+        params["phoneSystemVersion"] = "10.0.1"
+        params["phoneType"] = "华为"
+        val gson = Gson()
+        val requestBody = RequestBody.create(
+            "application/json; charset=utf-8".toMediaTypeOrNull(),
+            gson.toJson(params)
+        )
+        versionInfoPresenter.getVersionInfo(requestBody)
+    }
+
+
+    override fun setVersionInfo(versionInfo: VersionInfo?) {
+        val netVersion = versionInfo?.data?.version
+        val netVersionArray = netVersion?.split(".")?.toTypedArray()
+        val localVersionArray = version.split(".").toTypedArray()
+        if (netVersionArray != null) {
+            for (i in netVersionArray.indices) {
+                if (netVersionArray[i].toInt() > localVersionArray[i].toInt()) {
+                    if (versionInfo.data.updateFlag === 0) {
+                        //无需SSH升级,APK需要升级时值为0
+                        showUpDataDialog(versionInfo, 0)
+                        return
+                    } else if (versionInfo.data.updateFlag === 1) {
+                        //SSH需要升级APK不需要升级
+                        showUpDataDialog(versionInfo, 1)
+                        return
+                    } else if (versionInfo.data.updateFlag === 2) {
+                        showUpDataDialog(versionInfo, 2)
+                        return
+                    }
+                }
+            }
+        }
+        //        remoteSetting(this.savedInstanceState);
+        R.string.last_version.showToast(this)
+    }
+
+    private fun showUpDataDialog(versionInfo: VersionInfo, i: Int) {
+        val updateInfo: String = versionInfo.data.updateInfo
+        val updataItem: Array<String> = updateInfo.split("~").toTypedArray()
+        var updateInfo1 = ""
+        if (updataItem != null && updataItem.isNotEmpty()) {
+            for (j in updataItem.indices) {
+                updateInfo1 = "$updateInfo1 \n ${updataItem[j]}"
+            }
+        }
+        UpdateAppUtils
+            .getInstance()
+            .apkUrl(versionInfo.data.apkUrl)
+            .updateConfig(UpdateConfig(alwaysShowDownLoadDialog = true))
+            .uiConfig(
+                UiConfig(
+                    uiType = UiType.CUSTOM,
+                    customLayoutId = R.layout.view_update_dialog_custom
+                )
+            )
+            .setOnInitUiListener(object : OnInitUiListener {
+                override fun onInitUpdateUi(
+                    view: View?,
+                    updateConfig: UpdateConfig,
+                    uiConfig: UiConfig
+                ) {
+                    view?.findViewById<TextView>(R.id.tvUpdateTitle)?.text =
+                        "${applicationContext.resources.getString(R.string.have_new_version)}${versionInfo.data.version}"
+                    view?.findViewById<TextView>(R.id.tvVersionName)?.text =
+                        "V${versionInfo.data.version}"
+                    view?.findViewById<TextView>(R.id.tvUpdateContent)?.text =
+                        updateInfo1
+                    // do more...
+                }
+            })
+            .update()
+    }
+
+    override fun setVersionInfoMessage(message: String?) {
+        message?.let { it.showToast(this) }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @SuppressLint("WrongConstant")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                Constant.TAG_ONE -> {
+                    mMediaProjection = data?.let { mediaManager.getMediaProjection(resultCode, it) }
+                    mMediaProjection?.let { CaptureImage().captureImages(this, "form", it) }
+                }
+                Constant.TAG_TWO -> {
+                    mMediaProjection = data?.let { mediaManager.getMediaProjection(resultCode, it) }
+                    mMediaProjection?.let { CaptureImage().captureImages(this, "image", it) }
+                }
             }
         }
     }

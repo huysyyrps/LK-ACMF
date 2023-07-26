@@ -55,7 +55,6 @@ class ImageListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         StatusBarUtils.setWindowStatusBarColor(this, R.color.theme_color)
         setContentView(R.layout.activity_image_list)
-        //闸门
         recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         smartRefreshLayout = findViewById<SmartRefreshLayout>(R.id.smartRefreshLayout)
         imageView = findViewById<ImageView>(R.id.imageView)
@@ -138,6 +137,11 @@ class ImageListActivity : AppCompatActivity() {
         /**将文件夹下所有文件名存入数组*/
         filePath = File(Environment.getExternalStorageDirectory().toString()+ "/" + Constant.SAVE_IMAGE_PATH + "/")
 
+        if (filePath==null||filePath.list()==null){
+            linNoData.visibility = View.VISIBLE
+            linData.visibility = View.GONE
+            return
+        }
         if (filePath.list().isEmpty()) {
             linNoData.visibility = View.VISIBLE
             linData.visibility = View.GONE

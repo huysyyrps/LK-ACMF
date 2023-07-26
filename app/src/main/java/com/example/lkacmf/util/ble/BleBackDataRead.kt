@@ -30,8 +30,11 @@ object BleBackDataRead {
     private lateinit var context: MainActivity
     private lateinit var dialog: MaterialDialog
     var landBXList: ArrayList<Entry> = ArrayList()
+    var landBXRemoveList: ArrayList<Entry> = ArrayList()
     var landBZList: ArrayList<Entry> = ArrayList()
-    var oldXData:Float = 0F
+    var landBZRemoveList: ArrayList<Entry> = ArrayList()
+    var oldXData: Float = 0F
+    var removeIndex: Int = 0
 //    var landList: ArrayList<Entry> = ArrayList()
 
 
@@ -199,19 +202,14 @@ object BleBackDataRead {
     fun readSettingData(data: String) {
         var backData = BinaryChange().hexStringToByte(data)
         //校验
-        if (BaseData.hexStringToBytes(
-                data.substring(
-                    0,
-                    data.length - 2
-                )
-            ) == data.substring(data.length - 2, data.length)
-        ) {
+        if (BaseData.hexStringToBytes(data.substring(0, data.length - 2)) == data.substring(data.length - 2, data.length)) {
             when {
                 backData[2] == "00" -> {
                     LogUtil.e("TAG", "读取成功")
                     //hexString转10进制
-                    var rate = String.format("%02x", backData[3].toInt(16)).toUpperCase()
-                    var array = backData[4].toInt(16).toString(2)
+                    var userEncoder = backData[3].toInt(16)!=0
+                    var rate = String.format("%02x", backData[4].toInt(16)).toUpperCase()
+                    var array = backData[5].toInt(16).toString(2)
                     while (array.length < 8) {
                         array = "0${array}"
                     }
@@ -260,16 +258,11 @@ object BleBackDataRead {
     /**
      * 测量信息
      */
-    fun readMeterData(
-        readData: String,
-        lineChartBX: LineChart,
-        lineChartBZ: LineChart,
-        lineChart: LineChart
-    ) {
+    fun readMeterData(readData: String, lineChartBX: LineChart, lineChartBZ: LineChart, lineChart: LineChart) {
         var backData = BinaryChange().hexStringToByte(readData)
         //校验
         var xHex = "${backData[3]}${backData[4]}${backData[5]}${backData[6]}".toLong(16)
-        var xData = xHex.toFloat()/1000
+        var xData = xHex.toFloat() / 1000
 
         var yBXHex = "${backData[8]}${backData[9]}${backData[10]}${backData[11]}".toLong(16)
         var yBXData = BinaryChange().ieee754ToFloat(yBXHex)
@@ -278,135 +271,56 @@ object BleBackDataRead {
         var yBZData = BinaryChange().ieee754ToFloat(yBZHex)
 
 
-        if (landBXList.isEmpty()){
+        if (landBXList.isEmpty()) {
             landBXList.add(Entry(xData, yBXData))
             landBZList.add(Entry(xData, yBZData))
-            setChartData(lineChartBX,landBXList)
-            setChartData(lineChartBZ,landBZList)
+            setChartData(lineChartBX, landBXList)
+            setChartData(lineChartBZ, landBZList)
             oldXData = xData
-//            LogUtil.e("TAG","${111111}---${xData}---${landBXList.last().x}")
-        }else if (landBXList.isNotEmpty()){
-            if (xData > landBXList.last().x){
-                landBXList.add(Entry(xData, yBXData))
-                landBZList.add(Entry(xData, yBZData))
-                notifyChartData(lineChartBX,landBXList)
-                notifyChartData(lineChartBZ,landBZList)
-                oldXData = xData
-//                LogUtil.e("TAG","${222222}---${xData}---${landBXList.last().x}")
-            }else if (xData < landBXList.last().x){
-                if (xData< oldXData){
-                    LogUtil.e("TAG","${333333}---${xData}---${landBXList.last().x}---${oldXData}")
-
-//                    val data: LineData = lineChartBX.data
-//                    if (data != null) {
-//
-//                        val set = data.getDataSetByIndex(0)
-//                        if (set != null) {
-//                            val e = set.getEntryForXValue((set.entryCount - 1).toFloat(), Float.NaN)
-//                            LogUtil.e("TAG","${set.entryCount - 1}")
-//                            data.removeEntry(e, 0)
-//                            lineChartBX.notifyDataSetChanged()
-//                            lineChartBX.invalidate()
-//                        }
-//                    }
-                    landBXList.removeLast()
-                    landBZList.removeLast()
+        } else if (landBXList.isNotEmpty()) {
+            if (xData > landBXList.last().x) {
+//                landBXList.add(Entry(xData, yBXData))
+//                landBZList.add(Entry(xData, yBZData))
+                if (landBXRemoveList.size < 5) {
+                    landBXRemoveList.add(Entry(xData, yBXData))
+                    landBZRemoveList.add(Entry(xData, yBZData))
+                } else if (landBXRemoveList.size == 5) {
+                    landBXList.addAll(landBXRemoveList)
+                    landBZList.addAll(landBZRemoveList)
                     notifyChartData(lineChartBX, landBXList)
+                    notifyChartData(lineChartBZ, landBZList)
                     oldXData = xData
+                    landBXRemoveList.clear()
+                    landBZRemoveList.clear()
+                }
+            } else if (xData < landBXList.last().x) {
+                if (xData < oldXData) {
+                    if (landBXRemoveList.isNotEmpty()) {
+                        landBXRemoveList.clear()
+                        landBZRemoveList.clear()
+                    }
+                    if (removeIndex != 15) {
+                        if (landBXList.isNotEmpty()) {
+                            landBXList.removeLast()
+                            landBZList.removeLast()
+                            oldXData = landBXList.last().x
+                            removeIndex += 1
+                        }
+                    } else if (removeIndex == 15) {
+                        if (landBXList.isNotEmpty()) {
+                            landBXList.removeLast()
+                            landBZList.removeLast()
+                            oldXData = landBXList.last().x
+                            removeIndex == 0
+                            notifyChartData(lineChartBX, landBXList)
+                            notifyChartData(lineChartBZ, landBZList)
+                        }
+                    }
                 }
             }
         }
-
-
-//        var lineDataSet = lineChartBX.lineData.dataSets
-//        var entry = lineDataSet[lineDataSet.lastIndex] as Entry
-        //landBXList.last().x
-//        val set: ILineDataSet? = lineChartBX.data.getDataSetByIndex(0)
-//        if (landBXList.isNotEmpty()&&xData < set?.getEntryForXValue(
-//                (set.entryCount - 1).toFloat(),
-//                Float.NaN
-//            ).x){
-//            landBXList.removeLast()
-//            landBZList.removeLast()
-//            val lineData = lineChartBX.data
-//            if (lineData != null) {
-//                if (lineData.dataSetCount>1){
-////                    lineChartBX.xAxis.valueFormatter = IAxisValueFormatter { value, axis -> listString.get(value.toInt() % listString.size()) } as ValueFormatter?
-//                    lineData.removeDataSet(lineData.getDataSetByIndex(lineData.dataSetCount - 1))
-//                    lineData.notifyDataChanged()
-//                    lineChartBX.notifyDataSetChanged()
-//                    lineChartBX.invalidate()
-//                }
-//            }
-
-//            val data = lineChartBX.data
-//            if (data != null) {
-//                val set = data.getDataSetByIndex(0)
-//                if (set != null) {
-//                    val e = set.getEntryForXValue((set.entryCount - 1).toFloat(), Float.NaN)
-//                    data.removeEntry(e, 0)
-//                    data.notifyDataChanged()
-//                    lineChartBX.notifyDataSetChanged()
-//                    lineChartBX.invalidate()
-//                }
-//            }
-//        } else if (landBXList.isEmpty()||xData > landBXList.last().x){
-//            var yBXHex = "${backData[8]}${backData[9]}${backData[10]}${backData[11]}".toLong(16)
-//            var yBXData = BinaryChange().ieee754ToFloat(yBXHex)
-//
-//            var yBZHex = "${backData[12]}${backData[13]}${backData[14]}${backData[15]}".toLong(16)
-//            var yBZData = BinaryChange().ieee754ToFloat(yBZHex)
-//
-//            landBXList.add(Entry(xData, yBXData))
-//            landBZList.add(Entry(xData, yBZData))
-//
-////            if (lineChartBX.data != null && lineChartBX.data.dataSetCount > 0) {
-////                notifyChartData(lineChartBX,landBXList)
-////            }else{
-////                setChartData(lineChartBX,landBXList)
-////            }
-////
-////            if (lineChartBZ.data != null && lineChartBZ.data.dataSetCount > 0) {
-////                notifyChartData(lineChartBZ,landBZList)
-////            }else{
-////                setChartData(lineChartBZ,landBXList)
-////            }
-//            var lineChartBXData = lineChartBX.data
-//            if (lineChartBXData == null) {
-//                lineChartBXData = LineData()
-//                lineChartBX.data = lineChartBXData
-//            }
-//            var lineChartBXSet = lineChartBXData.getDataSetByIndex(0)
-//            if (lineChartBXSet == null) {
-//                lineChartBXSet = createSet()
-//                lineChartBXData.addDataSet(lineChartBXSet)
-//            }
-//            lineChartBXData.addEntry(Entry(xData, yBXData),
-//                (Math.random() * lineChartBXData.dataSetCount).toInt()
-//            )
-//            lineChartBXData.notifyDataChanged()
-//            lineChartBX.notifyDataSetChanged()
-//            lineChartBX.invalidate()
-//
-//
-//            var lineChartBZData = lineChartBZ.data
-//            if (lineChartBZData == null) {
-//                lineChartBZData = LineData()
-//                lineChartBZ.data = lineChartBZData
-//            }
-//            var lineChartBZSet = lineChartBZData.getDataSetByIndex(0)
-//            if (lineChartBZSet == null) {
-//                lineChartBZSet = createSet()
-//                lineChartBZData.addDataSet(lineChartBZSet)
-//            }
-//            lineChartBZData.addEntry(Entry(xData, yBZData),
-//                (Math.random() * lineChartBZData.dataSetCount).toInt()
-//            )
-//            lineChartBZData.notifyDataChanged()
-//            lineChartBZ.notifyDataSetChanged()
-//            lineChartBZ.invalidate()
-//        }
     }
+
     private fun createSet(): LineDataSet? {
         val lineSet = LineDataSet(null, "DataSet 1")
         //不绘制数据
@@ -486,10 +400,13 @@ object BleBackDataRead {
     /**
      * Refresh刷新
      */
-    fun readRefreshData(lineChartBX: LineChart) {
+    fun readRefreshData(lineChartBX: LineChart, lineChartBZ: LineChart, lineChart: LineChart) {
         //将数据添加到图表中
         landBXList.clear()
+        landBZList.clear()
         lineChartBX.notifyDataSetChanged()
         lineChartBX.invalidate()
+        lineChartBZ.notifyDataSetChanged()
+        lineChartBZ.invalidate()
     }
 }
