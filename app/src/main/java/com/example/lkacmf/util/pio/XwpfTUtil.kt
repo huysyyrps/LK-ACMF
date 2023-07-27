@@ -2,6 +2,7 @@ package com.example.lkacmf.util.pio
 
 import android.graphics.Bitmap
 import android.os.Environment
+import com.example.lkacmf.activity.MainActivity
 import com.example.lkacmf.util.BitmapSave
 import com.example.lkacmf.util.Constant
 import org.apache.poi.util.Units
@@ -19,6 +20,7 @@ object XwpfTUtil {
      * @param dataMap 替换的数据
      */
     fun writeDocx(
+        activity: MainActivity,
         templetDocInStream: InputStream,
         dataMap: MutableMap<String, Any>,
         bitmapBX: Bitmap,
@@ -75,7 +77,7 @@ object XwpfTUtil {
             picInDX.close()
 
 
-            val targetDocPath = Environment.getExternalStorageDirectory().toString()+ "/"+Constant.SAVE_FORM_PATH+"/"
+            val targetDocPath = activity.externalCacheDir.toString()+ "/"+Constant.SAVE_FORM_PATH+"/"
             val file = File(targetDocPath)
             //如果不存在  就mkdirs()创建此文件夹
             if (!file.exists()) {

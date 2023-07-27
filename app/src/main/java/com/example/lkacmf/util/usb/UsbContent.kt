@@ -35,6 +35,7 @@ object UsbContent {
             return connectState
         }
        for (device in availableDrivers){
+           LogUtil.e("TAG","${device.device.productId}")
            if (device.device.productId==Constant.PID){
                val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
                val permissionIntent = PendingIntent.getBroadcast(content, 0,

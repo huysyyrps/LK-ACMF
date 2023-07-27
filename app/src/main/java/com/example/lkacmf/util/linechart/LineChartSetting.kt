@@ -27,7 +27,6 @@ class LineChartSetting {
     fun SettingLineChart(
         activity: MainActivity,
         linechar: LineChart,
-        yAxixSetting: CardView,
         showX: Boolean,
     ) {
         linechar.setDrawGridBackground(false)//是否显示表格颜色
@@ -61,7 +60,6 @@ class LineChartSetting {
                 // 按下
                 LogUtil.e("TAG", "按下")
                 mSavedMatrix.set(mMatrix)
-                yAxixSetting.visibility = View.GONE
             }
 
             override fun onChartGestureDoubleStart(event: MotionEvent) {
@@ -78,7 +76,6 @@ class LineChartSetting {
             override fun onChartLongPressed(me: MotionEvent) {
                 // 长按
                 LogUtil.e("TAG", "长按")
-                yAxixSetting.visibility = View.VISIBLE
             }
 
             override fun onChartDoubleTapped(me: MotionEvent) {

@@ -87,14 +87,12 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
         linVersionCheck.setOnClickListener(this)
         linContactComp.setOnClickListener(this)
         btnFinish.setOnClickListener(this)
-        ivAdd.setOnClickListener(this)
-        ivDown.setOnClickListener(this)
         version = ClientVersion.getVersion(applicationContext)
         tvCurrentVersion.text = version
 
-        LineChartSetting().SettingLineChart(this, lineChartBX, yAxixSetting, true)
-        LineChartSetting().SettingLineChart(this, lineChartBZ, yAxixSetting, true)
-        LineChartSetting().SettingLineChart(this, lineChartTest, yAxixSetting, true)
+        LineChartSetting().SettingLineChart(this, lineChartBX, true)
+        LineChartSetting().SettingLineChart(this, lineChartBZ, true)
+        LineChartSetting().SettingLineChart(this, lineChartTest, true)
         val xAxis = lineChartBZ.xAxis
         xAxis.textColor = context.resources.getColor(R.color.theme_back_color)
 
@@ -197,11 +195,9 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
                         )
                     }
                     context.resources.getString(R.string.save) -> {
-                        mediaManager =
-                            getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+                        mediaManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
                         if (mMediaProjection == null) {
-                            val captureIntent: Intent =
-                                mediaManager.createScreenCaptureIntent()
+                            val captureIntent: Intent = mediaManager.createScreenCaptureIntent()
                             startActivityForResult(captureIntent, Constant.TAG_TWO)
                         } else {
                             mMediaProjection?.let {
@@ -218,7 +214,6 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
                     }
                 }
             }
-
             override fun onTabUnselected(tab: TabLayout.Tab) {}
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
@@ -240,17 +235,6 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
             }
             R.id.linContactComp -> {
                 BaseTelPhone.telPhone(this)
-
-            }
-            R.id.ivAdd -> {
-                axisMaximum += 20
-                leftYAxis.axisMaximum = axisMaximum
-            }
-            R.id.ivDown -> {
-                if (axisMaximum > 20) {
-                    axisMaximum -= 20
-                    leftYAxis.axisMaximum = axisMaximum
-                }
             }
             R.id.btnFinish -> {
                 finish()

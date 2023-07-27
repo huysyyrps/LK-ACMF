@@ -4,7 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
+import androidx.annotation.RequiresApi
 import com.example.lk_epk.util.LogUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,18 +22,15 @@ object BitmapSave {
     /**
      * 保存图片方法
      */
+    @RequiresApi(Build.VERSION_CODES.N)
     fun saveBitmap(
         local: String,
         context: Context,
         bitmap: Bitmap
     ) :Boolean{
         try {
-            val dir = Environment.getExternalStorageDirectory()
-                .toString()+ "/" + local + "/" //图片保存的文件夹名
-            val file = File(
-                Environment.getExternalStorageDirectory()
-                    .toString()+ "/" + local + "/"
-            )
+            val dir = context.externalCacheDir.toString()+ "/" + local + "/" //图片保存的文件夹名
+            val file = File(dir)
             //如果不存在  就mkdirs()创建此文件夹
             if (!file.exists()) {
                 file.mkdirs()

@@ -2,10 +2,8 @@ package com.example.lkacmf.util.dialog
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.bluetooth.le.ScanResult
 import android.graphics.Bitmap
-import android.location.LocationManager
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -24,11 +22,6 @@ import com.example.lkacmf.util.pio.XwpfTUtil
 import com.permissionx.guolindev.PermissionX
 import kotlinx.android.synthetic.main.dialog_save_form.*
 import kotlinx.android.synthetic.main.setting.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.text.ParseException
-import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -271,7 +264,7 @@ class MainDialog {
             dataMap["probefile"] = "探头文件！"
 
             val templetDocPath = activity.assets.open("acmf.docx")
-            var saveFormState = XwpfTUtil.writeDocx(templetDocPath, dataMap, bitmapBX,bitmapBZ,bitmapDX)
+            var saveFormState = XwpfTUtil.writeDocx(activity, templetDocPath, dataMap, bitmapBX,bitmapBZ,bitmapDX)
             if (saveFormState) {
                 MyApplication.context.resources.getString(R.string.save_success).showToast(activity)
                 dialog.dismiss()

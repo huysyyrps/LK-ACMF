@@ -135,7 +135,7 @@ class ImageListActivity : AppCompatActivity() {
     //获取数据列表
     private fun getFileList() {
         /**将文件夹下所有文件名存入数组*/
-        filePath = File(Environment.getExternalStorageDirectory().toString()+ "/" + Constant.SAVE_IMAGE_PATH + "/")
+        filePath = File(this.externalCacheDir.toString()+ "/" + Constant.SAVE_IMAGE_PATH + "/")
 
         if (filePath==null||filePath.list()==null){
             linNoData.visibility = View.VISIBLE
