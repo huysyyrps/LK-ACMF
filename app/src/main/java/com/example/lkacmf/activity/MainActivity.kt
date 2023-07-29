@@ -8,8 +8,10 @@ import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.DocumentsContract
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.RequiresApi
@@ -21,7 +23,9 @@ import com.example.lkacmf.entity.VersionInfo
 import com.example.lkacmf.module.VersionInfoContract
 import com.example.lkacmf.presenter.VersionInfoPresenter
 import com.example.lkacmf.util.*
-import com.example.lkacmf.util.ble.*
+import com.example.lkacmf.util.ble.BaseData
+import com.example.lkacmf.util.ble.BleBackDataRead
+import com.example.lkacmf.util.ble.BleDataMake
 import com.example.lkacmf.util.dialog.MainDialog
 import com.example.lkacmf.util.linechart.LineChartSetting
 import com.example.lkacmf.util.mediaprojection.CaptureImage
@@ -33,7 +37,6 @@ import com.google.android.material.tabs.TabLayout
 import com.google.gson.Gson
 import constant.UiType
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.drawer_item.view.*
 import listener.OnInitUiListener
 import model.UiConfig
 import model.UpdateConfig
@@ -59,6 +62,7 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
     }
     var axisMaximum: Float = 5.0F
     private lateinit var leftYAxis: YAxis
+    var isRoll:Boolean = false
     private lateinit var versionInfoPresenter: VersionInfoPresenter
 
     companion object {
@@ -84,9 +88,11 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
         imageView.setOnClickListener(this)
         linSetting.setOnClickListener(this)
         linImageList.setOnClickListener(this)
+        linFileList.setOnClickListener(this)
         linVersionCheck.setOnClickListener(this)
         linContactComp.setOnClickListener(this)
         btnFinish.setOnClickListener(this)
+        tvRoll.setOnClickListener(this)
         version = ClientVersion.getVersion(applicationContext)
         tvCurrentVersion.text = version
 
@@ -101,6 +107,7 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
         if (permissionTag) {
             UsbContent.usbDeviceConstant(this, object : UsbBackDataLisition {
                 override fun usbBackData(data: String) {
+//                    LogUtil.e("TAG",data)
                     if (data.length > 4 && data.substring(0, 4) == "BE06") {
                         if (BaseData.hexStringToBytes(
                                 data.substring(
@@ -116,6 +123,7 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
                         }
                     }
                     if (data.length > 4 && data.substring(0, 4) == "BE05") {
+                        LogUtil.e("TAG",data)
                         if (BaseData.hexStringToBytes(
                                 data.substring(
                                     0,
@@ -151,6 +159,7 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
             override fun onTabSelected(tab: TabLayout.Tab) {
                 when (tab.text) {
                     context.resources.getString(R.string.start) -> {
+                        LogUtil.e("TAG","1111")
                         if (UsbContent.connectState) {
                             writeData(BleDataMake.makeStartMeterData())
                         }
@@ -164,6 +173,7 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
                         if (UsbContent.connectState) {
                             writeData(BleDataMake.makeStopMeterData())
                         }
+                        tbLayout.selectTab(tbLayout.getTabAt(0))
                         BleBackDataRead.readRefreshData(lineChartBX, lineChartBZ, lineChart)
                     }
                     context.resources.getString(R.string.reset) -> {
@@ -227,6 +237,32 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
             R.id.linImageList -> {
                 ImageListActivity.actionStart(this)
             }
+            R.id.linFileList -> {
+                //"file://"+this.externalCacheDir.toString()+ "/"+Constant.SAVE_FORM_PATH+"/"
+//                var filePath = File("file://"+this.externalCacheDir.toString()+ "/"+Constant.SAVE_FORM_PATH+"/")
+//                if (filePath!=null||filePath.list()!=null){
+//                    val intent = Intent(Intent.ACTION_VIEW)
+//                    val mydir = Uri.parse(this.externalCacheDir.toString()+ "/"+Constant.SAVE_FORM_PATH+"/")
+////                    intent.setDataAndType(mydir, "application/msword")
+//                    intent.setDataAndType(mydir, "text/*")
+//                    startActivity(intent)
+//                }else{
+//                    "111".showToast(this)
+//                }
+//                var uri = Uri.parse(this.externalCacheDir.toString()+ "/"+Constant.SAVE_FORM_PATH+"/")
+//                var intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+//                intent.type = "*/*"
+//                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri)
+//                startActivity(intent)
+//                val path = "%android%data%com.example.lkacmf%cache%LKAXMFFORM%2f"
+                val path = "%2fandroid%2fdata%2fcom.example.lkacmf%2fcache%2fLKACMFFORM%2f"
+                val uri = Uri.parse("content://com.android.externalstorage.documents/document/primary:$path")
+                val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+                intent.addCategory(Intent.CATEGORY_OPENABLE)
+                intent.type = "*/*" //想要展示的文件类型
+                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri)
+                startActivity(intent)
+            }
             R.id.linSetting -> {
                 MainDialog().setConfigDialog(this)
             }
@@ -238,6 +274,20 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
             }
             R.id.btnFinish -> {
                 finish()
+            }
+            R.id.tvRoll->{
+//                isRoll = !isRoll
+//                if (isRoll){
+//                    tvRoll.text = resources.getString(R.string.no_roll)
+//                    tbLayout.selectTab(tbLayout.getTabAt(0))
+//                    lineChartBX.setVisibleXRangeMaximum(100F)
+//                    lineChartBX.moveViewToX(100F)
+//                    lineChartBZ.setVisibleXRangeMaximum(100F)
+//                    lineChartBZ.moveViewToX(100F)
+//                    BleBackDataRead.readRefreshData(lineChartBX, lineChartBZ, lineChart)
+//                }else{
+//                    tvRoll.text = resources.getString(R.string.roll)
+//                }
             }
         }
     }

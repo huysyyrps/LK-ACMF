@@ -1,6 +1,7 @@
 package com.example.lkacmf.adapter
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +17,7 @@ import java.io.File
 internal class ImageListAdapter(
     var dataList: ArrayList<String>,
     var selectIndex: Int,
-    var context: ImageListActivity,
+    var context: Activity,
     val adapterPositionCallBack: AdapterPositionCallBack
 )  : RecyclerView.Adapter<ImageListAdapter.ViewHolder>() {
     //在内部类里面获取到item里面的组件

@@ -44,10 +44,15 @@
     <string name="save_success">保存成功</string>
     <string name="save_fail">保存失败</string>
     <string name="array">阵列</string>
+    <string name="roll">滚动波形</string>
+    <string name="no_roll">取消滚动</string>
     <string name="rate">探头频率</string>
+    <string name="encoder_user">编码器</string>
     <string name="rate1">1K</string>
     <string name="rate5">5K</string>
     <string name="rate10">10K</string>
+    <string name="user">使用</string>
+    <string name="no_user">不适用</string>
     <string name="setting">设置</string>
     <string name="image_list">图片列表</string>
     <string name="no_data">暂无数据</string>
@@ -58,6 +63,7 @@
     <string name="request_faile">请求失败</string>
     <string name="version_check">版本检测</string>
     <string name="current_version">当前版本</string>
+    <string name="file_list">文件列表</string>
     <string name="contact_comp">联系我们</string>
     <string name="exit_project">退出程序</string>
     <string name="last_version">已是最新版本</string>

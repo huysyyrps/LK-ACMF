@@ -19,6 +19,7 @@ import com.example.lkacmf.data.CharacteristicUuid
 import com.example.lkacmf.util.*
 import com.example.lkacmf.util.ble.*
 import com.example.lkacmf.util.pio.XwpfTUtil
+import com.example.lkacmf.util.usb.UsbContent
 import com.permissionx.guolindev.PermissionX
 import kotlinx.android.synthetic.main.dialog_save_form.*
 import kotlinx.android.synthetic.main.setting.*
@@ -81,6 +82,15 @@ class MainDialog {
             }
         var rate = BaseSharedPreferences.get("rate", "")
         var array = BaseSharedPreferences.get("array", "")
+        var userEncoder = BaseSharedPreferences.get("userEncoder", "")
+        when (userEncoder) {
+            "00" -> {
+                dialog.tabLayoutEncode.getTabAt(0)?.select()
+            }
+            "01" -> {
+                dialog.tabLayoutEncode.getTabAt(1)?.select()
+            }
+        }
         when (rate) {
             "01" -> {
                 dialog.tabLayout.getTabAt(0)?.select()
@@ -109,6 +119,18 @@ class MainDialog {
             dialog.dismiss()
         }
         dialog.btnSettingSure.setOnClickListener {
+            when (dialog.tabLayoutEncode.selectedTabPosition) {
+                0 -> {
+                    userEncoder = "00"
+                    BaseSharedPreferences.put("userEncoder", "00")
+//                    UsbContent.writeData(BleDataMake.makeWriteSettingData())
+                }
+                1 -> {
+                    userEncoder = "01"
+                    BaseSharedPreferences.put("userEncoder", "01")
+//                    UsbContent.writeData(BleDataMake.makeWriteSettingData())
+                }
+            }
             when (dialog.tabLayout.selectedTabPosition) {
                 0 -> {
                     rate = "01"
@@ -123,19 +145,13 @@ class MainDialog {
                     BaseSharedPreferences.put("rate", "0A")
                 }
             }
-            var item = ""
+            var item = "00"
             for (i in 0 until selectList.size) {
                 item += selectList[i]
             }
             BaseSharedPreferences.put("array", item)
             array = item.toInt(2).toString(16)
-            BleContent.writeData(
-                BleDataMake.makeWriteSettingData(rate, array),
-                CharacteristicUuid.ConstantCharacteristicUuid, object : BleWriteCallBack {
-                    override fun writeCallBack(writeBackData: String) {
-                        LogUtil.e("TAG", "写入设置数据回调 = $writeBackData")
-                    }
-                })
+            UsbContent.writeData(BleDataMake.makeWriteSettingData(rate,"00",userEncoder))
             dialog.dismiss()
 
         }

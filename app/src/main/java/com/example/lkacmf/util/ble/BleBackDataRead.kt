@@ -18,6 +18,7 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IAxisValueFormatter
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_hand.*
 import kotlinx.android.synthetic.main.dialog_hand_error.*
 
@@ -207,7 +208,7 @@ object BleBackDataRead {
                 backData[2] == "00" -> {
                     LogUtil.e("TAG", "读取成功")
                     //hexString转10进制
-                    var userEncoder = backData[3].toInt(16)!=0
+                    var userEncoder = "${0}${backData[3].toInt(16)}"
                     var rate = String.format("%02x", backData[4].toInt(16)).toUpperCase()
                     var array = backData[5].toInt(16).toString(2)
                     while (array.length < 8) {
@@ -215,6 +216,7 @@ object BleBackDataRead {
                     }
                     BaseSharedPreferences.put("rate", rate)
                     BaseSharedPreferences.put("array", array)
+                    BaseSharedPreferences.put("userEncoder", userEncoder)
                 }
                 backData[2] == "01" -> {
                     LogUtil.e("TAG", "设置成功")
@@ -258,7 +260,12 @@ object BleBackDataRead {
     /**
      * 测量信息
      */
-    fun readMeterData(readData: String, lineChartBX: LineChart, lineChartBZ: LineChart, lineChart: LineChart) {
+    fun readMeterData(
+        readData: String,
+        lineChartBX: LineChart,
+        lineChartBZ: LineChart,
+        lineChart: LineChart,
+    ) {
         var backData = BinaryChange().hexStringToByte(readData)
         //校验
         var xHex = "${backData[3]}${backData[4]}${backData[5]}${backData[6]}".toLong(16)
@@ -269,7 +276,6 @@ object BleBackDataRead {
 
         var yBZHex = "${backData[12]}${backData[13]}${backData[14]}${backData[15]}".toLong(16)
         var yBZData = BinaryChange().ieee754ToFloat(yBZHex)
-
 
         if (landBXList.isEmpty()) {
             landBXList.add(Entry(xData, yBXData))

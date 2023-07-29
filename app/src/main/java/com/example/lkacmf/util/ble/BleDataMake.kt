@@ -38,8 +38,8 @@ object BleDataMake {
     /**
      * 写入设备参数
      */
-    fun  makeWriteSettingData(rate: String, array: String):String{
-        var data = "${CharacteristicUuid.CONNECTHEADER}${CharacteristicUuid.READSETTINGCODE}01${rate}${array}"
+    fun  makeWriteSettingData(rate: String, array: String, userEncoder: String):String{
+        var data = "${CharacteristicUuid.CONNECTHEADER}${CharacteristicUuid.READSETTINGCODE}01${userEncoder}${rate}${array}"
         var checksum = BaseData.hexStringToBytes(data)
         return "$data$checksum"
     }

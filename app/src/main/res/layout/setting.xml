@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="300dp"
+        android:layout_width="350dp"
         android:layout_height="match_parent"
         android:orientation="vertical">
     <include layout="@layout/dialog_item_header" />
@@ -55,6 +55,56 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:text="@string/rate10" />
+            </com.google.android.material.tabs.TabLayout>
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="10dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="15dp">
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="8dp"
+                    android:text="@string/encoder_user"
+                    android:layout_marginBottom="5dp"
+                    android:textSize="14dp" />
+
+            <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tabLayoutEncode"
+                    android:layout_width="280dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/shape_tab_bg"
+                    app:tabIndicator="@drawable/shape_full_tab_indicator"
+                    app:tabIndicatorColor="@color/theme_back_color"
+                    app:tabIndicatorFullWidth="true"
+                    app:tabIndicatorHeight="40dp"
+                    app:tabMinWidth="196dp"
+                    app:tabMode="fixed"
+                    app:tabSelectedTextColor="@color/red"
+                    app:tabTextColor="@color/white">
+
+                <com.google.android.material.tabs.TabItem
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="@string/no_user" />
+
+                <com.google.android.material.tabs.TabItem
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="@string/user" />
+
             </com.google.android.material.tabs.TabLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
