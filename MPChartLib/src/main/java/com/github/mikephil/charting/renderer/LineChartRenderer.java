@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import com.github.mikephil.charting.animation.ChartAnimator;
 import com.github.mikephil.charting.charts.LineChart;
@@ -534,7 +535,6 @@ public class LineChartRenderer extends LineRadarRenderer {
 
     @Override
     public void drawValues(Canvas c) {
-
         if (isDrawingValuesAllowed(mChart)) {
 
             List<ILineDataSet> dataSets = mChart.getLineData().getDataSets();
@@ -558,9 +558,11 @@ public class LineChartRenderer extends LineRadarRenderer {
                     valOffset = valOffset / 2;
 
                 mXBounds.set(mChart, dataSet);
-
+                //ILineDataSet data, float phaseX, float phaseY, int min,Log.e(max
+//                Log.e("TAG",mXBounds.min+"-----"+mXBounds.max);
                 float[] positions = trans.generateTransformedValuesLine(dataSet, mAnimator.getPhaseX(), mAnimator
                         .getPhaseY(), mXBounds.min, mXBounds.max);
+//                float[] positions = trans.generateTransformedValuesLine(dataSet, 1.0F, 1.0F, 0, 0);
 
                 MPPointF iconsOffset = MPPointF.getInstance(dataSet.getIconsOffset());
                 iconsOffset.x = Utils.convertDpToPixel(iconsOffset.x);
@@ -745,7 +747,7 @@ public class LineChartRenderer extends LineRadarRenderer {
     }
 
     /**
-     * Releases the drawing bitmap. This should be called when {@link LineChart#onDetachedFromWindow()}.
+     * Releases the drawing bitmap. This should be called when {@link LineChart#()}.
      */
     public void releaseBitmap() {
         if (mBitmapCanvas != null) {

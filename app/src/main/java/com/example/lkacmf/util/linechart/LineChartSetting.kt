@@ -21,8 +21,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 class LineChartSetting {
     var oldScaleX = 0F
     var oldScaleY = 0F
-    private var mMatrix = Matrix()
-    private val mSavedMatrix = Matrix()
+    var mMatrix = Matrix()
+    val mSavedMatrix = Matrix()
     private val mTouchPointCenter = MPPointF.getInstance(0f, 0f)
     fun SettingLineChart(
         activity: MainActivity,
@@ -45,12 +45,14 @@ class LineChartSetting {
         linechar.viewPortHandler.setMaximumScaleX(30.0f)//限制X轴放大限制
         linechar.viewPortHandler.setMaximumScaleY(3.0f)
         linechar.legend.isEnabled = false;// 不显示图例
-        linechar.setVisibleXRangeMaximum(80.0f)
+//        linechar.setVisibleXRangeMaximum(80.0f)
         linechar.extraTopOffset = 5.0f
         linechar.extraLeftOffset = 0.0f
         linechar.extraRightOffset = 0.0f
         linechar.extraBottomOffset = 5.0f
         linechar.minOffset = 0.0f
+        //硬件加速
+        linechar.setHardwareAccelerationEnabled(true);
         // 当前统计图表中最多在x轴坐标线上显示的总量
 //        linechar.setVisibleXRangeMaximum(300f);
 //        linechar.moveViewToX(300f);

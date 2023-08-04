@@ -62,7 +62,7 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
     }
     var axisMaximum: Float = 5.0F
     private lateinit var leftYAxis: YAxis
-    var isRoll:Boolean = false
+    var isRoll: Boolean = false
     private lateinit var versionInfoPresenter: VersionInfoPresenter
 
     companion object {
@@ -92,13 +92,12 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
         linVersionCheck.setOnClickListener(this)
         linContactComp.setOnClickListener(this)
         btnFinish.setOnClickListener(this)
-        tvRoll.setOnClickListener(this)
         version = ClientVersion.getVersion(applicationContext)
         tvCurrentVersion.text = version
 
         LineChartSetting().SettingLineChart(this, lineChartBX, true)
         LineChartSetting().SettingLineChart(this, lineChartBZ, true)
-        LineChartSetting().SettingLineChart(this, lineChartTest, true)
+        LineChartSetting().SettingLineChart(this, lineChart, true)
         val xAxis = lineChartBZ.xAxis
         xAxis.textColor = context.resources.getColor(R.color.theme_back_color)
 
@@ -119,11 +118,17 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
                                 data.length - 4
                             ) && data.length == 38
                         ) {
-                            BleBackDataRead.readMeterData(data, lineChartBX, lineChartBZ, lineChart)
+                            BleBackDataRead.readMeterData(
+                                data,
+                                lineChartBX,
+                                lineChartBZ,
+                                lineChart,
+                                isRoll
+                            )
                         }
                     }
                     if (data.length > 4 && data.substring(0, 4) == "BE05") {
-                        LogUtil.e("TAG",data)
+                        LogUtil.e("TAG", data)
                         if (BaseData.hexStringToBytes(
                                 data.substring(
                                     0,
@@ -159,7 +164,7 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
             override fun onTabSelected(tab: TabLayout.Tab) {
                 when (tab.text) {
                     context.resources.getString(R.string.start) -> {
-                        LogUtil.e("TAG","1111")
+                        BleBackDataRead.readRefreshData(lineChartBX, lineChartBZ, lineChart)
                         if (UsbContent.connectState) {
                             writeData(BleDataMake.makeStartMeterData())
                         }
@@ -173,14 +178,24 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
                         if (UsbContent.connectState) {
                             writeData(BleDataMake.makeStopMeterData())
                         }
-                        tbLayout.selectTab(tbLayout.getTabAt(0))
+                        Thread.sleep(500)
                         BleBackDataRead.readRefreshData(lineChartBX, lineChartBZ, lineChart)
+                        tbLayout.selectTab(tbLayout.getTabAt(0))
                     }
                     context.resources.getString(R.string.reset) -> {
                         lineChartBX.fitScreen()
                         lineChartBX.invalidate()
                         lineChartBZ.fitScreen()
                         lineChartBX.invalidate()
+                        LineChartSetting().mMatrix.let {
+                            it.reset()
+                        }
+                        LineChartSetting().mSavedMatrix.let {
+                            it.reset()
+                        }
+                        if (UsbContent.connectState) {
+                            writeData(BleDataMake.makeStopMeterData())
+                        }
                     }
                     context.resources.getString(R.string.forms) -> {
                         var viewBX = linBX
@@ -205,7 +220,8 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
                         )
                     }
                     context.resources.getString(R.string.save) -> {
-                        mediaManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+                        mediaManager =
+                            getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
                         if (mMediaProjection == null) {
                             val captureIntent: Intent = mediaManager.createScreenCaptureIntent()
                             startActivityForResult(captureIntent, Constant.TAG_TWO)
@@ -220,10 +236,14 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
                         }
                     }
                     context.resources.getString(R.string.play_back) -> {
+                        if (UsbContent.connectState) {
+                            writeData(BleDataMake.makeStopMeterData())
+                        }
                         BleBackDataRead.playBack(lineChartBX, lineChartBZ)
                     }
                 }
             }
+
             override fun onTabUnselected(tab: TabLayout.Tab) {}
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
@@ -238,25 +258,9 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
                 ImageListActivity.actionStart(this)
             }
             R.id.linFileList -> {
-                //"file://"+this.externalCacheDir.toString()+ "/"+Constant.SAVE_FORM_PATH+"/"
-//                var filePath = File("file://"+this.externalCacheDir.toString()+ "/"+Constant.SAVE_FORM_PATH+"/")
-//                if (filePath!=null||filePath.list()!=null){
-//                    val intent = Intent(Intent.ACTION_VIEW)
-//                    val mydir = Uri.parse(this.externalCacheDir.toString()+ "/"+Constant.SAVE_FORM_PATH+"/")
-////                    intent.setDataAndType(mydir, "application/msword")
-//                    intent.setDataAndType(mydir, "text/*")
-//                    startActivity(intent)
-//                }else{
-//                    "111".showToast(this)
-//                }
-//                var uri = Uri.parse(this.externalCacheDir.toString()+ "/"+Constant.SAVE_FORM_PATH+"/")
-//                var intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-//                intent.type = "*/*"
-//                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri)
-//                startActivity(intent)
-//                val path = "%android%data%com.example.lkacmf%cache%LKAXMFFORM%2f"
                 val path = "%2fandroid%2fdata%2fcom.example.lkacmf%2fcache%2fLKACMFFORM%2f"
-                val uri = Uri.parse("content://com.android.externalstorage.documents/document/primary:$path")
+                val uri =
+                    Uri.parse("content://com.android.externalstorage.documents/document/primary:$path")
                 val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
                 intent.addCategory(Intent.CATEGORY_OPENABLE)
                 intent.type = "*/*" //想要展示的文件类型
@@ -274,20 +278,6 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
             }
             R.id.btnFinish -> {
                 finish()
-            }
-            R.id.tvRoll->{
-//                isRoll = !isRoll
-//                if (isRoll){
-//                    tvRoll.text = resources.getString(R.string.no_roll)
-//                    tbLayout.selectTab(tbLayout.getTabAt(0))
-//                    lineChartBX.setVisibleXRangeMaximum(100F)
-//                    lineChartBX.moveViewToX(100F)
-//                    lineChartBZ.setVisibleXRangeMaximum(100F)
-//                    lineChartBZ.moveViewToX(100F)
-//                    BleBackDataRead.readRefreshData(lineChartBX, lineChartBZ, lineChart)
-//                }else{
-//                    tvRoll.text = resources.getString(R.string.roll)
-//                }
             }
         }
     }
