@@ -28,6 +28,7 @@ import com.github.mikephil.charting.jobs.AnimatedZoomJob;
 import com.github.mikephil.charting.jobs.MoveViewJob;
 import com.github.mikephil.charting.jobs.ZoomJob;
 import com.github.mikephil.charting.listener.BarLineChartTouchListener;
+import com.github.mikephil.charting.listener.MyBarLineChartTouchListener;
 import com.github.mikephil.charting.listener.OnDrawListener;
 import com.github.mikephil.charting.renderer.XAxisRenderer;
 import com.github.mikephil.charting.renderer.YAxisRenderer;
@@ -42,7 +43,7 @@ import com.github.mikephil.charting.utils.Utils;
  * @author Philipp Jahoda
  */
 @SuppressLint("RtlHardcoded")
-public abstract class BarLineChartBase<T extends BarLineScatterCandleBubbleData<? extends
+public abstract class MyBarLineChartBase<T extends BarLineScatterCandleBubbleData<? extends
         IBarLineScatterCandleBubbleDataSet<? extends Entry>>>
         extends Chart<T> implements BarLineScatterCandleBubbleDataProvider {
 
@@ -135,19 +136,20 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleBubbleData<
 
     protected XAxisRenderer mXAxisRenderer;
 
+    private String lineChartTag = "";
 
     // /** the approximator object used for data filtering */
     // private Approximator mApproximator;
 
-    public BarLineChartBase(Context context, AttributeSet attrs, int defStyle) {
+    public MyBarLineChartBase(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
-    public BarLineChartBase(Context context, AttributeSet attrs) {
+    public MyBarLineChartBase(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public BarLineChartBase(Context context) {
+    public MyBarLineChartBase(Context context) {
         super(context);
     }
 
@@ -168,7 +170,7 @@ public abstract class BarLineChartBase<T extends BarLineScatterCandleBubbleData<
 
         setHighlighter(new ChartHighlighter(this));
 
-        mChartTouchListener = new BarLineChartTouchListener(this, mViewPortHandler.getMatrixTouch(), 3f);
+        mChartTouchListener = new MyBarLineChartTouchListener(this, mViewPortHandler.getMatrixTouch(), 3f);
 
         mGridBackgroundPaint = new Paint();
         mGridBackgroundPaint.setStyle(Style.FILL);

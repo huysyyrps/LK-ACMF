@@ -14,11 +14,12 @@ import com.example.lkacmf.util.BaseSharedPreferences
 import com.example.lkacmf.util.BinaryChange
 import com.example.lkacmf.util.showToast
 import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.AxisBase
+import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.IAxisValueFormatter
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.dialog_hand.*
 import kotlinx.android.synthetic.main.dialog_hand_error.*
 
@@ -288,71 +289,39 @@ object BleBackDataRead {
         var yBZHex = "${backData[12]}${backData[13]}${backData[14]}${backData[15]}".toLong(16)
         var yBZData = BinaryChange().ieee754ToFloat(yBZHex)
 
+
+        if (landBXList.size==100){
+            chartScale = (landBXList[99].x/ landBZList[99].y
+                        +landBXList[98].x/ landBZList[98].y
+            +landBXList[97].x/ landBZList[97].y
+            +landBXList[96].x/ landBZList[96].y
+            +landBXList[95].x/ landBZList[95].y)/5
+        }
+        LogUtil.e("TAG","$chartScale")
         if (landBXList.isEmpty()) {
             landBXList.add(Entry(xData, yBXData))
             landBZList.add(Entry(xData, yBZData))
             landList.add(Entry(yBXData, yBZData))
-            setChartData(lineChartBX, landBXList)
-            setChartData(lineChartBZ, landBZList)
-            setChartData(lineChart, landList)
+            notifyChartData(lineChartBX, xData, yBXData)
+            notifyChartData(lineChartBZ, xData, yBZData)
+//            notifyChartData(lineChart, yBXData, yBZData)
             oldXData = xData
         } else if (landBXList.isNotEmpty()) {
             if (xData > landBXList.last().x) {
-                if (landBXRemoveList.size < 15) {
-                    landBXRemoveList.add(Entry(xData, yBXData))
-                    landBZRemoveList.add(Entry(xData, yBZData))
-                    landRemoveList.add(Entry(yBXData, yBZData))
-                } else if (landBXRemoveList.size == 15) {
-                    landBXList.addAll(landBXRemoveList)
-                    landBZList.addAll(landBZRemoveList)
-                    landList.addAll(landRemoveList)
-                    notifyChartData(lineChartBX, landBXList)
-                    notifyChartData(lineChartBZ, landBZList)
-//                    notifyChartData(lineChart, landList)
-
-                    if (chartScale == 1F) {
-                        chartScale = (landRemoveList[0].x / landRemoveList[0].y +
-                                landRemoveList[1].x / landRemoveList[1].y +
-                                landRemoveList[2].x / landRemoveList[2].y +
-                                landRemoveList[3].x / landRemoveList[3].y +
-                                landRemoveList[4].x / landRemoveList[4].y) / 5
-                    }
-                    landList.addAll(landRemoveList)
-                    notifyChartData(lineChart, landList)
-
-                    oldXData = xData
-                    landBXRemoveList.clear()
-                    landBZRemoveList.clear()
-                    landRemoveList.clear()
-                }
+                landBXList.add(Entry(xData, yBXData))
+                landBZList.add(Entry(xData, yBZData))
+                landList.add(Entry(yBXData, yBZData))
+                notifyChartData(lineChartBX, xData, yBXData)
+                notifyChartData(lineChartBZ, xData, yBZData)
+//                notifyChartData(lineChart, yBXData, yBZData* chartScale)
+                oldXData = xData
             } else if (xData < landBXList.last().x) {
-                if (xData < oldXData) {
-                    if (landBXRemoveList.isNotEmpty()) {
-                        landBXRemoveList.clear()
-                        landBZRemoveList.clear()
-                        landRemoveList.clear()
-                    }
-                    if (removeIndex != 15) {
-                        if (landBXList.isNotEmpty()) {
-                            landBXList.removeLast()
-                            landBZList.removeLast()
-//                            landList.removeLast()
-                            oldXData = landBXList.last().x
-                            removeIndex += 1
-                        }
-                    } else if (removeIndex == 15) {
-                        if (landBXList.isNotEmpty()) {
-                            landBXList.removeLast()
-                            landBZList.removeLast()
-//                            landList.removeLast()
-                            oldXData = landBXList.last().x
-                            removeIndex == 0
-                            notifyChartData(lineChartBX, landBXList)
-                            notifyChartData(lineChartBZ, landBZList)
-//                            notifyChartData(lineChart, landList)
-                        }
-                    }
-                }
+                removeChartData(lineChartBX)
+                removeChartData(lineChartBZ)
+                removeChartData(lineChart)
+                landBXList.removeLast()
+                landBZList.removeLast()
+                landList.removeLast()
             }
         }
     }
@@ -392,13 +361,56 @@ object BleBackDataRead {
     /**
      * 更新数据
      */
-    private fun notifyChartData(lineChart: LineChart, landList: ArrayList<Entry>) {
-        var lineSet = lineChart.data.getDataSetByIndex(0) as LineDataSet
-        lineSet.values = landList
-        lineSet.notifyDataSetChanged()
-        lineChart.lineData.notifyDataChanged()
+    private fun notifyChartData(lineChart: LineChart, xData: Float, yData: Float) {
+        var data = lineChart.data
+        if (data == null) {
+            data = LineData()
+            lineChart.setData(data)
+        }
+        var set = data.getDataSetByIndex(0)
+        if (set == null) {
+            set = createSet()
+            data.addDataSet(set)
+        }
+        val randomDataSetIndex = (Math.random() * data.dataSetCount).toInt()
+        data.addEntry(Entry(xData, yData), randomDataSetIndex)
+        data.notifyDataChanged()
+
+//        val xAxis: XAxis = lineChart.getXAxis() //获取设置X轴
+//        val valueFormatter = object :IAxisValueFormatter{
+//            override fun getFormattedValue(value: Float, axis: AxisBase?): String {
+//                if(landBXList.size>value.toInt()){
+//                    return "${landBXList[value.toInt()].x}"
+//                }
+//                return "${landBXList.last().x}"
+//            }
+//
+//        }
+//
+//        xAxis.valueFormatter = valueFormatter //设置自定义格式，在绘制之前动态调整x的值。
+
+
         lineChart.notifyDataSetChanged()
         lineChart.invalidate()
+    }
+
+    /**
+     * 删除数据
+     */
+    private fun removeChartData(lineChart: LineChart) {
+        val data: LineData = lineChart.getData()
+        if (data != null) {
+            val set = data.getDataSetByIndex(0)
+            if (set != null) {
+                val e = set.getEntryForXValue((set.entryCount - 1).toFloat(), Float.NaN)
+                data.removeEntry(e, 0)
+                // or remove by index
+                // mData.removeEntryByXValue(xIndex, dataSetIndex);
+                data.notifyDataChanged()
+                lineChart.notifyDataSetChanged()
+                lineChart.invalidate()
+            }
+        }
     }
 
     /**
@@ -441,11 +453,14 @@ object BleBackDataRead {
         landBXList.clear()
         landBZList.clear()
         landList.clear()
-        lineChartBX.notifyDataSetChanged()
-        lineChartBX.invalidate()
-        lineChartBZ.notifyDataSetChanged()
-        lineChartBZ.invalidate()
-        lineChart.notifyDataSetChanged()
-        lineChart.invalidate()
+//        lineChartBX.notifyDataSetChanged()
+//        lineChartBX.invalidate()
+//        lineChartBZ.notifyDataSetChanged()
+//        lineChartBZ.invalidate()
+//        lineChart.notifyDataSetChanged()
+//        lineChart.invalidate()
+        lineChartBX.clear()
+        lineChartBZ.clear()
+        lineChart.clear()
     }
 }

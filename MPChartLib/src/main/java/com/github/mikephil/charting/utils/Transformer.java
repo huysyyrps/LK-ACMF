@@ -176,17 +176,7 @@ public class Transformer {
                                                  int min, int max) {
 
 //        int count = ((int) ((max - min) * phaseX) + 1) * 2;
-//        final int count = ((int) ((max - min) * phaseX) + 1) * 2;
-//        count = count<0?0:count;
-//        final int count = ((int) ((max - min) * phaseX) + 1) * 2;
-        int count = 0;
-        if (max>min){
-            count = ((int) ((max - min) * phaseX) + 1) * 2;
-        }else if (max<min){
-            count = ((int) ((min - max) * phaseX) + 1) * 2;
-        }
-//        final int count = 2;
-//        Log.e("TAG",count+"");
+        int count = Math.abs (((int) ((max - min) * phaseX) + 1) * 2);
         if (valuePointsForGenerateTransformedValuesLine.length != count) {
             valuePointsForGenerateTransformedValuesLine = new float[count];
         }

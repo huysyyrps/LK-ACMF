@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 
 import com.github.mikephil.charting.animation.ChartAnimator;
 import com.github.mikephil.charting.charts.LineChart;
@@ -28,7 +27,7 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.List;
 
-public class LineChartRenderer extends LineRadarRenderer {
+public class MyLineChartRenderer extends LineRadarRenderer {
 
     protected LineDataProvider mChart;
 
@@ -57,8 +56,8 @@ public class LineChartRenderer extends LineRadarRenderer {
     protected Path cubicPath = new Path();
     protected Path cubicFillPath = new Path();
 
-    public LineChartRenderer(LineDataProvider chart, ChartAnimator animator,
-                             ViewPortHandler viewPortHandler) {
+    public MyLineChartRenderer(LineDataProvider chart, ChartAnimator animator,
+                               ViewPortHandler viewPortHandler) {
         super(animator, viewPortHandler);
         mChart = chart;
 
@@ -386,17 +385,7 @@ public class LineChartRenderer extends LineRadarRenderer {
             e1 = dataSet.getEntryForIndex(mXBounds.min);
             if (e1 != null) {
                 int j = 0;
-                for (int x = mXBounds.min; x <= mXBounds.range + mXBounds.min; x++) {
-                    e1 = dataSet.getEntryForIndex(x == 0 ? 0 : (x - 1));
-                    e2 = dataSet.getEntryForIndex(x);
-                    if (e1 == null || e2 == null) continue;
-                    mLineBuffer[j++] = e1.getX();
-                    mLineBuffer[j++] = e1.getY() * phaseY;
-                    mLineBuffer[j++] = e2.getX();
-                    mLineBuffer[j++] = e2.getY() * phaseY;
-                }
 //                for (int x = mXBounds.min; x <= mXBounds.range + mXBounds.min; x++) {
-//                for (int x = 0; x < entryCount; x++) {
 //                    e1 = dataSet.getEntryForIndex(x == 0 ? 0 : (x - 1));
 //                    e2 = dataSet.getEntryForIndex(x);
 //                    if (e1 == null || e2 == null) continue;
@@ -405,12 +394,22 @@ public class LineChartRenderer extends LineRadarRenderer {
 //                    mLineBuffer[j++] = e2.getX();
 //                    mLineBuffer[j++] = e2.getY() * phaseY;
 //                }
+//                for (int x = mXBounds.min; x <= mXBounds.range + mXBounds.min; x++) {
+                for (int x = 0; x < entryCount; x++) {
+                    e1 = dataSet.getEntryForIndex(x == 0 ? 0 : (x - 1));
+                    e2 = dataSet.getEntryForIndex(x);
+                    if (e1 == null || e2 == null) continue;
+                    mLineBuffer[j++] = e1.getX();
+                    mLineBuffer[j++] = e1.getY() * phaseY;
+                    mLineBuffer[j++] = e2.getX();
+                    mLineBuffer[j++] = e2.getY() * phaseY;
+                }
                 if (j > 0) {
                     trans.pointValuesToPixel(mLineBuffer);
                     final int size = Math.max((mXBounds.range + 1) * pointsPerEntryPair, pointsPerEntryPair) * 2;
                     mRenderPaint.setColor(dataSet.getColor());
-                    canvas.drawLines(mLineBuffer, 0, size, mRenderPaint);
-//                    canvas.drawLines(mLineBuffer, 0, entryCount-1, mRenderPaint);
+//                    canvas.drawLines(mLineBuffer, 0, size, mRenderPaint);
+                    canvas.drawLines(mLineBuffer, 0, entryCount-1, mRenderPaint);
                 }
             }
         }

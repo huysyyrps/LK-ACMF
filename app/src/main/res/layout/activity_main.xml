@@ -165,7 +165,7 @@
                                 android:text="蝶形图"
                                 android:textColor="@color/theme_color" />
 
-                        <com.github.mikephil.charting.charts.LineChart
+                        <com.github.mikephil.charting.charts.MyLineChart
                                 android:id="@+id/lineChart"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
