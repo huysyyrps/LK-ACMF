@@ -69,6 +69,10 @@ object UsbContent {
                //在新的线程中监听串口的数据变化
                mExecutorOne.submit(mSerialIoManagerOne)
                connectState = true
+               if (connectState) {
+                   MainActivity().selectTag = "reset"
+                   writeData(BleDataMake.makeStopMeterData())
+               }
                return connectState
 //               writeData(BleDataMake.makeStartMeterData())
            }

@@ -64,6 +64,7 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
     private lateinit var leftYAxis: YAxis
     var isRoll: Boolean = false
     private lateinit var versionInfoPresenter: VersionInfoPresenter
+    public var selectTag:String = ""
 
     companion object {
         fun actionStart(context: Context) {
@@ -97,7 +98,7 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
 
         LineChartSetting().SettingLineChart(this, lineChartBX, true)
         LineChartSetting().SettingLineChart(this, lineChartBZ, true)
-        LineChartSetting().SettingLineChart(this, lineChart, true)
+        LineChartSetting().SettingMyLineChart(this, lineChart, true)
         val xAxis = lineChartBZ.xAxis
         xAxis.textColor = context.resources.getColor(R.color.theme_back_color)
 
@@ -106,41 +107,25 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
         if (permissionTag) {
             UsbContent.usbDeviceConstant(this, object : UsbBackDataLisition {
                 override fun usbBackData(data: String) {
-//                    LogUtil.e("TAG",data)
                     if (data.length > 4 && data.substring(0, 4) == "BE06") {
-                        if (BaseData.hexStringToBytes(
-                                data.substring(
-                                    0,
-                                    data.length - 6
-                                )
-                            ) == data.substring(
-                                data.length - 6,
-                                data.length - 4
-                            ) && data.length == 38
-                        ) {
-                            BleBackDataRead.readMeterData(
-                                data,
-                                lineChartBX,
-                                lineChartBZ,
-                                lineChart,
-                                isRoll
-                            )
+                        if (BaseData.hexStringToBytes(data.substring(0, data.length - 6)) == data.substring(data.length - 6, data.length - 4) && data.length == 38) {
+                            BleBackDataRead.readMeterData(data, lineChartBX, lineChartBZ, lineChart, isRoll)
                         }
                     }
                     if (data.length > 4 && data.substring(0, 4) == "BE05") {
                         LogUtil.e("TAG", data)
-                        if (BaseData.hexStringToBytes(
-                                data.substring(
-                                    0,
-                                    data.length - 2
-                                )
-                            ) == data.substring(data.length - 2, data.length) && data.length == 14
-                        ) {
+                        if (BaseData.hexStringToBytes(data.substring(0, data.length - 2)) == data.substring(data.length - 2, data.length) && data.length == 14) {
                             BleBackDataRead.readSettingData(data)
                         }
                     }
                     if (data.length > 4 && data.substring(0, 4) == "BE16") {
                         LogUtil.e("TAG", data)
+                        if (selectTag=="reset"){
+                            if (UsbContent.connectState) {
+                                writeData(BleDataMake.makeReSetMeterData())
+                                selectTag=""
+                            }
+                        }
                     }
                 }
 
@@ -164,18 +149,23 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
             override fun onTabSelected(tab: TabLayout.Tab) {
                 when (tab.text) {
                     context.resources.getString(R.string.start) -> {
-                        BleBackDataRead.readRefreshData(lineChartBX, lineChartBZ, lineChart)
+                        if(  selectTag != "stop"){
+                            BleBackDataRead.readRefreshData(lineChartBX, lineChartBZ, lineChart)
+                        }
                         if (UsbContent.connectState) {
+                            selectTag = "start"
                             writeData(BleDataMake.makeStartMeterData())
                         }
                     }
                     context.resources.getString(R.string.stop) -> {
                         if (UsbContent.connectState) {
+                            selectTag = "stop"
                             writeData(BleDataMake.makeStopMeterData())
                         }
                     }
                     context.resources.getString(R.string.refresh) -> {
                         if (UsbContent.connectState) {
+                            selectTag = "refresh"
                             writeData(BleDataMake.makeStopMeterData())
                         }
                         Thread.sleep(500)
@@ -194,6 +184,7 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
                             it.reset()
                         }
                         if (UsbContent.connectState) {
+                            selectTag = "reset"
                             writeData(BleDataMake.makeStopMeterData())
                         }
                     }
@@ -391,6 +382,11 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
 
     override fun onDestroy() {
         super.onDestroy()
+        LogUtil.e("TAG","XXX")
+        if (UsbContent.connectState) {
+            selectTag = "reset"
+            writeData(BleDataMake.makeStopMeterData())
+        }
 //        BleContent.releaseBleScanner()
     }
 }

@@ -126,10 +126,12 @@ public class YAxisRenderer extends AxisRenderer {
 
             String text = mYAxis.getFormattedLabel(i);
 
-            c.drawText(text,
-                    fixedPosition + xOffset,
-                    positions[i * 2 + 1] + offset,
-                    mAxisLabelPaint);
+            if (i * 2 + 1<positions.length){
+                c.drawText(text,
+                        fixedPosition + xOffset,
+                        positions[i * 2 + 1] + offset,
+                        mAxisLabelPaint);
+            }
         }
     }
 

@@ -14,6 +14,7 @@ import com.example.lkacmf.util.BaseSharedPreferences
 import com.example.lkacmf.util.BinaryChange
 import com.example.lkacmf.util.showToast
 import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.charts.MyLineChart
 import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
@@ -275,7 +276,7 @@ object BleBackDataRead {
         readData: String,
         lineChartBX: LineChart,
         lineChartBZ: LineChart,
-        lineChart: LineChart,
+        lineChart: MyLineChart,
         isRoll: Boolean,
     ) {
         var backData = BinaryChange().hexStringToByte(readData)
@@ -290,21 +291,16 @@ object BleBackDataRead {
         var yBZData = BinaryChange().ieee754ToFloat(yBZHex)
 
 
-        if (landBXList.size==100){
-            chartScale = (landBXList[99].x/ landBZList[99].y
-                        +landBXList[98].x/ landBZList[98].y
-            +landBXList[97].x/ landBZList[97].y
-            +landBXList[96].x/ landBZList[96].y
-            +landBXList[95].x/ landBZList[95].y)/5
+        if (landBXList.size>10){
+            chartScale = landBZList[10].y/landBXList[10].y
         }
-        LogUtil.e("TAG","$chartScale")
         if (landBXList.isEmpty()) {
             landBXList.add(Entry(xData, yBXData))
             landBZList.add(Entry(xData, yBZData))
             landList.add(Entry(yBXData, yBZData))
             notifyChartData(lineChartBX, xData, yBXData)
             notifyChartData(lineChartBZ, xData, yBZData)
-//            notifyChartData(lineChart, yBXData, yBZData)
+            notifyChartData1(lineChart, yBXData*chartScale, yBZData)
             oldXData = xData
         } else if (landBXList.isNotEmpty()) {
             if (xData > landBXList.last().x) {
@@ -313,12 +309,12 @@ object BleBackDataRead {
                 landList.add(Entry(yBXData, yBZData))
                 notifyChartData(lineChartBX, xData, yBXData)
                 notifyChartData(lineChartBZ, xData, yBZData)
-//                notifyChartData(lineChart, yBXData, yBZData* chartScale)
+                notifyChartData1(lineChart, yBXData*chartScale, yBZData)
                 oldXData = xData
             } else if (xData < landBXList.last().x) {
                 removeChartData(lineChartBX)
                 removeChartData(lineChartBZ)
-                removeChartData(lineChart)
+                removeChartData1(lineChart)
                 landBXList.removeLast()
                 landBZList.removeLast()
                 landList.removeLast()
@@ -393,11 +389,43 @@ object BleBackDataRead {
         lineChart.notifyDataSetChanged()
         lineChart.invalidate()
     }
+    private fun notifyChartData1(lineChart: MyLineChart, xData: Float, yData: Float) {
+        var data = lineChart.data
+        if (data == null) {
+            data = LineData()
+            lineChart.setData(data)
+        }
+        var set = data.getDataSetByIndex(0)
+        if (set == null) {
+            set = createSet()
+            data.addDataSet(set)
+        }
+        val randomDataSetIndex = (Math.random() * data.dataSetCount).toInt()
+        data.addEntry(Entry(xData, yData), randomDataSetIndex)
+        data.notifyDataChanged()
+        lineChart.notifyDataSetChanged()
+        lineChart.invalidate()
+    }
 
     /**
      * 删除数据
      */
     private fun removeChartData(lineChart: LineChart) {
+        val data: LineData = lineChart.getData()
+        if (data != null) {
+            val set = data.getDataSetByIndex(0)
+            if (set != null) {
+                val e = set.getEntryForXValue((set.entryCount - 1).toFloat(), Float.NaN)
+                data.removeEntry(e, 0)
+                // or remove by index
+                // mData.removeEntryByXValue(xIndex, dataSetIndex);
+                data.notifyDataChanged()
+                lineChart.notifyDataSetChanged()
+                lineChart.invalidate()
+            }
+        }
+    }
+    private fun removeChartData1(lineChart: MyLineChart) {
         val data: LineData = lineChart.getData()
         if (data != null) {
             val set = data.getDataSetByIndex(0)
@@ -448,7 +476,7 @@ object BleBackDataRead {
     /**
      * Refresh刷新
      */
-    fun readRefreshData(lineChartBX: LineChart, lineChartBZ: LineChart, lineChart: LineChart) {
+    fun readRefreshData(lineChartBX: LineChart, lineChartBZ: LineChart, lineChart: MyLineChart) {
         //将数据添加到图表中
         landBXList.clear()
         landBZList.clear()

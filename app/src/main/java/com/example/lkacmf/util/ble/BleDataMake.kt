@@ -63,4 +63,14 @@ object BleDataMake {
         var checksum = BaseData.hexStringToBytes(data)
         return "$data$checksum"
     }
+
+    /**
+     * 复位指令
+     */
+    fun  makeReSetMeterData():String{
+        //测量状态：0x00停止测量，0x01启动测量
+        var data = "${CharacteristicUuid.CONNECTHEADER}${CharacteristicUuid.METERCODE}02"
+        var checksum = BaseData.hexStringToBytes(data)
+        return "$data$checksum"
+    }
 }

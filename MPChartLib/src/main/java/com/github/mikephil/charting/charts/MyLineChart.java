@@ -14,7 +14,7 @@ import com.github.mikephil.charting.renderer.MyLineChartRenderer;
  *
  * @author Philipp Jahoda
  */
-public class MyLineChart extends BarLineChartBase<LineData> implements LineDataProvider {
+public class MyLineChart extends MyBarLineChartBase<LineData> implements LineDataProvider {
 
     public MyLineChart(Context context) {
         super(context);
