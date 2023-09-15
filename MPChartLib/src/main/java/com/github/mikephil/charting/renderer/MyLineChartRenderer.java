@@ -25,6 +25,7 @@ import com.github.mikephil.charting.utils.Utils;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -93,15 +94,11 @@ public class MyLineChartRenderer extends LineRadarRenderer {
         }
 
         drawBitmap.eraseColor(Color.TRANSPARENT);
-
         LineData lineData = mChart.getLineData();
-
         for (ILineDataSet set : lineData.getDataSets()) {
-
             if (set.isVisible())
                 drawDataSet(c, set);
         }
-
         c.drawBitmap(drawBitmap, 0, 0, mRenderPaint);
     }
 
@@ -128,7 +125,6 @@ public class MyLineChartRenderer extends LineRadarRenderer {
                 drawHorizontalBezier(dataSet);
                 break;
         }
-
         mRenderPaint.setPathEffect(null);
     }
 
@@ -285,6 +281,7 @@ public class MyLineChartRenderer extends LineRadarRenderer {
     }
 
     private float[] mLineBuffer = new float[4];
+    private List<Entry> entryList = new ArrayList<>();
 
     /**
      * Draws a normal line.
@@ -294,54 +291,43 @@ public class MyLineChartRenderer extends LineRadarRenderer {
      */
     protected void drawLinear(Canvas canvas, ILineDataSet dataSet) {
         int entryCount = dataSet.getEntryCount();
-        final boolean isDrawSteppedEnabled = dataSet.isDrawSteppedEnabled();
-        final int pointsPerEntryPair = isDrawSteppedEnabled ? 4 : 2;
+//        final boolean isDrawSteppedEnabled = dataSet.isDrawSteppedEnabled();
+//        final int pointsPerEntryPair = isDrawSteppedEnabled ? 4 : 2;
         Transformer trans = mChart.getTransformer(dataSet.getAxisDependency());
         float phaseY = mAnimator.getPhaseY();
         mRenderPaint.setStyle(Paint.Style.STROKE);
+
         mXBounds.set(mChart, dataSet);
-        if (mLineBuffer.length < Math.max((entryCount) * pointsPerEntryPair, pointsPerEntryPair) * 2) {
-            mLineBuffer = new float[Math.max((entryCount) * pointsPerEntryPair, pointsPerEntryPair) * 4];
-        }
-//        mLineBuffer = new float[(entryCount-oldEntryCount)*4];
-//        if (mLineBuffer.length-oldEntryCount*4>(entryCount-oldEntryCount)*4){
-//
-//        }else {
-//
+
+//        if (mLineBuffer.length < Math.max((entryCount) * pointsPerEntryPair, pointsPerEntryPair) * 2) {
+//            mLineBuffer = new float[entryCount * 4];
 //        }
+        if (mLineBuffer.length < Math.max((entryCount) * 2, 2) * 2) {
+            mLineBuffer = new float[entryCount * 4];
+        }
         Entry e1, e2;
         e1 = dataSet.getEntryForIndex(mXBounds.min);
         if (e1 != null) {
             int j = 0;
-//            Log.e("TAG",mLineBuffer.length+"-----"+entryCount);
-            if (oldEntryCount==0){
-                for (int x = 0; x < entryCount-1; x++) {
-                    e1 = dataSet.getEntryForIndex(x == 0 ? 0 : (x - 1));
-                    e2 = dataSet.getEntryForIndex(x);
-                    if (e1 == null || e2 == null) continue;
-                    mLineBuffer[j++] = e1.getX();
-                    mLineBuffer[j++] = e1.getY() * phaseY;
-                    mLineBuffer[j++] = e2.getX();
-                    mLineBuffer[j++] = e2.getY() * phaseY;
-                }
-            }else {
-                for (int x = oldEntryCount; x < entryCount; x++) {
-                    e1 = dataSet.getEntryForIndex(x == 0 ? 0 : (x - 1));
-                    e2 = dataSet.getEntryForIndex(x);
-                    if (e1 == null || e2 == null) continue;
-                    mLineBuffer[j++] = e1.getX();
-                    mLineBuffer[j++] = e1.getY() * phaseY;
-                    mLineBuffer[j++] = e2.getX();
-                    mLineBuffer[j++] = e2.getY() * phaseY;
-                }
+            for (int x =0; x <= entryCount-1; x++) {
+                e1 = dataSet.getEntryForIndex(x == 0 ? 0 : (x - 1));
+                e2 = dataSet.getEntryForIndex(x);
+                if (e1 == null || e2 == null) continue;
+                mLineBuffer[j++] = e1.getX();
+                mLineBuffer[j++] = e1.getY() * phaseY;
+                mLineBuffer[j++] = e2.getX();
+                mLineBuffer[j++] = e2.getY() * phaseY;
             }
             if (j > 0) {
                 trans.pointValuesToPixel(mLineBuffer);
+//                final int size = Math.max((mXBounds.range + 1) * pointsPerEntryPair, pointsPerEntryPair) * 2;
+                final int size = Math.max(entryCount * 2, 2) * 2;
+                Log.e("TAG",size+"***");
                 mRenderPaint.setColor(dataSet.getColor());
-                canvas.drawLines(mLineBuffer, 0, entryCount - 1, mRenderPaint);
+//                canvas.drawLines(mLineBuffer, 0, entryCount, mRenderPaint);
+                canvas.drawLines(mLineBuffer, 0, size, mRenderPaint);
             }
         }
-        mRenderPaint.setPathEffect(null);
         oldEntryCount = entryCount;
     }
 

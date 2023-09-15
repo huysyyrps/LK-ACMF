@@ -177,6 +177,8 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
                         lineChartBX.invalidate()
                         lineChartBZ.fitScreen()
                         lineChartBX.invalidate()
+                        lineChart.fitScreen()
+                        lineChart.invalidate()
                         LineChartSetting().mMatrix.let {
                             it.reset()
                         }
