@@ -15,12 +15,9 @@ import com.example.lkacmf.util.BinaryChange
 import com.example.lkacmf.util.showToast
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.charts.MyLineChart
-import com.github.mikephil.charting.components.AxisBase
-import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
-import com.github.mikephil.charting.formatter.IAxisValueFormatter
 import kotlinx.android.synthetic.main.dialog_hand.*
 import kotlinx.android.synthetic.main.dialog_hand_error.*
 
@@ -182,7 +179,7 @@ object BleBackDataRead {
     /**
      * 激活错误弹窗
      */
-    fun initHandErrorDialog(context: Context) {
+    private fun initHandErrorDialog(context: Context) {
         dialog = MaterialDialog(context)
             .cancelable(false)
             .show {

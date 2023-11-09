@@ -1,15 +1,10 @@
 package com.example.lkacmf.util.ble
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.location.LocationManager
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.example.lkacmf.MyApplication
-import com.example.lkacmf.activity.MainActivity
 import com.example.lkacmf.util.BinaryChange
 import com.example.lkacmf.util.UtcToLocalTime
-import java.text.SimpleDateFormat
 import java.util.*
 
 object BaseData {

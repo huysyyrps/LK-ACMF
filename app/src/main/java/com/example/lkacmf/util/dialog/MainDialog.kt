@@ -10,12 +10,10 @@ import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.GridLayoutManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
-import com.example.lk_epk.util.LogUtil
 import com.example.lkacmf.MyApplication
 import com.example.lkacmf.R
 import com.example.lkacmf.activity.MainActivity
 import com.example.lkacmf.adapter.ArrayAdapter
-import com.example.lkacmf.data.CharacteristicUuid
 import com.example.lkacmf.util.*
 import com.example.lkacmf.util.ble.*
 import com.example.lkacmf.util.pio.XwpfTUtil
@@ -227,7 +225,7 @@ class MainDialog {
      */
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingPermission")
-    fun writeFormDataDialog(activity: MainActivity, bitmapBX: Bitmap,bitmapBZ: Bitmap,bitmapDX: Bitmap) {
+    fun writeFormDataDialog(activity: MainActivity, bitmapBX: Bitmap, bitmapBZ: Bitmap, bitmapDX: Bitmap) {
 //        CoroutineScope(Dispatchers.Main)
 //            .launch {
         dialog = MaterialDialog(activity)

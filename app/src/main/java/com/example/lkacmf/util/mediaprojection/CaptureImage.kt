@@ -7,7 +7,6 @@ import android.hardware.display.DisplayManager
 import android.media.Image
 import android.media.ImageReader
 import android.media.projection.MediaProjection
-import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper

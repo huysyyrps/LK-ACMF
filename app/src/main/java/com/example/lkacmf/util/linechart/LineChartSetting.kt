@@ -2,8 +2,6 @@ package com.example.lkacmf.util.linechart
 
 import android.graphics.Matrix
 import android.view.MotionEvent
-import android.view.View
-import androidx.cardview.widget.CardView
 import com.example.lk_epk.util.LogUtil
 import com.example.lkacmf.MyApplication
 import com.example.lkacmf.R

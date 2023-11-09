@@ -107,6 +107,7 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
         if (permissionTag) {
             UsbContent.usbDeviceConstant(this, object : UsbBackDataLisition {
                 override fun usbBackData(data: String) {
+                    LogUtil.e("TAG", data)
                     if (data.length > 4 && data.substring(0, 4) == "BE06") {
                         if (BaseData.hexStringToBytes(data.substring(0, data.length - 6)) == data.substring(data.length - 6, data.length - 4) && data.length == 38) {
                             BleBackDataRead.readMeterData(data, lineChartBX, lineChartBZ, lineChart, isRoll)
@@ -128,7 +129,6 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
                         }
                     }
                 }
-
             })
         } else {
             R.string.no_permission.showToast(this)

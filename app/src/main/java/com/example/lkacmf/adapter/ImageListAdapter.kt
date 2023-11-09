@@ -1,6 +1,5 @@
 package com.example.lkacmf.adapter
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.view.LayoutInflater
 import android.view.View
@@ -9,10 +8,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lkacmf.R
-import com.example.lkacmf.activity.ImageListActivity
-import com.example.lkacmf.activity.MainActivity
 import com.example.lkacmf.util.AdapterPositionCallBack
-import java.io.File
 
 internal class ImageListAdapter(
     var dataList: ArrayList<String>,

@@ -263,7 +263,6 @@
     <color name="menu_bottom_text">#f2f8ff</color>
 
     <color name="style_red">#ff4c41</color>
-    <color name="style_divider_color">#C9C7CD</color>
     <!--标签TAB未选中的颜色-->
     <color name="color_unselected">#777777</color>
     <!--标签Tab选中的颜色-->
@@ -289,6 +288,7 @@
     <color name="dictdialog_divider_color">#ededed</color>
 
     <color name="theme_back_color">#262626</color>
+    <color name="theme_back_color1">#303030</color>
     <color name="theme_color">#F4b129</color>
     <color name="theme_color1">#FF9800</color>
     <color name="dialog_color">#44444444</color>
@@ -297,4 +297,6 @@
     <color name="color_preloader_start">#000000</color>
     <color name="color_preloader_center">#000000</color>
     <color name="color_preloader_end">#00BD08</color>
+    <color name="view_title_color">#DEE1E6</color>
+    <color name="style_divider_color">#C9C7CD</color>
 </resources>

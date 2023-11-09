@@ -33,6 +33,12 @@
 
     <string name="start">开始</string>
     <string name="stop">停止</string>
+    <string name="punctation">标点</string>
+    <string name="direction">路径</string>
+    <string name="thinkness">图层</string>
+    <string name="select">探头</string>
+    <string name="screenshot">截图</string>
+    <string name="suspend">暂停</string>
     <string name="refresh">刷新</string>
     <string name="reset">复位</string>
     <string name="detection_mode">检测模式</string>
@@ -74,4 +80,9 @@
     <string name="version_data_error">版本信息请求失败</string>
     <string name="have_new_version">发现新版本</string>
     <string name="net_error">网络异常</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="connect_state">连接状态</string>
+    <string name="user_info">说明书</string>
 </resources>

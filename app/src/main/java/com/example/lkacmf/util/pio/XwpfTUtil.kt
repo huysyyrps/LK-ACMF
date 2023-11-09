@@ -1,9 +1,7 @@
 package com.example.lkacmf.util.pio
 
 import android.graphics.Bitmap
-import android.os.Environment
 import com.example.lkacmf.activity.MainActivity
-import com.example.lkacmf.util.BitmapSave
 import com.example.lkacmf.util.Constant
 import org.apache.poi.util.Units
 import org.apache.poi.xwpf.usermodel.*

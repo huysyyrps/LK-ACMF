@@ -16,7 +16,6 @@ import com.example.lkacmf.util.showToast
 import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.driver.UsbSerialProber
 import com.hoho.android.usbserial.util.SerialInputOutputManager
-import com.sscl.baselibrary.utils.getByteArray
 import okhttp3.internal.and
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors

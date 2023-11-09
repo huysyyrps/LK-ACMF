@@ -31,6 +31,26 @@
             android:supportsRtl="true"
             android:theme="@style/NoAction"
             android:usesCleartextTraffic="true">
+<!--        <activity-->
+<!--                android:name=".activity.ConstantActivity"-->
+<!--                android:exported="true" >-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+        <activity
+                android:name=".activity.ConstantActivity1"
+                android:exported="true" >
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <service
                 android:name=".util.mediaprojection.MediaService"
@@ -42,24 +62,17 @@
                 android:name=".activity.WelcomeActivity"
                 android:exported="true"
                 android:screenOrientation="landscape">
-
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-
-
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
         </activity>
         <activity
                 android:name=".activity.MainActivity"
                 android:exported="true"
                 android:screenOrientation="landscape">
-            <intent-filter>
-                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
-                <action android:name="android.intent.action.MAIN" />
+<!--            <intent-filter>-->
+<!--                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
 
             <meta-data
                     android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
