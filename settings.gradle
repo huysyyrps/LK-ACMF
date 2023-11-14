@@ -49,3 +49,4 @@ dependencyResolutionManagement {
 rootProject.name = "LKACMF"
 include ':app'
 include ':MPChartLib'
+include ':library'

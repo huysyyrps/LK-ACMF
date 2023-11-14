@@ -2,6 +2,7 @@ package com.example.lkacmf.util.dialog
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.bluetooth.le.ScanResult
 import android.graphics.Bitmap
 import android.os.Build
@@ -20,6 +21,7 @@ import com.example.lkacmf.util.pio.XwpfTUtil
 import com.example.lkacmf.util.usb.UsbContent
 import com.permissionx.guolindev.PermissionX
 import kotlinx.android.synthetic.main.dialog_save_form.*
+import kotlinx.android.synthetic.main.dialog_thinkness.*
 import kotlinx.android.synthetic.main.setting.*
 import java.util.*
 
@@ -61,11 +63,10 @@ class MainDialog {
         return permissionTag
     }
 
-
     /**
      * 设置弹窗
      */
-    fun setConfigDialog(activity: MainActivity) {
+    fun setConfigDialog(activity: Activity) {
         var selectList = mutableListOf<Int>()
         dialog = MaterialDialog(activity)
             .cancelable(false)
@@ -109,7 +110,7 @@ class MainDialog {
         }
         val gridLayoutManager = GridLayoutManager(activity, 4)
         dialog.recyclerView.layoutManager = gridLayoutManager
-        var dataList = mutableListOf<String>("1", "2", "3", "4", "5", "6", "7", "8")
+        var dataList = mutableListOf<String>("笔式", "标准", "三阵列", "五阵列", "七阵列")
         var adapter = ArrayAdapter(activity, dataList, selectList)
         dialog.recyclerView.adapter = adapter
 
@@ -173,7 +174,6 @@ class MainDialog {
         return dialog
     }
 
-
     /**
      * 连接
      */
@@ -225,7 +225,7 @@ class MainDialog {
      */
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MissingPermission")
-    fun writeFormDataDialog(activity: MainActivity, bitmapBX: Bitmap, bitmapBZ: Bitmap, bitmapDX: Bitmap) {
+    fun writeFormDataDialog(activity: Activity, bitmapBX: Bitmap, bitmapBZ: Bitmap, bitmapDX: Bitmap) {
 //        CoroutineScope(Dispatchers.Main)
 //            .launch {
         dialog = MaterialDialog(activity)
@@ -288,5 +288,34 @@ class MainDialog {
             }
         }
 //            }
+    }
+
+    /**
+     * 设置图层
+     */
+    fun setThinkness(activity: Activity, thinknessCallBack: ThinknessCallBack) {
+        dialog = MaterialDialog(activity)
+            .cancelable(false)
+            .show {
+                customView(    //自定义弹窗
+                    viewRes = R.layout.dialog_thinkness,//自定义文件
+                    dialogWrapContent = true,    //让自定义宽度生效
+                    scrollable = true,            //让自定义宽高生效
+                    noVerticalPadding = true    //让自定义高度生效
+                )
+                cornerRadius(16f)
+            }
+        dialog.btnThinknessCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+        dialog.btnThinknessSure.setOnClickListener {
+            var thinkness = dialog.etThinkness.text.toString()
+            if (thinkness.trim { it <= ' ' } == "") {
+                "图层厚度不能为空".showToast(activity)
+                return@setOnClickListener
+            }
+            thinknessCallBack.thinknessCallBack(thinkness)
+            dialog.dismiss()
+        }
     }
 }

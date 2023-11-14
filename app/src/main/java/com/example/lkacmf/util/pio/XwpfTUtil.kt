@@ -1,5 +1,6 @@
 package com.example.lkacmf.util.pio
 
+import android.app.Activity
 import android.graphics.Bitmap
 import com.example.lkacmf.activity.MainActivity
 import com.example.lkacmf.util.Constant
@@ -18,7 +19,7 @@ object XwpfTUtil {
      * @param dataMap 替换的数据
      */
     fun writeDocx(
-        activity: MainActivity,
+        activity: Activity,
         templetDocInStream: InputStream,
         dataMap: MutableMap<String, Any>,
         bitmapBX: Bitmap,

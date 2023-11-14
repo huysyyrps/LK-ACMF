@@ -8,16 +8,15 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.RotateAnimation
 import com.example.lkacmf.R
-import kotlinx.android.synthetic.main.fragment_home1.*
 
-class HomeFragment1 : Fragment() {
+class UserInfoFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_home1, container, false)
+        return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
     override fun onStart() {

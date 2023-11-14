@@ -1,6 +1,7 @@
 package com.example.lkacmf.util.mediaprojection
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
@@ -26,7 +27,7 @@ class CaptureImage {
     private var isGot: Boolean = false
     @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("WrongConstant")
-    fun captureImages(activity: MainActivity, tag:String, mMediaProjection:MediaProjection){
+    fun captureImages(activity: Activity, tag:String, mMediaProjection:MediaProjection){
         Handler(Looper.myLooper()!!).postDelayed(object : Runnable {
             override fun run() {
                 //配置ImageReader
@@ -58,7 +59,7 @@ class CaptureImage {
      * 保存图片
      */
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun savePicTask(reader: ImageReader, activity: MainActivity, tag: String) {
+    private fun savePicTask(reader: ImageReader, activity: Activity, tag: String) {
         var image: Image? = null
         try {
             //获取捕获的照片数据
@@ -90,7 +91,7 @@ class CaptureImage {
                 else
                     MyApplication.context.resources.getString(R.string.save_fail).showToast(activity)
             }else if (tag=="form"){
-                MainDialog().writeFormDataDialog(activity,bitmap,bitmap,bitmap)
+//                MainDialog().writeFormDataDialog(activity,bitmap,bitmap,bitmap)
             }
             mMediaProjection?.stop()
             imageReader?.close()

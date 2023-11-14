@@ -37,6 +37,7 @@
     <string name="direction">路径</string>
     <string name="thinkness">图层</string>
     <string name="select">探头</string>
+    <string name="material">材料</string>
     <string name="screenshot">截图</string>
     <string name="suspend">暂停</string>
     <string name="refresh">刷新</string>
@@ -49,7 +50,7 @@
     <string name="play_back">回放</string>
     <string name="save_success">保存成功</string>
     <string name="save_fail">保存失败</string>
-    <string name="array">阵列</string>
+    <string name="array">探头</string>
     <string name="roll">滚动波形</string>
     <string name="no_roll">取消滚动</string>
     <string name="rate">探头频率</string>
@@ -85,4 +86,19 @@
 
     <string name="connect_state">连接状态</string>
     <string name="user_info">说明书</string>
+    <string name="material">材料</string>
+    <string name="main">主页</string>
+    <string name="analysts">数据分析</string>
+    <string name="auto">默认</string>
+    <string name="T">T字扫描</string>
+    <string name="L">焊缝L扫描</string>
+    <string name="R">焊缝R扫描</string>
+    <string name="C">焊缝扫描</string>
+    <string name="Z">Z字扫描</string>
+    <string name="write_thinkness">请输入图层厚度</string>
+    <string name="pen_probe">笔式</string>
+    <string name="standard_probe">标准</string>
+    <string name="three_probe">三阵列</string>
+    <string name="five_probe">五阵列</string>
+    <string name="seven_probe">7阵列</string>
 </resources>

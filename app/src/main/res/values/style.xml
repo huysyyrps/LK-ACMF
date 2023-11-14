@@ -132,13 +132,6 @@
     </style>
 
     <style name="Button">
-        <item name="android:layout_width">120dp</item>
-        <item name="android:layout_height">55dp</item>
-        <item name="android:textSize">12dp</item>
-        <item name="android:paddingTop">3dp</item>
-        <item name="android:textColor">@color/black</item>
-    </style>
-    <style name="Button1">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">1</item>
         <item name="android:layout_height">55dp</item>
@@ -147,12 +140,12 @@
         <item name="android:textColor">@color/theme_color</item>
     </style>
     <style name="VerticleTextView">
-        <item name="android:layout_width">45dp</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">0dp</item>
         <item name="android:layout_weight">1</item>
         <item name="android:gravity">center</item>
         <item name="android:textColor">@color/theme_color</item>
-        <item name="android:rotation">90</item>
+<!--        <item name="android:rotation">180</item>-->
         <item name="android:textSize">14dp</item>
     </style>
 

@@ -274,7 +274,6 @@ object BleBackDataRead {
         lineChartBX: LineChart,
         lineChartBZ: LineChart,
         lineChart: MyLineChart,
-        isRoll: Boolean,
     ) {
         var backData = BinaryChange().hexStringToByte(readData)
         //校验

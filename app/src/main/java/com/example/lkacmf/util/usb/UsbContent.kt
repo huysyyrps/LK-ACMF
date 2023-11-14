@@ -1,5 +1,6 @@
 package com.example.lkacmf.util.usb
 
+import android.app.Activity
 import android.app.PendingIntent
 import android.content.Intent
 import android.hardware.usb.UsbManager
@@ -25,7 +26,7 @@ object UsbContent {
     var portMore: UsbSerialPort? = null
     var connectState:Boolean  = false
     @RequiresApi(Build.VERSION_CODES.O)
-    fun usbDeviceConstant(content: MainActivity, usbBackDataLisition: UsbBackDataLisition):Boolean{
+    fun usbDeviceConstant(content: Activity, usbBackDataLisition: UsbBackDataLisition):Boolean{
         val manager = content.getSystemService(AppCompatActivity.USB_SERVICE) as UsbManager
         val availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager)
         if (availableDrivers.isEmpty()) {
@@ -69,7 +70,7 @@ object UsbContent {
                mExecutorOne.submit(mSerialIoManagerOne)
                connectState = true
                if (connectState) {
-                   MainActivity().selectTag = "reset"
+//                   MainActivity().selectTag = "reset"
                    writeData(BleDataMake.makeStopMeterData())
                }
                return connectState

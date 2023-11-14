@@ -6,6 +6,7 @@ import com.example.lk_epk.util.LogUtil
 import com.example.lkacmf.MyApplication
 import com.example.lkacmf.R
 import com.example.lkacmf.activity.MainActivity
+import com.example.lkacmf.fragment.HomeFragment
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.charts.MyLineChart
 import com.github.mikephil.charting.components.XAxis
@@ -15,6 +16,7 @@ import com.github.mikephil.charting.listener.OnChartGestureListener
 import com.github.mikephil.charting.utils.MPPointF
 import com.github.mikephil.charting.utils.ViewPortHandler
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_home.*
 
 
 class LineChartSetting {
@@ -24,7 +26,7 @@ class LineChartSetting {
     val mSavedMatrix = Matrix()
     private val mTouchPointCenter = MPPointF.getInstance(0f, 0f)
     fun SettingLineChart(
-        activity: MainActivity,
+        activity: HomeFragment,
         linechar: LineChart,
         showX: Boolean,
     ) {
@@ -118,7 +120,7 @@ class LineChartSetting {
                                 mMatrix.set(mSavedMatrix)
                                 val t = getTrans(mTouchPointCenter.x, mTouchPointCenter.y,activity.lineChartBX)
                                 mMatrix.postScale(scaleX, 1F, t.x, t.y)
-                                activity.lineChartBX.getViewPortHandler().refresh(mMatrix, activity.lineChartBX, true)
+                                activity.lineChartBX.viewPortHandler.refresh(mMatrix, activity.lineChartBX, true)
                             }
                         }
                     }
@@ -182,7 +184,7 @@ class LineChartSetting {
     }
 
     fun SettingMyLineChart(
-        activity: MainActivity,
+        activity: HomeFragment,
         linechar: MyLineChart,
         showX: Boolean,
     ) {

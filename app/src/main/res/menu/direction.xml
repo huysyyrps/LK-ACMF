@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+            android:id="@+id/itT"
+            android:icon="@drawable/ic_t"
+            android:title="@string/T" />
+    <item
+            android:id="@+id/itL"
+            android:icon="@drawable/ic_l"
+            android:title="@string/L" />
+    <item
+            android:id="@+id/itR"
+            android:icon="@drawable/ic_r"
+            android:title="@string/R" />
+    <item
+            android:id="@+id/itC"
+            android:icon="@drawable/ic_center"
+            android:title="@string/C" />
+    <item
+            android:id="@+id/itZ"
+            android:icon="@drawable/ic_z"
+            android:title="@string/Z" />
+</menu>
