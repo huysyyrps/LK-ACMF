@@ -1,19 +1,12 @@
 package com.example.lkacmf.view
 
 import android.content.Context
-import android.graphics.Color
-import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.example.lkacmf.R
-import com.example.lkacmf.adapter.ImageListAdapter
 import com.example.lkacmf.adapter.PopupAdapter
 import com.example.lkacmf.data.PopupListData
-import com.example.lkacmf.data.ProbeListData
-import com.example.lkacmf.entity.PopupItem
+import com.example.lkacmf.data.MaterialListData
 import com.example.lkacmf.util.AdapterPositionCallBack
 import com.example.lkacmf.util.PopupPositionCallBack
 import com.lxj.xpopup.core.BubbleAttachPopupView
@@ -44,8 +37,8 @@ class CustomBubbleAttachPopup : BubbleAttachPopupView {
         val recyclerView: RecyclerView = findViewById(R.id.recyclerView)
         val layoutManager = LinearLayoutManager(activity)
         recyclerView.layoutManager = layoutManager
-        if (selectTag=="probe"){
-            adapter = PopupAdapter(ProbeListData.setProbeListData(),object : AdapterPositionCallBack {
+        if (selectTag=="material"){
+            adapter = PopupAdapter(MaterialListData.setMaterialListData(),object : AdapterPositionCallBack {
                 override fun backPosition(index: Int) {
                     popupPositionCallBack.backPosition(index)
                     dismiss()

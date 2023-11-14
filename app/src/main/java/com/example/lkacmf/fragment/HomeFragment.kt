@@ -19,7 +19,7 @@ import com.example.lk_epk.util.LogUtil
 import com.example.lkacmf.R
 import com.example.lkacmf.activity.MainActivity
 import com.example.lkacmf.data.PopupListData
-import com.example.lkacmf.data.ProbeListData
+import com.example.lkacmf.data.MaterialListData
 import com.example.lkacmf.util.Constant
 import com.example.lkacmf.util.PopupPositionCallBack
 import com.example.lkacmf.util.ble.BaseData
@@ -58,12 +58,12 @@ class HomeFragment : Fragment(), View.OnClickListener {
         super.onStart()
         btnStart.setOnClickListener(this)
         btnSuspend.setOnClickListener(this)
-        btnStop.setOnClickListener(this)
+        btnRefresh.setOnClickListener(this)
         btnPunctation.setOnClickListener(this)
         btnImage.setOnClickListener(this)
         btnDirection.setOnClickListener(this)
         btnThinkness.setOnClickListener(this)
-        btnSelect.setOnClickListener(this)
+        btnMaterial.setOnClickListener(this)
         vtvSetting.setOnClickListener(this)
 
         LineChartSetting().SettingLineChart(this, lineChartBX, true)
@@ -122,6 +122,13 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 btnSuspend.visibility = VISIBLE
                 writeData(BleDataMake.makeStartMeterData())
             }
+            R.id.btnRefresh->{
+                if (UsbContent.connectState) {
+                    writeData(BleDataMake.makeStopMeterData())
+                }
+                Thread.sleep(500)
+                BleBackDataRead.readRefreshData(lineChartBX, lineChartBZ, lineChart)
+            }
             R.id.btnSuspend -> {
                 btnSuspend.visibility = GONE
                 btnStart.visibility = VISIBLE
@@ -167,21 +174,21 @@ class HomeFragment : Fragment(), View.OnClickListener {
                 })
             }
             R.id.btnMaterial -> {
-//                com.lxj.xpopup.XPopup.Builder(context)
-//                    .hasShadowBg(false)
-//                    .isTouchThrough(true)
-//                    .isDestroyOnDismiss(true) //对于只使用一次的弹窗，推荐设置这个
-//                    .atView(btnSelect)
-//                    .isCenterHorizontal(true)
-//                    .hasShadowBg(false) // 去掉半透明背景
-//                    .isClickThrough(true)
-//                    .asCustom(context?.let { CustomBubbleAttachPopup(it,"probe", object :PopupPositionCallBack{
-//                        override fun backPosition(index: Int) {
-//                            vtv_probe.text=ProbeListData.setProbeListData()[index].title
-//                        }
-//
-//                    }) })
-//                    .show()
+                com.lxj.xpopup.XPopup.Builder(context)
+                    .hasShadowBg(false)
+                    .isTouchThrough(true)
+                    .isDestroyOnDismiss(true) //对于只使用一次的弹窗，推荐设置这个
+                    .atView(btnMaterial)
+                    .isCenterHorizontal(true)
+                    .hasShadowBg(false) // 去掉半透明背景
+                    .isClickThrough(true)
+                    .asCustom(context?.let { CustomBubbleAttachPopup(it,"material", object :PopupPositionCallBack{
+                        override fun backPosition(index: Int) {
+                            vtv_material.text=MaterialListData.setMaterialListData()[index].title
+                        }
+
+                    }) })
+                    .show()
             }
             R.id.vtvSetting ->{
 //                MainDialog().settingDialog(requireActivity())

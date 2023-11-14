@@ -367,7 +367,7 @@ object BleBackDataRead {
         val randomDataSetIndex = (Math.random() * data.dataSetCount).toInt()
         data.addEntry(Entry(xData, yData), randomDataSetIndex)
         data.notifyDataChanged()
-
+//region
 //        val xAxis: XAxis = lineChart.getXAxis() //获取设置X轴
 //        val valueFormatter = object :IAxisValueFormatter{
 //            override fun getFormattedValue(value: Float, axis: AxisBase?): String {
@@ -376,12 +376,9 @@ object BleBackDataRead {
 //                }
 //                return "${landBXList.last().x}"
 //            }
-//
 //        }
-//
 //        xAxis.valueFormatter = valueFormatter //设置自定义格式，在绘制之前动态调整x的值。
-
-
+        //endregion
         lineChart.notifyDataSetChanged()
         lineChart.invalidate()
     }

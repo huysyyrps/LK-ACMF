@@ -86,7 +86,6 @@
 
     <string name="connect_state">连接状态</string>
     <string name="user_info">说明书</string>
-    <string name="material">材料</string>
     <string name="main">主页</string>
     <string name="analysts">数据分析</string>
     <string name="auto">默认</string>
@@ -101,4 +100,8 @@
     <string name="three_probe">三阵列</string>
     <string name="five_probe">五阵列</string>
     <string name="seven_probe">7阵列</string>
+
+    <string name="material_plate">板材</string>
+    <string name="material_seam">焊缝</string>
+    <string name="material_corner">拐角</string>
 </resources>
