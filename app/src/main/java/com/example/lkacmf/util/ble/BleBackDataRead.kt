@@ -437,7 +437,7 @@ object BleBackDataRead {
     /**
      * 回放
      */
-    fun playBack(lineChartBX: LineChart, lineChartBZ: LineChart) {
+    fun playBack(lineChartBX: LineChart, lineChartBZ: LineChart, lineChart: MyLineChart) {
         if (landBXList.isNotEmpty()) {
             //将数据添加到图表中
             lineChartBX.clear()
@@ -463,6 +463,18 @@ object BleBackDataRead {
             lineChartBZ.notifyDataSetChanged()
             lineChartBZ.invalidate()
             lineChartBZ.animateX(2000)
+
+            lineChart.clear()
+            var lineSet = LineDataSet(landList, "BX")
+            lineSet.setDrawValues(false)
+            lineSet.setDrawCircles(false)
+            lineSet.color = MyApplication.context.resources.getColor(R.color.theme_color)
+            //将数据集添加到数据 ChartData 中
+            val lineData = LineData(lineSet)
+            lineChart.data = lineData
+            lineChart.notifyDataSetChanged()
+            lineChart.invalidate()
+            lineChart.animateX(2000)
         }
     }
 

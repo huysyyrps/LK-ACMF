@@ -41,7 +41,6 @@
     <string name="screenshot">截图</string>
     <string name="suspend">暂停</string>
     <string name="refresh">刷新</string>
-    <string name="reset">复位</string>
     <string name="detection_mode">检测模式</string>
     <string name="calibration">标定</string>
     <string name="measure">测量</string>
@@ -104,4 +103,8 @@
     <string name="material_plate">板材</string>
     <string name="material_seam">焊缝</string>
     <string name="material_corner">拐角</string>
+    <string name="back_play">回放</string>
+    <string name="reset">复位</string>
+    <string name="report">报告</string>
+    <string name="screen">框选</string>
 </resources>

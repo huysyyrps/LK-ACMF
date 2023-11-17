@@ -20,6 +20,7 @@ import com.afollestad.materialdialogs.customview.customView
 import com.example.lkacmf.R
 import com.example.lkacmf.adapter.ImageListAdapter
 import com.example.lkacmf.util.AdapterPositionCallBack
+import com.example.lkacmf.util.BaseActivity
 import com.example.lkacmf.util.Constant
 import com.example.lkacmf.util.StatusBarUtils
 import com.scwang.smart.refresh.footer.ClassicsFooter
@@ -31,7 +32,7 @@ import top.zibin.luban.Luban
 import top.zibin.luban.OnCompressListener
 import java.io.File
 
-class ImageListActivity : AppCompatActivity() {
+class ImageListActivity : BaseActivity() {
     var selectIndex = 0
     private var pathList = ArrayList<String>()
     private lateinit var dialog: MaterialDialog

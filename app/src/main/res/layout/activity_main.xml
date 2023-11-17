@@ -55,11 +55,328 @@
             </com.google.android.material.tabs.TabLayout>
         </LinearLayout>
 
-
-        <FrameLayout
-                android:id="@+id/mainFrameLayout"
+        <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:layout_marginBottom="1dp"
+                android:orientation="horizontal">
+            <LinearLayout
+                    android:layout_width="45dp"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+                <com.example.lkacmf.view.VerticleTextView
+                        style="@style/VerticleTextView"
+                        android:background="@drawable/btn"
+                        android:text="@string/connect_success" />
+                <View style="@style/HLine" />
+                <com.example.lkacmf.view.VerticleTextView
+                        android:id="@+id/vtv_Direction"
+                        style="@style/VerticleTextView"
+                        android:background="@drawable/btn"
+                        android:text="默认路径" />
+                <View style="@style/HLine" />
+                <com.example.lkacmf.view.VerticleTextView
+                        android:id="@+id/vtv_material"
+                        style="@style/VerticleTextView"
+                        android:background="@drawable/btn"
+                        android:focusable="true"
+                        android:text="@string/material_plate" />
+                <View style="@style/HLine" />
+                <com.example.lkacmf.view.VerticleTextView
+                        android:id="@+id/vtv_thinkness"
+                        style="@style/VerticleTextView"
+                        android:background="@drawable/btn"
+                        android:text="25" />
+                <View style="@style/HLine" />
+                <com.example.lkacmf.view.VerticleTextView
+                        android:id="@+id/vtvSetting"
+                        style="@style/VerticleTextView"
+                        android:background="@drawable/btn"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:text="@string/setting" />
+                <View style="@style/HLine" />
+
+            </LinearLayout>
+            <View style="@style/Vine" />
+            <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="45dp"
+                        android:layout_marginRight="2dp"
+                        android:layout_marginBottom="1dp"
+                        android:background="@color/theme_back_color1"
+                        android:orientation="horizontal">
+                    <LinearLayout
+                            android:id="@+id/linMain"
+                            android:layout_width="0dp"
+                            android:layout_weight="3"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal">
+                        <com.example.lkacmf.view.VerLinlayout
+                                android:id="@+id/btnStart"
+                                style="@style/Button"
+                                android:background="@drawable/btn"
+                                android:clickable="true"
+                                app:botton_title="@string/start"
+                                app:drawer_image_botton="@drawable/ic_start" />
+                        <com.example.lkacmf.view.VerLinlayout
+                                android:id="@+id/btnSuspend"
+                                style="@style/Button"
+                                android:background="@drawable/btn"
+                                android:clickable="true"
+                                android:visibility="gone"
+                                app:botton_title="@string/suspend"
+                                app:drawer_image_botton="@drawable/ic_suspend" />
+                        <com.example.lkacmf.view.VerLinlayout
+                                android:id="@+id/btnRefresh"
+                                style="@style/Button"
+                                android:background="@drawable/btn"
+                                android:clickable="true"
+                                app:botton_title="@string/refresh"
+                                app:drawer_image_botton="@drawable/ic_refus" />
+                        <com.example.lkacmf.view.VerLinlayout
+                                android:id="@+id/btnPunctation"
+                                style="@style/Button"
+                                android:background="@drawable/btn"
+                                android:clickable="true"
+                                app:botton_title="@string/punctation"
+                                app:drawer_image_botton="@drawable/ic_punctation" />
+                        <com.example.lkacmf.view.VerLinlayout
+                                android:id="@+id/btnDirection"
+                                style="@style/Button"
+                                android:background="@drawable/btn"
+                                android:clickable="true"
+                                app:botton_title="@string/direction"
+                                app:drawer_image_botton="@drawable/ic_direction" />
+                        <com.example.lkacmf.view.VerLinlayout
+                                android:id="@+id/btnMaterial"
+                                style="@style/Button"
+                                android:background="@drawable/btn"
+                                android:clickable="true"
+                                app:botton_title="@string/material"
+                                app:drawer_image_botton="@drawable/ic_select" />
+                        <com.example.lkacmf.view.VerLinlayout
+                                android:id="@+id/btnThinkness"
+                                style="@style/Button"
+                                android:background="@drawable/btn"
+                                android:clickable="true"
+                                app:botton_title="@string/thinkness"
+                                app:drawer_image_botton="@drawable/ic_thinkness" />
+                    </LinearLayout>
+                    <LinearLayout
+                            android:id="@+id/linAnalysts"
+                            android:layout_width="0dp"
+                            android:layout_weight="3"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:visibility="gone">
+                        <com.example.lkacmf.view.VerLinlayout
+                                android:id="@+id/btnBackPlay"
+                                style="@style/Button"
+                                android:background="@drawable/btn"
+                                android:clickable="true"
+                                app:botton_title="@string/back_play"
+                                app:drawer_image_botton="@drawable/ic_backplay" />
+                        <com.example.lkacmf.view.VerLinlayout
+                                android:id="@+id/btnReset"
+                                style="@style/Button"
+                                android:background="@drawable/btn"
+                                android:clickable="true"
+                                app:botton_title="@string/reset"
+                                app:drawer_image_botton="@drawable/ic_reset" />
+                        <com.example.lkacmf.view.VerLinlayout
+                                android:id="@+id/btnReport"
+                                style="@style/Button"
+                                android:background="@drawable/btn"
+                                android:clickable="true"
+                                app:botton_title="@string/report"
+                                app:drawer_image_botton="@drawable/ic_report" />
+                        <com.example.lkacmf.view.VerLinlayout
+                                android:id="@+id/btnScreen"
+                                style="@style/Button"
+                                android:background="@drawable/btn"
+                                android:clickable="true"
+                                app:botton_title="@string/screen"
+                                app:drawer_image_botton="@drawable/ic_screen" />
+                        <com.example.lkacmf.view.VerLinlayout
+                                android:id="@+id/btnImage"
+                                style="@style/Button"
+                                android:background="@drawable/btn"
+                                android:clickable="true"
+                                app:botton_title="@string/screenshot"
+                                app:drawer_image_botton="@drawable/ic_image" />
+                    </LinearLayout>
+
+
+                </LinearLayout>
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="1dp"
+                        android:orientation="horizontal">
+                    <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal">
+                        <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_marginLeft="1dp"
+                                android:layout_marginRight="1dp"
+                                android:layout_weight="6"
+                                android:orientation="vertical">
+                            <androidx.cardview.widget.CardView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="0dp"
+                                    android:layout_weight="1"
+                                    app:cardCornerRadius="5dp">
+
+                                <FrameLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent">
+
+                                    <com.github.mikephil.charting.charts.LineChart
+                                            android:id="@+id/lineChartBX"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="match_parent"
+                                            android:layout_gravity="left"
+                                            android:layout_weight="1" />
+
+                                    <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_gravity="right"
+                                            android:layout_margin="5dp"
+                                            android:text="XBX"
+                                            android:textColor="@color/theme_color" />
+                                </FrameLayout>
+
+                            </androidx.cardview.widget.CardView>
+                            <androidx.cardview.widget.CardView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="0dp"
+                                    android:layout_marginTop="1dp"
+                                    android:layout_weight="1"
+                                    app:cardCornerRadius="5dp">
+
+                                <FrameLayout
+                                        android:id="@+id/linBZ"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:orientation="vertical">
+
+                                    <com.github.mikephil.charting.charts.LineChart
+                                            android:id="@+id/lineChartBZ"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="match_parent"
+                                            android:layout_gravity="left"
+                                            android:layout_marginBottom="2dp"
+                                            android:layout_weight="1" />
+
+                                    <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_gravity="right"
+                                            android:layout_margin="5dp"
+                                            android:text="XZX"
+                                            android:textColor="@color/theme_color" />
+                                </FrameLayout>
+                            </androidx.cardview.widget.CardView>
+                        </LinearLayout>
+                        <LinearLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_marginRight="2dp"
+                                android:layout_weight="4"
+                                android:orientation="vertical">
+                            <androidx.cardview.widget.CardView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="0dp"
+                                    android:layout_marginBottom="2dp"
+                                    android:layout_weight="6"
+                                    app:cardCornerRadius="5dp">
+                                <FrameLayout
+                                        android:id="@+id/linDX"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:orientation="vertical">
+                                    <com.github.mikephil.charting.charts.MyLineChart
+                                            android:id="@+id/lineChart"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="match_parent"
+                                            android:layout_gravity="left"
+                                            android:layout_marginBottom="2dp"
+                                            android:layout_weight="6" />
+                                    <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_gravity="right"
+                                            android:layout_margin="5dp"
+                                            android:text="蝶形图"
+                                            android:textColor="@color/theme_color" />
+                                </FrameLayout>
+                            </androidx.cardview.widget.CardView>
+                            <androidx.cardview.widget.CardView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="0dp"
+                                    android:layout_weight="6"
+                                    app:cardCornerRadius="5dp">
+                                <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:orientation="vertical">
+                                    <TextView
+                                            style="@style/headerText"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="35dp"
+                                            android:background="@color/black"
+                                            android:gravity="center_vertical"
+                                            android:paddingLeft="15dp"
+                                            android:text="测量数据"
+                                            android:textColor="@color/theme_color" />
+                                    <LinearLayout
+                                            android:layout_width="match_parent"
+                                            android:layout_height="0dp"
+                                            android:layout_weight="4"
+                                            android:orientation="vertical">
+                                        <TextView
+                                                android:layout_width="match_parent"
+                                                android:layout_height="40dp"
+                                                android:layout_marginLeft="5dp"
+                                                android:layout_marginTop="20dp"
+                                                android:gravity="center_vertical"
+                                                android:text="深度系数：1"
+                                                android:textColor="@color/theme_color"
+                                                android:textSize="20dp" />
+                                        <TextView
+                                                android:layout_width="match_parent"
+                                                android:layout_height="40dp"
+                                                android:layout_marginLeft="5dp"
+                                                android:gravity="center_vertical"
+                                                android:text="长度：1266mm"
+                                                android:textColor="@color/theme_color"
+                                                android:textSize="20dp" />
+                                        <TextView
+                                                android:layout_width="match_parent"
+                                                android:layout_height="40dp"
+                                                android:layout_marginLeft="5dp"
+                                                android:gravity="center_vertical"
+                                                android:text="深度：666mm"
+                                                android:textColor="@color/theme_color"
+                                                android:textSize="20dp" />
+                                    </LinearLayout>
+                                </LinearLayout>
+                            </androidx.cardview.widget.CardView>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout

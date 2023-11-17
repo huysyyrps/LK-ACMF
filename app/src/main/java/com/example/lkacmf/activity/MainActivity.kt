@@ -10,28 +10,39 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.DocumentsContract
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.widget.TextView
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
+import com.example.lk_epk.util.LogUtil
 import com.example.lkacmf.R
+import com.example.lkacmf.data.MaterialListData
+import com.example.lkacmf.data.PopupListData
 import com.example.lkacmf.entity.VersionInfo
-import com.example.lkacmf.fragment.AnalystsFragment
-import com.example.lkacmf.fragment.HomeFragment
-import com.example.lkacmf.fragment.UserInfoFragment
 import com.example.lkacmf.module.VersionInfoContract
 import com.example.lkacmf.presenter.VersionInfoPresenter
 import com.example.lkacmf.util.*
+import com.example.lkacmf.util.ble.BaseData
+import com.example.lkacmf.util.ble.BleBackDataRead
+import com.example.lkacmf.util.ble.BleDataMake
 import com.example.lkacmf.util.dialog.MainDialog
+import com.example.lkacmf.util.dialog.ThinknessCallBack
+import com.example.lkacmf.util.linechart.LineChartSetting
 import com.example.lkacmf.util.mediaprojection.CaptureImage
-import com.github.mikephil.charting.components.YAxis
+import com.example.lkacmf.util.usb.UsbBackDataLisition
+import com.example.lkacmf.util.usb.UsbContent
+import com.example.lkacmf.util.usb.UsbContent.writeData
+import com.example.lkacmf.view.CustomBubbleAttachPopup
 import com.google.android.material.tabs.TabLayout
 import com.google.gson.Gson
 import constant.UiType
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.drawer_layout
+import kotlinx.android.synthetic.main.activity_main.lineChart
+import kotlinx.android.synthetic.main.activity_main.lineChartBX
+import kotlinx.android.synthetic.main.activity_main.lineChartBZ
+import kotlinx.android.synthetic.main.setting.*
 import listener.OnInitUiListener
 import model.UiConfig
 import model.UpdateConfig
@@ -40,13 +51,10 @@ import okhttp3.RequestBody
 import update.UpdateAppUtils
 
 class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.View {
-    private lateinit var mFm: FragmentManager
-    private val mFragmentList = ArrayList<Fragment>()
-    private val mFragmentTagList = arrayOf("OneFragment", "TwoFragment", "ThreeFragment")
-    private lateinit var mCurrentFragmen: Fragment  // 记录当前显示的Fragment
     private var version: String = "1.0.0"
     private lateinit var versionInfoPresenter: VersionInfoPresenter
-
+    private lateinit var mediaManager: MediaProjectionManager
+    private var mMediaProjection: MediaProjection? = null
     companion object {
         fun actionStart(context: Context) {
             val intent = Intent(context, MainActivity::class.java)
@@ -58,15 +66,7 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        mFragmentList.add(0, HomeFragment())
-        mFragmentList.add(1, AnalystsFragment())
-        mFragmentList.add(2, UserInfoFragment())
-        mCurrentFragmen = mFragmentList[0]
-        // 初始化首次进入时的Fragment
-        mFm = supportFragmentManager;
-        val transaction: FragmentTransaction = mFm.beginTransaction()
-        transaction.add(R.id.mainFrameLayout, mCurrentFragmen, mFragmentTagList[0])
-        transaction.commitAllowingStateLoss()
+        mediaManager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         versionInfoPresenter = VersionInfoPresenter(this, view = this)
         //tabLayout选择监听
         tabLayoutSelect()
@@ -77,11 +77,69 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
         linVersionCheck.setOnClickListener(this)
         linContactComp.setOnClickListener(this)
         btnFinish.setOnClickListener(this)
+        btnStart.setOnClickListener(this)
+        btnSuspend.setOnClickListener(this)
+        btnRefresh.setOnClickListener(this)
+        btnPunctation.setOnClickListener(this)
+        btnImage.setOnClickListener(this)
+        btnDirection.setOnClickListener(this)
+        btnThinkness.setOnClickListener(this)
+        btnMaterial.setOnClickListener(this)
+        vtvSetting.setOnClickListener(this)
+        btnBackPlay.setOnClickListener(this)
+        btnReset.setOnClickListener(this)
+        btnReport.setOnClickListener(this)
         version = ClientVersion.getVersion(applicationContext)
         tvCurrentVersion.text = version
-        //权限申请
-        MainDialog().requestPermission(this)
 
+        LineChartSetting().SettingLineChart(this, lineChartBX, true)
+        LineChartSetting().SettingLineChart(this, lineChartBZ, true)
+        LineChartSetting().SettingMyLineChart(this, lineChart, true)
+
+        val xAxis = lineChartBZ.xAxis
+        xAxis.textColor = resources?.getColor(R.color.theme_back_color)!!
+        //权限申请
+        var permissionTag = MainDialog().requestPermission(this)
+        if (permissionTag) {
+            UsbContent.usbDeviceConstant(this, object : UsbBackDataLisition {
+                override fun usbBackData(data: String) {
+                    LogUtil.e("TAG", data)
+                    if (data.length > 4 && data.substring(0, 4) == "BE06") {
+                        if (BaseData.hexStringToBytes(data.substring(0, data.length - 6)) == data.substring(
+                                data.length - 6,
+                                data.length - 4
+                            ) && data.length == 38
+                        ) {
+                            BleBackDataRead.readMeterData(data, lineChartBX, lineChartBZ, lineChart)
+                        }
+                    }
+                    if (data.length > 4 && data.substring(0, 4) == "BE05") {
+                        LogUtil.e("TAG", data)
+                        if (BaseData.hexStringToBytes(data.substring(0, data.length - 2)) == data.substring(
+                                data.length - 2,
+                                data.length
+                            ) && data.length == 14
+                        ) {
+                            BleBackDataRead.readSettingData(data)
+                        }
+                    }
+                    if (data.length > 4 && data.substring(0, 4) == "BE16") {
+                        LogUtil.e("TAG", data)
+//                        if (selectTag=="reset"){
+//                            if (UsbContent.connectState) {
+//                                writeData(BleDataMake.makeReSetMeterData())
+//                                selectTag=""
+//                            }
+//                        }
+                    }
+                }
+            })
+        } else {
+            R.string.no_permission.showToast(this)
+        }
+        if (UsbContent.connectState) {
+            UsbContent.writeData(BleDataMake.makeReadSettingData())
+        }
     }
 
     private fun tabLayoutSelect() {
@@ -90,15 +148,19 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
             override fun onTabSelected(tab: TabLayout.Tab) {
                 when (tab.position) {
                     0->{
-                        switchFragment(mFragmentList[0], mFragmentTagList[0])
+                        linMain.visibility = VISIBLE
+                        linAnalysts.visibility = GONE
                         return
                     }
                     1->{
-                        switchFragment(mFragmentList[1], mFragmentTagList[1])
+                        linMain.visibility = GONE
+                        linAnalysts.visibility = VISIBLE
                         return
                     }
                     2->{
-                        switchFragment(mFragmentList[2], mFragmentTagList[2])
+                        tbLayout.selectTab(tbLayout.getTabAt(0))
+                        UsbContent.writeData(BleDataMake.makeStopMeterData())
+                        UserInfoActivity.actionStart(this@MainActivity)
                         return
                     }
                 }
@@ -109,6 +171,7 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
         })
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onClick(v: View?) {
         when(v?.id){
             R.id.imageView -> {
@@ -136,6 +199,113 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
             R.id.btnFinish -> {
                 finish()
             }
+            R.id.btnStart -> {
+                btnStart.visibility = View.GONE
+                btnSuspend.visibility = View.VISIBLE
+                UsbContent.writeData(BleDataMake.makeStartMeterData())
+            }
+            R.id.btnRefresh->{
+                if (UsbContent.connectState) {
+                    UsbContent.writeData(BleDataMake.makeStopMeterData())
+                }
+                Thread.sleep(500)
+                BleBackDataRead.readRefreshData(lineChartBX, lineChartBZ, lineChart)
+            }
+            R.id.btnSuspend -> {
+                btnSuspend.visibility = View.GONE
+                btnStart.visibility = View.VISIBLE
+                UsbContent.writeData(BleDataMake.makeStopMeterData())
+            }
+            R.id.btnImage -> {
+                if (mMediaProjection == null) {
+                    val captureIntent: Intent = mediaManager.createScreenCaptureIntent()
+                    startActivityForResult(captureIntent, Constant.TAG_ONE)
+                } else {
+                    mMediaProjection?.let {
+                        CaptureImage().captureImages(
+                            this,
+                            "image",
+                            it
+                        )
+                    }
+                }
+            }
+            //路径
+            R.id.btnDirection -> {
+                com.lxj.xpopup.XPopup.Builder(this)
+                    .hasShadowBg(false)
+                    .isTouchThrough(true)
+                    .isDestroyOnDismiss(true) //对于只使用一次的弹窗，推荐设置这个
+                    .atView(btnDirection)
+                    .isCenterHorizontal(true)
+                    .hasShadowBg(false) // 去掉半透明背景
+                    .isClickThrough(true)
+                    .asCustom(CustomBubbleAttachPopup(this,"popup", object :PopupPositionCallBack{
+                        override fun backPosition(index: Int) {
+                            vtv_Direction.text= PopupListData.setPopupListData()[index].title
+                        }
+
+                    }))
+                    .show()
+            }
+            //图层
+            R.id.btnThinkness -> {
+                MainDialog().setThinkness(this,object: ThinknessCallBack {
+                    override fun thinknessCallBack(thinkness: String) {
+                        vtv_thinkness.text = thinkness
+                    }
+
+                })
+            }
+            //材料
+            R.id.btnMaterial -> {
+                com.lxj.xpopup.XPopup.Builder(this)
+                    .hasShadowBg(false)
+                    .isTouchThrough(true)
+                    .isDestroyOnDismiss(true) //对于只使用一次的弹窗，推荐设置这个
+                    .atView(btnMaterial)
+                    .isCenterHorizontal(true)
+                    .hasShadowBg(false) // 去掉半透明背景
+                    .isClickThrough(true)
+                    .asCustom(CustomBubbleAttachPopup(this,"material", object :PopupPositionCallBack{
+                        override fun backPosition(index: Int) {
+                            vtv_material.text= MaterialListData.setMaterialListData()[index].title
+                        }
+
+                    }))
+                    .show()
+            }
+            //探头选择
+            R.id.vtvSetting ->{
+//                MainDialog().settingDialog(requireActivity())
+                MainDialog().setConfigDialog(this)
+            }
+            //回访
+            R.id.btnBackPlay->{
+                if (UsbContent.connectState) {
+                    writeData(BleDataMake.makeStopMeterData())
+                }
+                BleBackDataRead.playBack(lineChartBX, lineChartBZ,lineChart)
+            }
+            //复位
+            R.id.btnReset->{
+                lineChartBX.fitScreen()
+                lineChartBX.invalidate()
+                lineChartBZ.fitScreen()
+                lineChartBX.invalidate()
+                LineChartSetting().mMatrix.let {
+                    it.reset()
+                }
+                LineChartSetting().mSavedMatrix.let {
+                    it.reset()
+                }
+                if (UsbContent.connectState) {
+                    writeData(BleDataMake.makeStopMeterData())
+                }
+            }
+            //报告
+            R.id.btnReport->{
+            }
         }
     }
 
@@ -158,23 +328,6 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
             gson.toJson(params)
         )
         versionInfoPresenter.getVersionInfo(requestBody)
-    }
-
-    // 转换Fragment
-    fun switchFragment(to: Fragment, tag: String?) {
-        if (mCurrentFragmen !== to) {
-            val transaction = mFm.beginTransaction()
-            if (!to.isAdded) {
-                // 没有添加过:
-                // 隐藏当前的，添加新的，显示新的
-                transaction.hide(mCurrentFragmen).add(R.id.mainFrameLayout, to, tag).show(to)
-            } else {
-                // 隐藏当前的，显示新的
-                transaction.hide(mCurrentFragmen).show(to)
-            }
-            mCurrentFragmen = to
-            transaction.commitAllowingStateLoss()
-        }
     }
 
     override fun setVersionInfo(versionInfo: VersionInfo?) {
@@ -242,5 +395,23 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
 
     override fun setVersionInfoMessage(message: String?) {
         message?.let { it.showToast(this) }
+    }
+
+    @SuppressLint("UseRequireInsteadOfGet")
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                Constant.TAG_ONE -> {
+                    mMediaProjection = data?.let { mediaManager.getMediaProjection(resultCode, it) }
+                    mMediaProjection?.let { CaptureImage().captureImages(this, "image", it) }
+                }
+                Constant.TAG_TWO -> {
+                    mMediaProjection = data?.let { mediaManager.getMediaProjection(resultCode, it) }
+                    mMediaProjection?.let { CaptureImage().captureImages(this, "form", it) }
+                }
+            }
+        }
     }
 }

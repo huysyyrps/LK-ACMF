@@ -1,12 +1,12 @@
 package com.example.lkacmf.util.linechart
 
+import android.app.Activity
 import android.graphics.Matrix
 import android.view.MotionEvent
 import com.example.lk_epk.util.LogUtil
 import com.example.lkacmf.MyApplication
 import com.example.lkacmf.R
 import com.example.lkacmf.activity.MainActivity
-import com.example.lkacmf.fragment.HomeFragment
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.charts.MyLineChart
 import com.github.mikephil.charting.components.XAxis
@@ -16,7 +16,6 @@ import com.github.mikephil.charting.listener.OnChartGestureListener
 import com.github.mikephil.charting.utils.MPPointF
 import com.github.mikephil.charting.utils.ViewPortHandler
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_home.*
 
 
 class LineChartSetting {
@@ -25,11 +24,7 @@ class LineChartSetting {
     var mMatrix = Matrix()
     val mSavedMatrix = Matrix()
     private val mTouchPointCenter = MPPointF.getInstance(0f, 0f)
-    fun SettingLineChart(
-        activity: HomeFragment,
-        linechar: LineChart,
-        showX: Boolean,
-    ) {
+    fun SettingLineChart(activity: MainActivity, linechar: LineChart, showX: Boolean, ) {
         linechar.setDrawGridBackground(false)//是否显示表格颜色
         linechar.setDrawBorders(true)// 是否在折线图上添加边框
         linechar.setScaleEnabled(true)// 是否可以缩放
@@ -184,7 +179,7 @@ class LineChartSetting {
     }
 
     fun SettingMyLineChart(
-        activity: HomeFragment,
+        activity: Activity,
         linechar: MyLineChart,
         showX: Boolean,
     ) {
