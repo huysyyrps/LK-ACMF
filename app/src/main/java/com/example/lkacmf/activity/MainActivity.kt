@@ -55,6 +55,7 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
     private lateinit var versionInfoPresenter: VersionInfoPresenter
     private lateinit var mediaManager: MediaProjectionManager
     private var mMediaProjection: MediaProjection? = null
+    private var punctationState:String = ""
     companion object {
         fun actionStart(context: Context) {
             val intent = Intent(context, MainActivity::class.java)
@@ -105,12 +106,9 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
                 override fun usbBackData(data: String) {
                     LogUtil.e("TAG", data)
                     if (data.length > 4 && data.substring(0, 4) == "BE06") {
-                        if (BaseData.hexStringToBytes(data.substring(0, data.length - 6)) == data.substring(
-                                data.length - 6,
-                                data.length - 4
-                            ) && data.length == 38
-                        ) {
-                            BleBackDataRead.readMeterData(data, lineChartBX, lineChartBZ, lineChart)
+                        if (BaseData.hexStringToBytes(data.substring(0, data.length - 6)) == data.substring(data.length - 6, data.length - 4) && data.length == 38) {
+                            BleBackDataRead.readMeterData(data, lineChartBX, lineChartBZ, lineChart,punctationState)
+                            punctationState = ""
                         }
                     }
                     if (data.length > 4 && data.substring(0, 4) == "BE05") {
@@ -210,6 +208,8 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
                 }
                 Thread.sleep(500)
                 BleBackDataRead.readRefreshData(lineChartBX, lineChartBZ, lineChart)
+                btnStart.visibility = View.VISIBLE
+                btnSuspend.visibility = View.GONE
             }
             R.id.btnSuspend -> {
                 btnSuspend.visibility = View.GONE
@@ -229,6 +229,10 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
                         )
                     }
                 }
+            }
+            //标点
+            R.id.btnPunctation->{
+                punctationState = "add"
             }
             //路径
             R.id.btnDirection -> {
@@ -280,7 +284,7 @@ class MainActivity : BaseActivity(), View.OnClickListener, VersionInfoContract.V
 //                MainDialog().settingDialog(requireActivity())
                 MainDialog().setConfigDialog(this)
             }
-            //回访
+            //回放
             R.id.btnBackPlay->{
                 if (UsbContent.connectState) {
                     writeData(BleDataMake.makeStopMeterData())

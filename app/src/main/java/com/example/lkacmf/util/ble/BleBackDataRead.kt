@@ -274,6 +274,7 @@ object BleBackDataRead {
         lineChartBX: LineChart,
         lineChartBZ: LineChart,
         lineChart: MyLineChart,
+        punctationState:String
     ) {
         var backData = BinaryChange().hexStringToByte(readData)
         //校验
@@ -294,8 +295,8 @@ object BleBackDataRead {
             landBXList.add(Entry(xData, yBXData))
             landBZList.add(Entry(xData, yBZData))
             landList.add(Entry(yBXData, yBZData))
-            notifyChartData(lineChartBX, xData, yBXData)
-            notifyChartData(lineChartBZ, xData, yBZData)
+            notifyChartData(lineChartBX, xData, yBXData,punctationState)
+//            notifyChartData(lineChartBZ, xData, yBZData,punctationState)
             notifyChartData1(lineChart, yBXData*chartScale, yBZData)
             oldXData = xData
         } else if (landBXList.isNotEmpty()) {
@@ -303,8 +304,8 @@ object BleBackDataRead {
                 landBXList.add(Entry(xData, yBXData))
                 landBZList.add(Entry(xData, yBZData))
                 landList.add(Entry(yBXData, yBZData))
-                notifyChartData(lineChartBX, xData, yBXData)
-                notifyChartData(lineChartBZ, xData, yBZData)
+                notifyChartData(lineChartBX, xData, yBXData,punctationState)
+//                notifyChartData(lineChartBZ, xData, yBZData,punctationState)
                 notifyChartData1(lineChart, yBXData*chartScale, yBZData)
                 oldXData = xData
             } else if (xData < landBXList.last().x) {
@@ -318,12 +319,16 @@ object BleBackDataRead {
         }
     }
 
-    private fun createSet(): LineDataSet? {
+    private fun createSet(punctationState:String): LineDataSet? {
         val lineSet = LineDataSet(null, "DataSet 1")
         //不绘制数据
         lineSet.setDrawValues(false)
         //不绘制圆形指示器
-        lineSet.setDrawCircles(false)
+        if (punctationState=="add"){
+            lineSet.setDrawCircles(true)
+        }else if (punctationState==""){
+            lineSet.setDrawCircles(false)
+        }
         //线模式为圆滑曲线（默认折线）
         //lineDataSet.mode = LineDataSet.Mode.CUBIC_BEZIER
         lineSet.color = MyApplication.context.resources.getColor(R.color.theme_color)
@@ -353,17 +358,39 @@ object BleBackDataRead {
     /**
      * 更新数据
      */
-    private fun notifyChartData(lineChart: LineChart, xData: Float, yData: Float) {
+    private var oldPunctationState:String = ""
+    private fun notifyChartData(lineChart: LineChart, xData: Float, yData: Float, punctationState:String) {
         var data = lineChart.data
         if (data == null) {
             data = LineData()
             lineChart.setData(data)
         }
         var set = data.getDataSetByIndex(0)
-        if (set == null) {
-            set = createSet()
+//        LogUtil.e("TAG","$oldPunctationState------$punctationState")
+        if (punctationState==""){
+            if (oldPunctationState!=punctationState){
+                if (set == null) {
+                    set = createSet(punctationState)
+                    data.addDataSet(set)
+                }else{
+                    set.clear()
+                    set = createSet(punctationState)
+                    data.addDataSet(set)
+                }
+            }else{
+                if (set == null) {
+                    set = createSet(punctationState)
+                    data.addDataSet(set)
+                }
+            }
+        }else if (punctationState=="add"){
+            set = createSet(punctationState)
             data.addDataSet(set)
         }
+//        if (set == null) {
+//            set = createSet(punctationState)
+//            data.addDataSet(set)
+//        }
         val randomDataSetIndex = (Math.random() * data.dataSetCount).toInt()
         data.addEntry(Entry(xData, yData), randomDataSetIndex)
         data.notifyDataChanged()
@@ -379,6 +406,7 @@ object BleBackDataRead {
 //        }
 //        xAxis.valueFormatter = valueFormatter //设置自定义格式，在绘制之前动态调整x的值。
         //endregion
+        oldPunctationState = punctationState
         lineChart.notifyDataSetChanged()
         lineChart.invalidate()
     }
@@ -390,7 +418,7 @@ object BleBackDataRead {
         }
         var set = data.getDataSetByIndex(0)
         if (set == null) {
-            set = createSet()
+            set = createSet("")
             data.addDataSet(set)
         }
         val randomDataSetIndex = (Math.random() * data.dataSetCount).toInt()
